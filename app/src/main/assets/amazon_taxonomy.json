@@ -1,0 +1,59 @@
+{
+  "provider": "AMAZON",
+  "endpoints": [
+    {
+      "id": "aws_s3_cloudfront_001",
+      "hostname_pattern": "s3\\.amazonaws\\.com|cloudfront\\.net|amazonaws\\.com",
+      "display_name": "AWS S3 & CloudFront Content Delivery",
+      "category": "BACKUP_SYNC",
+      "description": "Cloud storage and content delivery network used by AWS-hosted apps and media services.",
+      "data_collected": [
+        "Requested file paths",
+        "IP address",
+        "User-Agent headers",
+        "Transfer timestamps"
+      ],
+      "opt_out_description": "Dependent on specific application usage and third-party app privacy settings."
+    },
+    {
+      "id": "alexa_voice_002",
+      "hostname_pattern": "avs-alexa\\.amazon\\.com|api\\.amazonalexa\\.com",
+      "display_name": "Alexa Voice Services",
+      "category": "VOICE_AUDIO",
+      "description": "Voice command processing and audio streaming endpoint for Alexa integration.",
+      "data_collected": [
+        "Audio recordings of voice queries",
+        "Device audio configurations",
+        "Geographic location",
+        "Interaction history"
+      ],
+      "opt_out_description": "Manage voice recordings and privacy settings in the Alexa app or Amazon account settings."
+    },
+    {
+      "id": "amazon_auth_003",
+      "hostname_pattern": "signin\\.amazon\\.com|api\\.amazon\\.com/auth|auth\\.amazon\\.com",
+      "display_name": "Amazon Authentication & Login",
+      "category": "AUTHENTICATION",
+      "description": "Customer login, credential verification, and OAuth token management.",
+      "data_collected": [
+        "Amazon account credentials",
+        "OAuth tokens",
+        "Login IP and device fingerprint"
+      ],
+      "opt_out_description": "Requires signing out of the Amazon account within the application."
+    },
+    {
+      "id": "amazon_metrics_004",
+      "hostname_pattern": "device-metrics\\.amazon\\.com|amazon-adsystem\\.com",
+      "display_name": "Amazon Device Metrics & Ads",
+      "category": "ADVERTISING_ID",
+      "description": "Telemetry collection, advertising ID synchronization, and usage analytics.",
+      "data_collected": [
+        "Advertising ID (Fire ID / AAID)",
+        "App session duration",
+        "Ad impression and click metrics"
+      ],
+      "opt_out_description": "Opt out of personalized ads in Amazon account advertising preferences or device settings."
+    }
+  ]
+}

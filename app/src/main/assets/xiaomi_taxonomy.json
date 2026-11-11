@@ -1,0 +1,44 @@
+{
+  "provider": "XIAOMI",
+  "endpoints": [
+    {
+      "id": "xiaomi_auth_sec_001",
+      "hostname_pattern": "authbe\\.sec\\.intl\\.miui\\.com|api\\.sec\\.intl\\.miui\\.com|flash\\.sec\\.intl\\.miui\\.com|account\\.xiaomi\\.com",
+      "display_name": "Xiaomi Security & Authentication Services",
+      "category": "AUTHENTICATION",
+      "description": "Device security, account verification, and system service authentication for MIUI/Xiaomi devices.",
+      "data_collected": [
+        "Device hardware identifiers",
+        "Xiaomi account credentials",
+        "Security status tokens"
+      ],
+      "opt_out_description": "Sign out of Xiaomi account in device settings."
+    },
+    {
+      "id": "xiaomi_sync_metrics_002",
+      "hostname_pattern": "gtglobal\\.intl\\.miui\\.com|api\\.competition\\.intl\\.miui\\.com|micloud\\.xiaomi\\.net",
+      "display_name": "Xiaomi MiCloud Sync & System Config",
+      "category": "BACKUP_SYNC",
+      "description": "MiCloud synchronization and system configuration/competition metrics for global MIUI devices.",
+      "data_collected": [
+        "Device configuration data",
+        "System usage metrics",
+        "Sync metadata"
+      ],
+      "opt_out_description": "Disable cloud backup and telemetry in MIUI settings."
+    },
+    {
+      "id": "xiaomi_ads_003",
+      "hostname_pattern": "api\\.ad\\.intl\\.xiaomi\\.com|pi\\.ias\\.xiaomi\\.com|adv\\.sec\\.intl\\.miui\\.com|tracking\\.miui\\.com|data\\.mistat\\.xiaomi\\.com",
+      "display_name": "Xiaomi Ad SDK, MiStat & Security Analytics",
+      "category": "ADVERTISING_ID",
+      "description": "Ad delivery, security ad services, MiStat telemetry, and profiling across Xiaomi system apps and partner applications.",
+      "data_collected": [
+        "Advertising ID (OAID)",
+        "App usage patterns",
+        "Ad interaction metrics"
+      ],
+      "opt_out_description": "Opt out of personalized ads in MIUI Settings -> Privacy -> Ad services."
+    }
+  ]
+}

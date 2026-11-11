@@ -1,0 +1,57 @@
+{
+  "provider": "NVIDIA",
+  "endpoints": [
+    {
+      "id": "gfn_cloud_001",
+      "hostname_pattern": "gfn\\.nvidia\\.com|cloudgaming\\.nvidia\\.com|events\\.gfn\\.nvidia\\.com",
+      "display_name": "GeForce NOW Cloud Gaming & Telemetry",
+      "category": "CONFIG_A_B_TESTING",
+      "description": "Cloud gaming session streaming, matchmaking infrastructure, and streaming event telemetry.",
+      "data_collected": [
+        "Game session metadata",
+        "Controller and input latency stats",
+        "Streaming resolution settings"
+      ],
+      "opt_out_description": "Sign out of GeForce NOW account."
+    },
+    {
+      "id": "nvidia_telemetry_002",
+      "hostname_pattern": "telemetry\\.nvidia\\.com|driverupdate\\.nvidia\\.com|ota\\.nvidia\\.com|events\\.nvidia\\.com",
+      "display_name": "NVIDIA Telemetry, OTA & Update Services",
+      "category": "UPDATE_CHECK",
+      "description": "Driver update checks, OTA firmware delivery, telemetry logging, and system diagnostics.",
+      "data_collected": [
+        "GPU hardware model and driver version",
+        "Crash and error logs",
+        "System usage metrics"
+      ],
+      "opt_out_description": "Disable telemetry in NVIDIA application or driver settings."
+    },
+    {
+      "id": "nvidia_auth_003",
+      "hostname_pattern": "sso\\.nvidia\\.com|login\\.nvidia\\.com",
+      "display_name": "NVIDIA Account Authentication",
+      "category": "AUTHENTICATION",
+      "description": "Single sign-on and account credential verification.",
+      "data_collected": [
+        "NVIDIA account credentials",
+        "OAuth tokens",
+        "Login IP address"
+      ],
+      "opt_out_description": "Sign out of NVIDIA account."
+    },
+    {
+      "id": "nvidia_dev_004",
+      "hostname_pattern": "developer\\.nvidia\\.com|api\\.nvidia\\.com|build\\.nvidia\\.com|ngc\\.nvidia\\.com",
+      "display_name": "NVIDIA Developer Network, NGC & AI APIs",
+      "category": "SEARCH_USAGE",
+      "description": "Developer documentation, NGC container registry, AI model building, and API access.",
+      "data_collected": [
+        "Developer profile info",
+        "API requests",
+        "SDK download logs"
+      ],
+      "opt_out_description": "Sign out of NVIDIA Developer portal."
+    }
+  ]
+}

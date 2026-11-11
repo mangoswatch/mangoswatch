@@ -1,0 +1,275 @@
+{
+  "provider": "GOOGLE",
+  "endpoints": [
+    {
+      "id": "clearcut_batch_001",
+      "hostname_pattern": "play\\.googleapis\\.com/log/batch|play\\.googleapis\\.com|feedback-pa\\.googleapis\\.com",
+      "display_name": "Clearcut Logger & Feedback Telemetry",
+      "category": "CLEARCUT_TELEMETRY",
+      "description": "Main batch telemetry logger and user feedback reporting. Receives data from Play Services and apps.",
+      "data_collected": [
+        "App usage frequency",
+        "Partial crash reports",
+        "Feature interaction timing",
+        "Performance metrics",
+        "Feedback reports"
+      ],
+      "opt_out_description": "Disabling 'Usage & diagnostics' in Android settings reduces but does not completely eliminate logging."
+    },
+    {
+      "id": "checkin_002",
+      "hostname_pattern": "android\\.clients\\.google\\.com/checkin|clients\\.google\\.com|device-provisioning\\.googleapis\\.com",
+      "display_name": "Device Check-in & Provisioning",
+      "category": "DEVICE_FINGERPRINT",
+      "description": "Periodic device check-in and enterprise provisioning to Google servers including hardware identifiers.",
+      "data_collected": [
+        "IMEI",
+        "Hardware serial number",
+        "SIM serial number (ICCID)",
+        "Android ID",
+        "Google Account ID",
+        "Device model and manufacturer"
+      ],
+      "opt_out_description": "No opt-out available. Integral part of Google Mobile Services (GMS)."
+    },
+    {
+      "id": "fcm_push_003",
+      "hostname_pattern": "mtalk\\.google\\.com|notifications-pa\\.googleapis\\.com|fcm\\.googleapis\\.com|fcmregistrations\\.googleapis\\.com",
+      "display_name": "Firebase Cloud Messaging & Notifications API",
+      "category": "NOTIFICATION_PUSH",
+      "description": "Persistent connection channel for push notifications, message sync, and push service APIs.",
+      "data_collected": [
+        "Device connectivity status",
+        "Active app package tokens",
+        "Keep-alive heartbeat timing"
+      ],
+      "opt_out_description": "Can be disabled by uninstalling apps using FCM or disabling Play Services (breaks push notifications)."
+    },
+    {
+      "id": "adservice_004",
+      "hostname_pattern": "adservice\\.google\\.com|adservice\\.google\\.it|adservice\\.google\\.[a-z]+",
+      "display_name": "Google Advertising ID Service",
+      "category": "ADVERTISING_ID",
+      "description": "Google Advertising ID (GAID) retrieval and synchronization service for profiling.",
+      "data_collected": [
+        "Google Advertising ID (GAID)",
+        "Ad personalization preferences",
+        "Cross-app usage tracking markers"
+      ],
+      "opt_out_description": "Reset or opt out of GAID in device Settings -> Google -> Ads."
+    },
+    {
+      "id": "auth_005",
+      "hostname_pattern": "accounts\\.google\\.com|clientauthconfig\\.googleapis\\.com|oauth2\\.googleapis\\.com",
+      "display_name": "Google Authentication, OAuth & Client Auth",
+      "category": "AUTHENTICATION",
+      "description": "Login endpoint, client authorization configuration, credential verification, and OAuth token refresh.",
+      "data_collected": [
+        "Google Account credentials",
+        "OAuth tokens",
+        "Client auth config parameters",
+        "IP address and login geolocation"
+      ],
+      "opt_out_description": "Requires removing the Google account from the device."
+    },
+    {
+      "id": "google_fonts_006",
+      "hostname_pattern": "fonts\\.googleapis\\.com|fonts\\.gstatic\\.com|www\\.gstatic\\.com|encrypted-tbn0\\.gstatic\\.com|ci[3-6]\\.googleusercontent\\.com",
+      "display_name": "Google Fonts, Static CDN & Thumbnails",
+      "category": "CONFIG_A_B_TESTING",
+      "description": "Font delivery, image thumbnails, styling resources, and static content CDN for web pages and mobile apps.",
+      "data_collected": [
+        "Requested resource names",
+        "IP address",
+        "User-Agent"
+      ],
+      "opt_out_description": "Controlled via app or web rendering implementation."
+    },
+    {
+      "id": "connectivity_check_007",
+      "hostname_pattern": "connectivitycheck\\.gstatic\\.com",
+      "display_name": "Android Connectivity Check",
+      "category": "UPDATE_CHECK",
+      "description": "Probe service used by Android OS to verify active internet connectivity behind captive portals.",
+      "data_collected": [
+        "Device connection status",
+        "IP address",
+        "Network latency metrics"
+      ],
+      "opt_out_description": "Integral part of Android OS network state monitoring."
+    },
+    {
+      "id": "app_measurement_008",
+      "hostname_pattern": "app-measurement\\.com|region1\\.app-measurement\\.com|firebase-settings\\.crashlytics\\.com|region1\\.google-analytics\\.com|firebaselogging(-pa)?\\.googleapis\\.com|firebaselogging\\.googleapis\\.com|google-analytics\\.com|analytics\\.google\\.com",
+      "display_name": "Google Analytics, Crashlytics & Firebase Logging",
+      "category": "FIREBASE_ANALYTICS",
+      "description": "Event logging, crash reporting settings, Firebase logging, and analytics reporting for Firebase and Google Analytics.",
+      "data_collected": [
+        "App lifecycle events",
+        "Crash reports and settings",
+        "Firebase logs and telemetry",
+        "User interaction metrics",
+        "Instance IDs",
+        "Advertising ID"
+      ],
+      "opt_out_description": "Opt out via Firebase/Google Analytics analytics collection flags in app or device settings."
+    },
+    {
+      "id": "play_services_apis_009",
+      "hostname_pattern": "play-fe\\.googleapis\\.com|play-lh\\.googleusercontent\\.com|prod-lt-playstoregatewayadapter-pa\\.googleapis\\.com|workspacevideo-pa\\.googleapis\\.com|infinitedata-pa\\.googleapis\\.com|android\\.apis\\.google\\.com|firebaseinstallations\\.googleapis\\.com|fundingchoicesmessages\\.google\\.com|lh[3-6]\\.googleusercontent\\.com|yt3\\.ggpht\\.com|pubsub\\.googleapis\\.com|digitalassetlinks\\.googleapis\\.com|android\\.googleapis\\.com|www\\.googleapis\\.com|subscriptionsmanagement-pa\\.googleapis\\.com|subscriptionsfirstparty-pa\\.googleapis\\.com|appsgrowthpromo-pa\\.googleapis\\.com|clientservices\\.googleapis\\.com",
+      "display_name": "Google Play Services & Core APIs",
+      "category": "PLAY_STORE_COMMUNICATION",
+      "description": "Core Google Play Store frontend, client services, subscriptions, promos, Android APIs, content distribution, API gateways, Pub/Sub, and asset linking services.",
+      "data_collected": [
+        "App metadata and binary requests",
+        "Device configuration and package lists",
+        "Installation state tokens"
+      ],
+      "opt_out_description": "Integral part of Google Play Services."
+    },
+    {
+      "id": "google_ads_doubleclick_010",
+      "hostname_pattern": "googleads\\.g\\.doubleclick\\.net|pagead2\\.googlesyndication\\.com|www\\.googletagservices\\.com|pagead2\\.googleadservices\\.com|s0\\.2mdn\\.net|s1\\.2mdn\\.net|static\\.doubleclick\\.net|tpc\\.googlesyndication\\.com|securepubads\\.g\\.doubleclick\\.net|imasdk\\.googleapis\\.com|safeframe\\.googlesyndication\\.com|ep[12]\\.adtrafficquality\\.google|googlesyndication\\.com|googleadservices\\.com|stats\\.g\\.doubleclick\\.net",
+      "display_name": "Google Ads, DoubleClick, IMA SDK & Ad Traffic Quality",
+      "category": "ADVERTISING_ID",
+      "description": "Ad delivery, video IMA SDK, ad auction bidding, tag services, TPC syndication, safeframe containers, ad traffic verification, and conversion tracking network.",
+      "data_collected": [
+        "Advertising ID (GAID)",
+        "Ad impression and click telemetry",
+        "Browsing and app context"
+      ],
+      "opt_out_description": "Opt out of personalized advertising in device Settings -> Google -> Ads."
+    },
+    {
+      "id": "taskassist_011",
+      "hostname_pattern": "taskassist-pa\\.googleapis\\.com|appsgenaiserver-pa\\.googleapis\\.com|readaloud\\.googleapis\\.com",
+      "display_name": "Google Assistant, GenAI, ReadAloud & Task Assist API",
+      "category": "VOICE_AUDIO",
+      "description": "Assistant API endpoints, GenAI servers for on-device/cloud intelligence, ReadAloud TTS, voice queries, and task automation.",
+      "data_collected": [
+        "Voice and query text commands",
+        "GenAI prompt interactions",
+        "Text-to-speech audio requests",
+        "Device context",
+        "User interaction timestamps"
+      ],
+      "opt_out_description": "Manage Assistant settings in Google Account -> Assistant."
+    },
+    {
+      "id": "gmail_inbox_012",
+      "hostname_pattern": "mail\\.google\\.com|inbox\\.google\\.com|tasks-pa\\.googleapis\\.com|calendarsync-pa\\.googleapis\\.com|drivefrontend-pa\\.googleapis\\.com|peoplestack-pa\\.googleapis\\.com|drive\\.google\\.com|docs\\.google\\.com",
+      "display_name": "Google Workspace Sync (Gmail, Drive, Docs, Calendar, Contacts, Tasks)",
+      "category": "BACKUP_SYNC",
+      "description": "Cloud synchronization for Google Workspace apps (Drive, Gmail, Docs, Calendar, Contacts, Tasks).",
+      "data_collected": [
+        "Files, emails, calendar events, contacts, and tasks",
+        "User account identifiers",
+        "Sync state and metadata"
+      ],
+      "opt_out_description": "Sign out of Google account or disable sync in device Settings."
+    },
+    {
+      "id": "google_search_013",
+      "hostname_pattern": "www\\.google\\.com|footprints-pa\\.googleapis\\.com|google\\.com|translate\\.googleapis\\.com",
+      "display_name": "Google Web Search, Translate & Activity",
+      "category": "SEARCH_USAGE",
+      "description": "Core Google web search engine, translation API, indexing, query suggestions, and web & app activity (Footprints).",
+      "data_collected": [
+        "Search and translation queries",
+        "Web and app activity data",
+        "IP address and location"
+      ],
+      "opt_out_description": "Manage search activity in Google My Activity settings."
+    },
+    {
+      "id": "optimization_guide_014",
+      "hostname_pattern": "optimizationguide-pa\\.googleapis\\.com",
+      "display_name": "Google Optimization Guide Service",
+      "category": "CONFIG_A_B_TESTING",
+      "description": "Service providing performance optimization hints, model weights, and feature configs for apps.",
+      "data_collected": [
+        "Device model and OS capabilities",
+        "App performance metrics",
+        "Configuration request parameters"
+      ],
+      "opt_out_description": "Integral part of Android system performance optimization."
+    },
+    {
+      "id": "clients4_015",
+      "hostname_pattern": "clients[1-6]\\.google\\.com|lamssettings-pa\\.googleapis\\.com|content-autofill\\.googleapis\\.com",
+      "display_name": "Google Play Services Client Sync, LAMS & Autofill",
+      "category": "DEVICE_FINGERPRINT",
+      "description": "Client synchronization, check-in, marketing settings, autofill services, and service provisioning endpoint for Google Mobile Services.",
+      "data_collected": [
+        "Device configuration",
+        "Account sync status",
+        "Hardware identifiers"
+      ],
+      "opt_out_description": "Integral part of GMS synchronization."
+    },
+    {
+      "id": "contacts_people_016",
+      "hostname_pattern": "contactsui-pa\\.googleapis\\.com|people-pa\\.googleapis\\.com",
+      "display_name": "Google Contacts & People API Sync",
+      "category": "BACKUP_SYNC",
+      "description": "Cloud synchronization and retrieval for user contacts and social graph data.",
+      "data_collected": [
+        "Contact names, phone numbers, and emails",
+        "Sync timestamps",
+        "Account identifiers"
+      ],
+      "opt_out_description": "Disable Google Contacts sync in device Settings -> Accounts."
+    },
+    {
+      "id": "photos_data_017",
+      "hostname_pattern": "photosdata-pa\\.googleapis\\.com",
+      "display_name": "Google Photos Data Sync",
+      "category": "BACKUP_SYNC",
+      "description": "Cloud backup and synchronization service for photos and videos.",
+      "data_collected": [
+        "Media metadata",
+        "Photo and video uploads",
+        "Account identifiers"
+      ],
+      "opt_out_description": "Disable backup in Google Photos app settings."
+    },
+    {
+      "id": "gvt1_cdn_018",
+      "hostname_pattern": "redirector\\.gvt1(-cn)?\\.com|update\\.googleapis\\.com|dl\\.google\\.com",
+      "display_name": "Google Video, Update CDN & OTA Services",
+      "category": "UPDATE_CHECK",
+      "description": "Content delivery network for app updates, software updates, APK delivery, and media streaming redirection.",
+      "data_collected": [
+        "Package download requests",
+        "IP address and region",
+        "Client capabilities"
+      ],
+      "opt_out_description": "Integral part of Google Play update delivery."
+    },
+    {
+      "id": "google_infrastructure_ips_019",
+      "hostname_pattern": "192\\.178\\.\\d+\\.\\d+|172\\.217\\.\\d+\\.\\d+|142\\.251\\.\\d+\\.\\d+",
+      "display_name": "Google Core Infrastructure & CDN IPs",
+      "category": "DEVICE_FINGERPRINT",
+      "description": "Core Google network infrastructure IP blocks routing web, API, and content traffic.",
+      "data_collected": [
+        "IP connection routing data",
+        "Traffic volume metrics"
+      ],
+      "opt_out_description": "Integral part of Google network connectivity."
+    },
+    {
+      "id": "user_location_020",
+      "hostname_pattern": "userlocation\\.googleapis\\.com|mobilemaps\\.googleapis\\.com|maps\\.googleapis\\.com|location\\.googleapis\\.com",
+      "display_name": "Google Location & Mobile Maps Services API",
+      "category": "LOCATION_SERVICES",
+      "description": "Location reporting, Google Maps API, and geolocation estimation for Google Mobile Services.",
+      "data_collected": [
+        "GPS coordinates and cell tower info",
+        "Wi-Fi access point identifiers",
+        "Device location history"
+      ],
+      "opt_out_description": "Disable location services in device Settings -> Location."
+    }
+  ]
+}

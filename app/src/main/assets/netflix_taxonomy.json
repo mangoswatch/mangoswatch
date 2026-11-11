@@ -1,0 +1,57 @@
+{
+  "provider": "NETFLIX",
+  "endpoints": [
+    {
+      "id": "netflix_api_001",
+      "hostname_pattern": "android\\.prod\\.ftl\\.netflix\\.com|api\\.netflix\\.com|customerevents\\.netflix\\.com",
+      "display_name": "Netflix API, Customer Events & Config",
+      "category": "CONFIG_A_B_TESTING",
+      "description": "App initialization, customer event telemetry, configuration fetching, and content catalog metadata retrieval.",
+      "data_collected": [
+        "App version and device capabilities",
+        "User profile identifiers",
+        "A/B test bucket assignments"
+      ],
+      "opt_out_description": "Requires signing out or uninstalling the Netflix application."
+    },
+    {
+      "id": "netflix_telemetry_002",
+      "hostname_pattern": "ichnaea\\.netflix\\.com|nrdp\\.netflix\\.com|logs\\.netflix\\.com",
+      "display_name": "Netflix Telemetry & Quality Logs",
+      "category": "CLEARCUT_TELEMETRY",
+      "description": "Playback quality metrics, error logging, NRDP logs, and performance telemetry.",
+      "data_collected": [
+        "Buffering events and bitrates",
+        "Playback errors",
+        "Device performance metrics"
+      ],
+      "opt_out_description": "Adjust viewing telemetry settings in Netflix account privacy preferences."
+    },
+    {
+      "id": "netflix_streaming_003",
+      "hostname_pattern": "nflxvideo\\.net|nflximg\\.net|nflxso\\.net|nflxext\\.com",
+      "display_name": "Netflix Video & Image Delivery CDN",
+      "category": "UPDATE_CHECK",
+      "description": "Content delivery network for streaming video media, artwork assets, and client extensions.",
+      "data_collected": [
+        "Video chunk request URLs",
+        "IP address",
+        "Bandwidth measurements"
+      ],
+      "opt_out_description": "Integral part of Netflix streaming service."
+    },
+    {
+      "id": "netflix_auth_004",
+      "hostname_pattern": "secure\\.netflix\\.com|netflix\\.com/login|auth\\.netflix\\.com",
+      "display_name": "Netflix Authentication & Member Services",
+      "category": "AUTHENTICATION",
+      "description": "Customer login, subscription verification, and session management.",
+      "data_collected": [
+        "Account credentials",
+        "Session cookies",
+        "Login IP address"
+      ],
+      "opt_out_description": "Sign out of account in app settings."
+    }
+  ]
+}
