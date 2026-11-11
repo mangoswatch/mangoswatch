@@ -1,0 +1,59 @@
+{
+  "provider": "OPENAI",
+  "endpoints": [
+    {
+      "id": "openai_api_001",
+      "hostname_pattern": "api\\.openai\\.com",
+      "display_name": "OpenAI API & Model Completions",
+      "category": "SEARCH_USAGE",
+      "description": "Core API endpoint for GPT model inference, embeddings, and completions.",
+      "data_collected": [
+        "Prompt text and completions",
+        "API authentication keys",
+        "Token usage counts",
+        "Request timestamps"
+      ],
+      "opt_out_description": "Data privacy is governed by OpenAI API data usage policies (API data is not used to train models by default)."
+    },
+    {
+      "id": "chatgpt_backend_002",
+      "hostname_pattern": "chatgpt\\.com|chat\\.openai\\.com|oaistatic\\.com|oaiusercontent\\.com",
+      "display_name": "ChatGPT Web, App Backend & Static Assets",
+      "category": "SEARCH_USAGE",
+      "description": "Backend services and static asset CDN supporting ChatGPT mobile apps and web interface conversations.",
+      "data_collected": [
+        "Chat conversation history",
+        "User profile data",
+        "Voice input data (if used)",
+        "IP address and device info"
+      ],
+      "opt_out_description": "Turn off chat history and model training in ChatGPT settings -> Data Controls."
+    },
+    {
+      "id": "openai_telemetry_003",
+      "hostname_pattern": "stats\\.openai\\.com|events\\.openai\\.com|telemetry\\.openai\\.com",
+      "display_name": "OpenAI Telemetry & Analytics",
+      "category": "CLEARCUT_TELEMETRY",
+      "description": "App performance monitoring, crash reporting, and usage analytics.",
+      "data_collected": [
+        "Crash reports",
+        "Performance and latency metrics",
+        "UI interaction events"
+      ],
+      "opt_out_description": "Managed via app privacy settings and telemetry controls."
+    },
+    {
+      "id": "openai_auth_004",
+      "hostname_pattern": "auth\\.openai\\.com|auth0\\.openai\\.com",
+      "display_name": "OpenAI Authentication & Login",
+      "category": "AUTHENTICATION",
+      "description": "User login, session management, and OAuth verification.",
+      "data_collected": [
+        "Account credentials",
+        "Session tokens",
+        "Login IP address"
+      ],
+      "opt_out_description": "Sign out of ChatGPT / OpenAI account."
+    }
+  ]
+}

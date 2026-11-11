@@ -1,0 +1,59 @@
+{
+  "provider": "X_TWITTER",
+  "endpoints": [
+    {
+      "id": "x_api_auth_001",
+      "hostname_pattern": "api\\.twitter\\.com|api\\.x\\.com|twitter\\.com|x\\.com",
+      "display_name": "X / Twitter Core API & Authentication",
+      "category": "AUTHENTICATION",
+      "description": "Core REST/GraphQL API gateway, user timeline sync, tweet posting, and OAuth authentication for X (Twitter).",
+      "data_collected": [
+        "User account credentials and OAuth tokens",
+        "Timeline and interaction queries",
+        "IP address and device fingerprint",
+        "Location metadata"
+      ],
+      "opt_out_description": "Requires signing out or deauthorizing the application in X account settings."
+    },
+    {
+      "id": "x_media_cdn_002",
+      "hostname_pattern": "twimg\\.com|pbs\\.twimg\\.com|abs\\.twimg\\.com|video\\.twimg\\.com",
+      "display_name": "X / Twitter Media & Static CDN",
+      "category": "CONFIG_A_B_TESTING",
+      "description": "Content delivery network for image assets, profile pictures, video clips, and web client static bundles.",
+      "data_collected": [
+        "Media asset URLs",
+        "IP address",
+        "User-Agent headers"
+      ],
+      "opt_out_description": "Integral part of media rendering in X clients."
+    },
+    {
+      "id": "x_ads_analytics_003",
+      "hostname_pattern": "analytics\\.twitter\\.com|ads-api\\.twitter\\.com|telemetry\\.twitter\\.com|t\\.co",
+      "display_name": "X / Twitter Ads, Link Tracking & Telemetry",
+      "category": "ADVERTISING_ID",
+      "description": "Ad impression tracking, conversion measurement, link shortening/redirect telemetry, and app analytics.",
+      "data_collected": [
+        "Advertising ID (GAID/IDFA)",
+        "Link click tracking metrics",
+        "Ad view engagement data",
+        "App session telemetry"
+      ],
+      "opt_out_description": "Opt out of personalized advertising and link tracking in X Settings -> Privacy -> Data sharing."
+    },
+    {
+      "id": "starlink_spacex_004",
+      "hostname_pattern": "starlink\\.com|api\\.starlink\\.com|spacex\\.com|api\\.spacex\\.com",
+      "display_name": "Starlink & SpaceX Services",
+      "category": "UPDATE_CHECK",
+      "description": "Starlink satellite internet telemetry, dish management API, and SpaceX web infrastructure.",
+      "data_collected": [
+        "Starlink terminal telemetry and performance",
+        "Location coordinates",
+        "Account credentials"
+      ],
+      "opt_out_description": "Managed via Starlink account and dish settings."
+    }
+  ]
+}
