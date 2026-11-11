@@ -1,6 +1,7 @@
 package org.mangoswatch.domain.parser.ip
 
 import android.content.Context
+import org.mangoswatch.data.util.AssetManager
 import org.mangoswatch.domain.model.IpOwner
 import java.net.InetAddress
 
@@ -19,38 +20,14 @@ class IpRanges private constructor(
             ipOwner: IpOwner
         ): IpRanges {
 
-            val assetV4 = when (ipOwner) {
-                IpOwner.AMAZON      -> "amazon_ipv4.txt"
-                IpOwner.ANTHROPIC   -> "anthropic_ipv4.txt"
-                IpOwner.APPLE       -> "apple_ipv4.txt"
-                IpOwner.GOOGLE      -> "google_ipv4.txt"
-                IpOwner.META        -> "meta_ipv4.txt"
-                IpOwner.MICROSOFT   -> "microsoft_ipv4.txt"
-                IpOwner.NETFLIX     -> "netflix_ipv4.txt"
-                IpOwner.NVIDIA      -> "nvidia_ipv4.txt"
-                IpOwner.OPENAI      -> "openai_ipv4.txt"
-                IpOwner.RESERVED    -> "reserved_ipv4.txt"
-                else -> ""
-            }
-            val assetV6 = when (ipOwner) {
-                IpOwner.AMAZON      -> "amazon_ipv6.txt"
-                IpOwner.ANTHROPIC   -> "anthropic_ipv6.txt"
-                IpOwner.APPLE       -> "apple_ipv6.txt"
-                IpOwner.GOOGLE      -> "google_ipv6.txt"
-                IpOwner.META        -> "meta_ipv6.txt"
-                IpOwner.MICROSOFT   -> "microsoft_ipv6.txt"
-                IpOwner.NETFLIX     -> "netflix_ipv6.txt"
-                IpOwner.NVIDIA      -> "nvidia_ipv6.txt"
-                IpOwner.OPENAI      -> "openai_ipv6.txt"
-                IpOwner.RESERVED    -> "reserved_ipv6.txt"
-                else -> ""
-            }
-            val (starts, ends) = loadV4(context, assetV4)
+            val assetV4 = AssetManager.getIpV4FileName(ipOwner)
+            val assetV6 = AssetManager.getIpV6FileName(ipOwner)
+            val (v4starts, v6ends) = loadV4(context, assetV4)
             val (v6Starts, v6Ends) = loadV6(context, assetV6)
 
             return IpRanges(
-                v4Starts = starts,
-                v4Ends = ends,
+                v4Starts = v4starts,
+                v4Ends = v6ends,
                 v6Starts = v6Starts,
                 v6Ends = v6Ends
             )
@@ -60,7 +37,7 @@ class IpRanges private constructor(
         private fun loadV4(context: Context, asset: String): Pair<LongArray, LongArray> {
             val ranges = ArrayList<LongArray>()
             try {
-                context.assets.open(asset).bufferedReader().useLines { lines ->
+                AssetManager.getAsset(context, asset).bufferedReader().useLines { lines ->
                     for (line in lines) {
                         val s = line.trim()
                         if (s.isEmpty() || s.startsWith("#")) continue
@@ -91,7 +68,7 @@ class IpRanges private constructor(
         private fun loadV6(context: Context, asset: String): Pair<LongArray, LongArray> {
             val ranges = ArrayList<LongArray>() // [startHi, startLo, endHi, endLo]
             try {
-                context.assets.open(asset).bufferedReader().useLines { lines ->
+                AssetManager.getAsset(context, asset).bufferedReader().useLines { lines ->
                     for (line in lines) {
                         val s = line.trim()
                         if (s.isEmpty() || s.startsWith("#")) continue

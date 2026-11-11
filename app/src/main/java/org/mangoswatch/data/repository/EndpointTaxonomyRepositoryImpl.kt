@@ -5,10 +5,13 @@ import android.util.Log
 import org.mangoswatch.domain.model.EndpointTaxonomyCategory
 import org.mangoswatch.domain.model.EndpointTaxonomy
 import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
+import org.mangoswatch.data.util.AssetManager
 import org.json.JSONObject
 import java.util.regex.Pattern
 
-class EndpointTaxonomyRepositoryImpl(private val context: Context) : EndpointTaxonomyRepository {
+class EndpointTaxonomyRepositoryImpl(
+    private val context: Context
+) : EndpointTaxonomyRepository {
 
     private val items = mutableListOf<EndpointTaxonomy>()
     private val compiledPatterns = mutableMapOf<EndpointTaxonomy, Pattern>()
@@ -18,26 +21,10 @@ class EndpointTaxonomyRepositoryImpl(private val context: Context) : EndpointTax
     }
 
     private fun loadTaxonomy() {
-        val taxonomyFiles = listOf(
-            "google_taxonomy.json",
-            "amazon_taxonomy.json",
-            "anthropic_taxonomy.json",
-            "apple_taxonomy.json",
-            "appsflyer_taxonomy.json",
-            "meta_taxonomy.json",
-            "microsoft_taxonomy.json",
-            "netflix_taxonomy.json",
-            "nvidia_taxonomy.json",
-            "openai_taxonomy.json",
-            "x_twitter_taxonomy.json",
-            "xiaomi_taxonomy.json"
-        )
-
-        for (fileName in taxonomyFiles) {
+        for (fileName in AssetManager.getTaxonomyFiles(context)) {
             try {
-                val assetManager = context.assets
-                val inputStream = assetManager.open(fileName)
-                val jsonString = inputStream.bufferedReader().use { it.readText() }
+                val assetStream = AssetManager.getAsset(context, fileName)
+                val jsonString = assetStream.bufferedReader().use { it.readText() }
                 val root = JSONObject(jsonString)
                 val provider = root.optString("provider", "UNKNOWN")
                 val endpointsArray = root.getJSONArray("endpoints")
