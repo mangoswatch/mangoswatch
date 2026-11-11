@@ -52,21 +52,25 @@ The analyzer, placed between the VPN and the proxy, parses the destination endpo
 ## A word on AI usage
 
 The development of this app relied to some extent on LLMs, especially for editing the asset files (compiling such an extensive list of endpoints would have taken me MONTHS, not to mention classifying them).
+
 While it may seem counterintuitive, the stance of the project on the current split between antis and pros sits kinda in the middle: the technology is here and it most likely won't disappear. And it's useful, sometimes.
+
 I nonetheless feel that its concentration in the hands of a few players is a perfect example of the crooked state of late-stage capitalism that technology embodies nowadays. This last assertion should be the center of the discussion.
 
 ## Contributing
 
 All contributions are welcome. See [CONTRIBUTING.md] for reference.
+
 While we encourage the old way of writing your fucking code by hand, we understand that a certain level of assistance is tolerable.
 Please keep your PR small and specific: a flood of AI slop that changes 3/4 of the app won't even be considered.
 
 ## Acknoledgements
 
-hev-socks5-tunnel [https://github.com/heiher/hev-socks5-tunnel]
-PCAPdroid for the inspiration [https://github.com/emanuele-f/PCAPdroid]
+- hev-socks5-tunnel [https://github.com/heiher/hev-socks5-tunnel]
+- PCAPdroid for the inspiration [https://github.com/emanuele-f/PCAPdroid]
 
 ## License
 
 Mangos Watch is free software, released under the [GNU General Public License v3.0](LICENSE).
+
 You are free to use, study, modify and share it, as long as derivative works stay free too.
