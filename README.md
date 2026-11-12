@@ -112,6 +112,28 @@ I nonetheless feel that its concentration in the hands of a few players is a per
 
 
 
+## Technical Transparency & Known Limitations
+
+To ensure full transparency regarding security, privacy, and architecture, the following design decisions and limitations should be noted:
+
+### 1. Native Tunnel Library (`hev-socks5-tunnel.aar`)
+- **Source**: [hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel).
+- **Binary Provenance & SHA256**:
+   - File: `app/libs/hev-socks5-tunnel.aar`
+   - SHA256: `ab6c581e6157680cfe5687ee7bbdcf95405c006c2db3701879ec44b9e5f83836`
+
+### 2. Hardcoded DNS Routing
+- The local VPN service routes DNS requests through reliable public resolvers (Cloudflare `1.1.1.1`, `1.0.0.1`, and IPv6 `2606:4700:4700::1111`, `2606:4700:4700::1001`) to ensure consistent domain name resolution and interception.
+
+### 3. Remote Asset Synchronization
+- Mangos Watch periodically fetches classification assets and IP ranges from GitHub Pages (`https://mangoswatch.github.io/mangoswatch/data/index.json`).
+- **Security Note**: These files contain JSON taxonomy definitions and plain-text IP ranges used solely for offline classification.
+
+### 4. `QUERY_ALL_PACKAGES` Permission
+- **Usage**: Required to query installed application packages on the device, enabling attribution of network connections and streams to specific apps.
+
+
+
 ## Contributing
 
 All contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for reference.

@@ -28,8 +28,6 @@ jobs:
           pip install requests
 
       - name: Run asset generator script
-        env:
-          MS_TAGS_URL: ${{ secrets.MS_TAGS_URL }}
         run: |
           python scripts/bigtech_ranges.py
 
