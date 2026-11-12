@@ -11,7 +11,7 @@ Mangos Watch is a FOSS tool for Android, aimed at raising awareness about privac
 It monitors the device's network traffic and shows which endpoints owned by Big Tech are contacted by the apps and services on the phone, whether those connections are legitimate and acknowledged or not.
 In addition, it classifies these "calls home" against a curated taxonomy, providing privacy-related insights about the host that is reached.
 
----
+
 
 ## Why the Mango?
 
@@ -33,7 +33,7 @@ Here's the up-to-date list of the big boys we watch at the moment:
 - XIAOMI
 - X_TWITTER
 
----
+
 
 ## A Word on the Data Monitored
 
@@ -48,7 +48,7 @@ The problem arises when data collection relies on fine-print ToS that users mere
 On this note, the app doesn't show or even read the encrypted data that is sent or received. The endpoint classification is based on the known function of company endpoints that are publicly documented.
 For a reliable classification we don't need more than that: an app calling the Firebase logging endpoint is most surely sending usage statistics, just as a game app talking to a known data broker endpoint most surely collects juicy stuff about the user.
 
----
+
 
 ## How It Works & Architecture
 
@@ -60,7 +60,7 @@ Mangos Watch implements a local VPN service (`VpnTrafficManager`) on the phone t
 4. **Handshake & Protocol Parsing**: Inspects TLS (`TlsParser`) and QUIC (`QuicParser`) handshakes along with DNS queries.
 5. **Taxonomy & IP Resolution**: Matches destination IPs and endpoints against curated asset lists (`IpRanges`, taxonomy repositories) to identify the owner and purpose.
 
----
+
 
 ## Tech Stack
 
@@ -70,7 +70,7 @@ Mangos Watch implements a local VPN service (`VpnTrafficManager`) on the phone t
 - **Native Tunnel**: `hev-socks5-tunnel` AAR library
 - **Platform**: Android (Min SDK 29, Target SDK 37)
 
----
+
 
 ## Getting Started & Building from Source
 
@@ -84,7 +84,7 @@ To build and run Mangos Watch from source:
 3. Ensure you have JDK 11+ configured.
 4. Build and run the `:app` module on a physical device or emulator (API 29+).
 
----
+
 
 ## A Word on AI Usage
 
@@ -94,7 +94,7 @@ While it may seem counterintuitive, the stance of the project on the current spl
 
 I nonetheless feel that its concentration in the hands of a few players is a perfect example of the crooked state of late-stage capitalism that technology embodies nowadays. This last assertion should be the center of the discussion.
 
----
+
 
 ## Contributing
 
@@ -105,14 +105,14 @@ Please keep your PR small and specific: a flood of AI slop that changes 3/4 of t
 
 > **Note on Assets**: If you notice any inaccuracies, missing endpoints, or misclassifications, corrections and pull requests are warmly welcomed!
 
----
+
 
 ## Acknowledgements
 
 - hev-socks5-tunnel: [https://github.com/heiher/hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel)
 - PCAPdroid for the inspiration: [https://github.com/emanuele-f/PCAPdroid](https://github.com/emanuele-f/PCAPdroid)
 
----
+
 
 ## License
 
