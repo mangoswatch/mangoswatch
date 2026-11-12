@@ -13,6 +13,7 @@ import org.mangoswatch.domain.repository.StreamsRepository
 import org.mangoswatch.data.resolver.AppInfoResolver
 import org.mangoswatch.presentation.contracts.MainScreenEvent
 import org.mangoswatch.presentation.contracts.MainScreenState
+import org.mangoswatch.presentation.contracts.VpnAction
 import org.mangoswatch.data.vpn.VpnState
 import org.mangoswatch.domain.model.StreamProtocol
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +50,8 @@ class MainScreenViewModel(
         when (event) {
             MainScreenEvent.OnBack -> onBack()
             is MainScreenEvent.OnAppClick -> onAppClick(event.appUid)
+            MainScreenEvent.OnStartVpnClick -> _state.update { it.copy(vpnAction = VpnAction.START) }
+            MainScreenEvent.OnStopVpnClick -> _state.update { it.copy(vpnAction = VpnAction.STOP) }
         }
     }
 
@@ -145,12 +148,12 @@ data class AppTrafficUi(
 
 @Immutable
 data class HostTrafficUi(
-    val host: String,          // SNI/DNS, altrimenti l'IP di destinazione
+    val host: String,          // SNI/DNS/IP
     val ipOwner: IpOwner,
     val bytesUp: Long,
     val bytesDown: Long,
     val streamCount: Int,
-    val protocols: List<StreamProtocol>,   // il più pesante per primo
+    val protocols: List<StreamProtocol>,
     val taxonomyItem: EndpointTaxonomy? = null
 ) {
     val totalBytes: Long get() = bytesUp + bytesDown
