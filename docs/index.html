@@ -3,58 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MangosWatch Documentation</title>
+    <title>MangosWatch - Privacy & Network Traffic Analyzer for Android</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
+        :root {
+            --bg-color: #0D1117;
+            --surface-color: #161B22;
+            --surface-variant: #21262D;
+            --text-primary: #E6EDF3;
+            --text-secondary: #8B949E;
+            --primary: #00E676;
+            --secondary: #38BDF8;
+            --border: #30363D;
         }
-        h1 { color: #2c3e50; }
-        h2 { color: #34495e; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-        .placeholder {
-            background: #f9f9f9;
-            border-left: 4px solid #3498db;
-            padding: 15px;
-            margin: 20px 0;
-            color: #555;
+        body {
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-color);
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+        }
+        h1 { color: var(--primary); font-size: 2.5em; margin-bottom: 10px; }
+        .tagline { font-size: 1.1em; color: var(--text-secondary); margin-bottom: 20px; }
+        h2 { color: var(--text-primary); margin-top: 40px; margin-bottom: 15px; font-size: 1.4em; }
+        h3 { color: var(--secondary); margin-top: 30px; margin-bottom: 10px; font-size: 1.1em; }
+        p { margin-bottom: 15px; color: var(--text-secondary); }
+        strong { color: var(--text-primary); }
+        ul { padding-left: 20px; color: var(--text-secondary); margin-bottom: 20px; }
+        li { margin-bottom: 8px; }
+        code { background: var(--surface-variant); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 0.95em; }
+        section {
+            margin-bottom: 40px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            margin-bottom: 25px;
+            font-size: 0.9em;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--surface-variant);
+            color: var(--text-primary);
+        }
+        td {
+            color: var(--text-secondary);
         }
         footer {
-            margin-top: 50px;
-            font-size: 0.9em;
-            color: #7f8c8d;
-            border-top: 1px solid #eee;
+            margin-top: 60px;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
             padding-top: 20px;
+            text-align: center;
         }
+        a { color: var(--secondary); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: #003814;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .btn:hover { background: #00c853; text-decoration: none; }
     </style>
 </head>
 <body>
 
-<h1>MangosWatch Documentation</h1>
-<p>Welcome to the official documentation portal for <strong>MangosWatch</strong>.</p>
+<header>
+    <h1>MangosWatch</h1>
+    <p class="tagline">A FOSS Android tool to monitor network traffic and uncover Big Tech data collection.</p>
+    <div>
+        <a href="https://github.com/mangoswatch/mangoswatch" class="btn">View on GitHub</a>
+    </div>
+</header>
 
-<div class="placeholder">
-    <h3>🚀 Getting Started</h3>
-    <p><!-- TODO: Add installation and setup instructions here --></p>
-</div>
+<section>
+    <h2>Overview</h2>
+    <p><strong>MangosWatch</strong> is designed to raise awareness about privacy and data sharing on Android phones. It monitors device network traffic, revealing which endpoints owned by Big Tech and major data collectors are contacted by installed apps and services, and classifies these connections against a curated taxonomy.</p>
+</section>
 
-<h2>Features</h2>
-<div class="placeholder">
-    <!-- TODO: Add feature list and architecture overview -->
-    <p>Placeholder for core features.</p>
-</div>
+<section>
+    <h2>Core Features</h2>
+    <ul>
+        <li><strong>Local VPN Interception:</strong> Hijacks device network traffic safely on-device without leaking data externally.</li>
+        <li><strong>Deep Protocol & Handshake Parsing:</strong> Inspects TLS and QUIC handshakes alongside DNS queries to identify destination hosts.</li>
+        <li><strong>Curated Endpoint Taxonomy:</strong> Matches IP addresses and endpoints against comprehensive taxonomies covering Amazon, Apple, Google, Meta, Microsoft, Netflix, Nvidia, OpenAI, Xiaomi, X/Twitter, and more.</li>
+        <li><strong>Modern Android Tech Stack:</strong> Built entirely in Kotlin and Jetpack Compose with Koin dependency injection and the native <code>hev-socks5-tunnel</code> proxy.</li>
+    </ul>
+</section>
 
-<h2>Privacy Policy</h2>
-<div class="placeholder">
-    <!-- TODO: Add privacy policy details -->
-    <p>Placeholder for privacy policy .</p>
-</div>
+<section>
+    <h2>Architecture & How It Works</h2>
+    <p>MangosWatch operates locally via a background VPN service (<code>VpnTrafficManager</code>) that splits and inspects network streams:</p>
+    <ul>
+        <li><strong>VPN Capture:</strong> Intercepts raw network packets at the VpnService layer.</li>
+        <li><strong>SOCKS5 Proxy Relay:</strong> Routes internet-bound traffic through the bundled native <code>hev-socks5-tunnel</code> library.</li>
+        <li><strong>Traffic Analysis:</strong> The <code>TrafficAnalyzer</code> and <code>StreamTrafficProcessor</code> parse packets in transit.</li>
+        <li><strong>Taxonomy Mapping:</strong> Resolves UIDs and app info (<code>UidResolver</code>, <code>AppInfoResolver</code>) and categorizes endpoints against curated asset lists.</li>
+    </ul>
+</section>
+
+<section>
+    <h2>Data Assets & Taxonomy</h2>
+    <p>In the spirit of complete transparency, all classification data, IP range lists, and taxonomy definitions used by MangosWatch are fully open and publicly inspectable. The app dynamically syncs these definitions from the <a href="https://github.com/mangoswatch/mangoswatch/tree/main/docs/data">docs/data</a> repository directory via GitHub Pages.</p>
+    <p><strong>Note on Assets:</strong> If you notice any inaccuracies, missing endpoints, or misclassifications, corrections and pull requests are warmly welcomed!</p>
+    <p>Below are the structured links to the core data assets:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Entity / Provider</th>
+                <th>Taxonomy Definition</th>
+                <th>IPv4 Ranges</th>
+                <th>IPv6 Ranges</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Google</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/google_taxonomy.json">google_taxonomy.json</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/google_ipv4.txt">google_ipv4.txt</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/google_ipv6.txt">google_ipv6.txt</a></td>
+            </tr>
+            <tr>
+                <td><strong>Meta</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/meta_taxonomy.json">meta_taxonomy.json</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/meta_ipv4.txt">meta_ipv4.txt</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/meta_ipv6.txt">meta_ipv6.txt</a></td>
+            </tr>
+            <tr>
+                <td><strong>Apple</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/apple_taxonomy.json">apple_taxonomy.json</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/apple_ipv4.txt">apple_ipv4.txt</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/apple_ipv6.txt">apple_ipv6.txt</a></td>
+            </tr>
+            <tr>
+                <td><strong>Amazon</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/amazon_taxonomy.json">amazon_taxonomy.json</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/amazon_ipv4.txt">amazon_ipv4.txt</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/amazon_ipv6.txt">amazon_ipv6.txt</a></td>
+            </tr>
+            <tr>
+                <td><strong>Microsoft</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/microsoft_taxonomy.json">microsoft_taxonomy.json</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/microsoft_ipv4.txt">microsoft_ipv4.txt</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/microsoft_ipv6.txt">microsoft_ipv6.txt</a></td>
+            </tr>
+            <tr>
+                <td><strong>OpenAI</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/openai_taxonomy.json">openai_taxonomy.json</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/openai_ipv4.txt">openai_ipv4.txt</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/openai_ipv6.txt">openai_ipv6.txt</a></td>
+            </tr>
+            <tr>
+                <td><strong>Anthropic</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/anthropic_taxonomy.json">anthropic_taxonomy.json</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/anthropic_ipv4.txt">anthropic_ipv4.txt</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/anthropic_ipv6.txt">anthropic_ipv6.txt</a></td>
+            </tr>
+            <tr>
+                <td><strong>Nvidia</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/nvidia_taxonomy.json">nvidia_taxonomy.json</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/nvidia_ipv4.txt">nvidia_ipv4.txt</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/nvidia_ipv6.txt">nvidia_ipv6.txt</a></td>
+            </tr>
+            <tr>
+                <td><strong>Netflix</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/netflix_taxonomy.json">netflix_taxonomy.json</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/netflix_ipv4.txt">netflix_ipv4.txt</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/netflix_ipv6.txt">netflix_ipv6.txt</a></td>
+            </tr>
+            <tr>
+                <td><strong>Xiaomi</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/xiaomi_taxonomy.json">xiaomi_taxonomy.json</a></td>
+                <td>—</td>
+                <td>—</td>
+            </tr>
+            <tr>
+                <td><strong>X (Twitter)</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/x_twitter_taxonomy.json">x_twitter_taxonomy.json</a></td>
+                <td>—</td>
+                <td>—</td>
+            </tr>
+            <tr>
+                <td><strong>AppsFlyer</strong></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/appsflyer_taxonomy.json">appsflyer_taxonomy.json</a></td>
+                <td>—</td>
+                <td>—</td>
+            </tr>
+            <tr>
+                <td><strong>Reserved / Local</strong></td>
+                <td>—</td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/reserved_ipv4.txt">reserved_ipv4.txt</a></td>
+                <td><a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/reserved_ipv6.txt">reserved_ipv6.txt</a></td>
+            </tr>
+        </tbody>
+    </table>
+    <p>Index manifest: <a href="https://github.com/mangoswatch/mangoswatch/blob/main/docs/data/index.json">docs/data/index.json</a></p>
+</section>
+
+<section>
+    <h2>Privacy Statement</h2>
+    <p>MangosWatch <strong>never reads or logs encrypted payload contents</strong>. Classification is strictly based on destination endpoints, known IP ranges, and publicly documented company services. Your privacy remains fully protected.</p>
+</section>
 
 <footer>
-
+    <p>MangosWatch is free software licensed under the <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License v3.0</a>.</p>
 </footer>
 
 </body>
