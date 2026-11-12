@@ -15,6 +15,8 @@ class IpRanges private constructor(
 
     companion object {
 
+        fun empty(): IpRanges = IpRanges(LongArray(0), LongArray(0), LongArray(0), LongArray(0))
+
         fun load(
             context: Context,
             ipOwner: IpOwner

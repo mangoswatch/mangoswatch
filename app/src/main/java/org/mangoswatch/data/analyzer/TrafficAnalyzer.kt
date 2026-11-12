@@ -9,6 +9,7 @@ import org.mangoswatch.data.vpn.VpnState
 import org.mangoswatch.domain.parser.ip.IpRanges
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.mangoswatch.data.vpn.VpnStateEnum
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -64,7 +65,7 @@ class TrafficAnalyzer(
                 events = OsConstants.POLLIN.toShort()
             })
             try {
-                while (vpnState.isRunning) {
+                while (vpnState.state == VpnStateEnum.RUNNING) {
                     if (Os.poll(pollFds, 500) <= 0) continue
                     val n = tunInput.read(buf)
                     if (n < 0) break
@@ -80,7 +81,7 @@ class TrafficAnalyzer(
         Thread({                                  // hev(proxy) -> app
             val buf = ByteArray(32767)
             try {
-                while (vpnState.isRunning) {
+                while (vpnState.state == VpnStateEnum.RUNNING) {
                     val n = mirrorReader.read(buf)
                     if (n < 0) break
                     if (n == 0) continue

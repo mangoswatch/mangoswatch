@@ -4,6 +4,7 @@ import android.util.Log
 import org.mangoswatch.data.vpn.VpnState
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.mangoswatch.data.vpn.VpnStateEnum
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.IOException
@@ -36,7 +37,7 @@ class SocksProxyRelay: KoinComponent {
         socksServer = server
         Thread {
             try {
-                while (vpnState.isRunning) {
+                while (vpnState.state == VpnStateEnum.RUNNING) {
                     val client = server.accept()
                     Thread {
                         dispatchSocksRequest(

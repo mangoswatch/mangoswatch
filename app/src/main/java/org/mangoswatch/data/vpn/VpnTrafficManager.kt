@@ -83,14 +83,17 @@ class VpnTrafficManager : VpnService() {
 
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     fun startVpn() {
-        if (vpnState.isRunning) return
+        if (vpnState.state == VpnStateEnum.RUNNING) return
         Log.d(TAG, "startVpn - Starting VPN...")
+
+        startForeground(1001, createNotification())
 
         serviceScope.launch {
             try {
                 establishVpnConnection()
-                if (!vpnState.isRunning) {
+                if (vpnState.state == VpnStateEnum.STOPPED) {
                     Log.d(TAG, "startVpn - establish() returned null (revoked VPN permission?)")
+                    stopForeground(STOP_FOREGROUND_REMOVE)
                     return@launch
                 }
                 initSocksProxyRelay()
@@ -99,29 +102,64 @@ class VpnTrafficManager : VpnService() {
                 startTun2Socks(fd)
             } catch (e: Exception) {
                 Log.d(TAG, "startVpn failed: ${e.message}")
+                stopForeground(STOP_FOREGROUND_REMOVE)
             }
         }
-
-        //startForeground(NOTIFICATION_ID, createNotification()) // TODO
     }
 
     fun stopVpn() {
-        if (!vpnState.isRunning) return
+        if (vpnState.state == VpnStateEnum.STOPPED) return
         Log.d(TAG, "stopVpn - Stopping VPN connection...")
-        vpnState.isRunning = false
+        vpnState.state = VpnStateEnum.STOPPED
         TProxyService.TProxyStopService()
         socksProxyRelay.closeSocksServer()
         trafficAnalyzer.stopTrafficAnalyzer()
         serviceJob.cancelChildren()
         vpnInterface?.close()
         vpnInterface = null
+        stopForeground(STOP_FOREGROUND_REMOVE)
         Log.d(TAG, "stopVpn - VPN Connection stopped")
+    }
+
+    private fun createNotification(): android.app.Notification {
+        val channelId = "mangoswatch_vpn_channel"
+        val channel = android.app.NotificationChannel(
+            channelId,
+            "Mangos Watch VPN Service",
+            android.app.NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = "Active VPN traffic monitoring service"
+        }
+        val notificationManager = getSystemService(android.app.NotificationManager::class.java)
+        notificationManager?.createNotificationChannel(channel)
+
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, org.mangoswatch.presentation.MainActivity::class.java),
+            android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        return androidx.core.app.NotificationCompat.Builder(this, channelId)
+            .setContentTitle("Mangos Watch Active")
+            .setContentText("Monitoring network traffic and Big Tech endpoints")
+            .setSmallIcon(android.R.drawable.ic_menu_compass)
+            .setContentIntent(pendingIntent)
+            .setOngoing(true)
+            .build()
     }
 
     override fun onDestroy() {
         stopVpn()
         serviceJob.cancel()
         super.onDestroy()
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        Log.d(TAG, "onTaskRemoved: App removed from recents. Stopping VPN.")
+        stopVpn()
+        stopSelf()
+        super.onTaskRemoved(rootIntent)
     }
 
     private fun isGlobalIpv6(a: InetAddress): Boolean =
@@ -167,7 +205,7 @@ class VpnTrafficManager : VpnService() {
         vpnInterface = builder.establish()
 
         if (vpnInterface != null) {
-            vpnState.isRunning = true
+            vpnState.state = VpnStateEnum.RUNNING
         }
         Log.d(TAG, "establishVpnConnection - VPN Connection established")
     }
@@ -217,11 +255,13 @@ class VpnTrafficManager : VpnService() {
     }
 }
 
-class VpnState {
-    private val _running = MutableStateFlow(false)
-    val running: StateFlow<Boolean> = _running.asStateFlow()
+enum class VpnStateEnum { RUNNING, STOPPED, IDLE}
 
-    var isRunning: Boolean
+class VpnState {
+    private val _running = MutableStateFlow(VpnStateEnum.IDLE)
+    val running: StateFlow<VpnStateEnum> = _running.asStateFlow()
+
+    var state: VpnStateEnum
         get() = _running.value
         set(value) {
             _running.value = value

@@ -14,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import org.koin.compose.viewmodel.koinViewModel
+import org.mangoswatch.data.vpn.VpnStateEnum
 import org.mangoswatch.data.vpn.VpnTrafficManager
 import org.mangoswatch.presentation.contracts.VpnAction
 import org.mangoswatch.presentation.ui.screens.MainScreen
@@ -33,8 +34,20 @@ class MainActivity : ComponentActivity() {
             MangosWatchTheme {
 
                 val context = LocalContext.current
-                val viewModel: MainScreenViewModel = koinViewModel()
-                val state by viewModel.state.collectAsState()
+                val mainScreenViewModel: MainScreenViewModel = koinViewModel()
+                val state by mainScreenViewModel.state.collectAsState()
+
+                val notificationLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    Log.d(TAG, "Notification permission granted: $isGranted")
+                }
+
+                LaunchedEffect(Unit) {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                        notificationLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
 
                 val vpnLauncher = rememberLauncherForActivityResult(
                     ActivityResultContracts.StartActivityForResult()
@@ -49,7 +62,7 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(state.vpnAction) {
                     when (state.vpnAction) {
                         VpnAction.START -> {
-                            if (state.isVpnRunning) return@LaunchedEffect
+                            if (state.vpnState == VpnStateEnum.RUNNING) return@LaunchedEffect
                             val intent = VpnService.prepare(context)
                             if (intent != null) {
                                 Log.d(TAG, "VPN permission NOT Granted. Launching permission dialog.")
@@ -60,7 +73,7 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         VpnAction.STOP -> {
-                            if (!state.isVpnRunning) return@LaunchedEffect
+                            if (state.vpnState == VpnStateEnum.STOPPED) return@LaunchedEffect
                             stopVpnService()
                         }
                         null -> {}

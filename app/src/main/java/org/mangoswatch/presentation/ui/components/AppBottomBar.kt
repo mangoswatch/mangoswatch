@@ -36,7 +36,7 @@ fun AppBottomBar(
             AppBottomBarContent(
                 onStartVPN = { eventTunnel(MainScreenEvent.OnStartVpnClick) },
                 onStopVPN = { eventTunnel(MainScreenEvent.OnStopVpnClick) },
-                vpnRunning = mainScreenState.isVpnRunning
+                vpnState = mainScreenState.vpnState
             )
         }
     }

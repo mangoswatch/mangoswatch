@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.mangoswatch.data.vpn.VpnStateEnum
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainScreenViewModel(
@@ -59,9 +60,9 @@ class MainScreenViewModel(
         Log.d("[MANGOS_WATCH] - MAINSCREENVIEWMODEL ", "VM Initialized")
         viewModelScope.launch {
             vpnState.running
-                .flatMapLatest { running ->
-                    _state.update { it.copy(isVpnRunning = running) }
-                    if (running) streamsRepository.getStreams() else emptyFlow()
+                .flatMapLatest { vpnState ->
+                    _state.update { it.copy(vpnState = vpnState) }
+                    if (vpnState == VpnStateEnum.RUNNING) streamsRepository.getStreams() else emptyFlow()
                 }
                 .map { it.toAppTraffic() }
                 .flowOn(Dispatchers.Default)

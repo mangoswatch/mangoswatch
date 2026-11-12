@@ -17,12 +17,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.mangoswatch.data.vpn.VpnStateEnum
 
 @Composable
 fun AppBottomBarContent(
     onStartVPN: () -> Unit,
     onStopVPN: () -> Unit,
-    vpnRunning: Boolean
+    vpnState: VpnStateEnum
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -30,7 +31,7 @@ fun AppBottomBarContent(
             .fillMaxWidth()
     ) {
         Button(
-            enabled = !vpnRunning,
+            enabled = vpnState == VpnStateEnum.STOPPED || vpnState == VpnStateEnum.IDLE,
             onClick = { onStartVPN() },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
@@ -54,7 +55,7 @@ fun AppBottomBarContent(
         }
 
         Button(
-            enabled = vpnRunning,
+            enabled = vpnState == VpnStateEnum.RUNNING ,
             onClick = { onStopVPN() },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(
