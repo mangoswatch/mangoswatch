@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun MainScreenBottomBarContent(
+fun AppBottomBarContent(
     onStartVPN: () -> Unit,
     onStopVPN: () -> Unit,
     vpnRunning: Boolean

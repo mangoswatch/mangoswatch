@@ -1,18 +1,13 @@
 package org.mangoswatch.presentation.ui.components
 
 import android.os.Process
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,7 +26,7 @@ import org.mangoswatch.presentation.viewmodel.AppTrafficUi
 import org.mangoswatch.util.formatBytes
 
 @Composable
-fun TrafficSummaryHeader(
+fun AppTopBarSummaryHeader(
     apps: List<AppTrafficUi>
 ) {
     val totalUp = remember(apps) { apps.sumOf { it.bytesUp } }
@@ -43,7 +38,7 @@ fun TrafficSummaryHeader(
             .groupingBy { it.ipOwner }
             .fold(0L) { acc, host -> acc + host.totalBytes }
     }
-    var openDetail by remember { mutableStateOf(false) }
+    var openSummaryDetail by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -57,45 +52,39 @@ fun TrafficSummaryHeader(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            if (apps.isEmpty()) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier.weight(1F)
+            ) {
                 Text(
-                    text = "No traffic yet",
+                    text = "Big Tech intercepted bytes",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "${formatBytes(totalUp + totalDown)} from $appCount app",
                     style = MaterialTheme.typography.titleLarge
                 )
-            } else {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                    modifier = Modifier.weight(1F)
-                ) {
-                    Text(
-                        text = "Big Tech intercepted bytes",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "${formatBytes(totalUp + totalDown)} from $appCount app",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Text(
-                        text = "↑ ${formatBytes(totalUp)}   ↓ ${formatBytes(totalDown)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                IconButton(
-                    onClick = { openDetail = !openDetail },
-                    content = {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowDropDown,
-                            contentDescription = "Open Total traffic detail",
-                            modifier = Modifier.rotate(if (openDetail) 180f else 0f)
-                        )
-                    }
+                Text(
+                    text = "↑ ${formatBytes(totalUp)}   ↓ ${formatBytes(totalDown)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            IconButton(
+                onClick = { openSummaryDetail = !openSummaryDetail },
+                content = {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowDropDown,
+                        contentDescription = "Open Total traffic detail",
+                        modifier = Modifier.rotate(if (openSummaryDetail) 180f else 0f)
+                    )
+                }
+            )
+
         }
 
-        if (openDetail) {
+        if (openSummaryDetail) {
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
 
             Column(
@@ -131,9 +120,9 @@ fun TrafficSummaryHeader(
 
 @Preview
 @Composable
-fun TrafficSummaryHeaderPreview() {
+fun AppTopBarSummaryHeaderPreview() {
     Column() {
-        TrafficSummaryHeader(
+        AppTopBarSummaryHeader(
             apps = listOf(
                 AppTrafficUi(
                     uid = 12,
