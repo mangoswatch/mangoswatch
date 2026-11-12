@@ -13,6 +13,22 @@ In addition, it classifies these "calls home" against a curated taxonomy, provid
 
 
 
+## Disclaimer
+
+**IMPORTANT PLEASE READ CAREFULLY:**
+
+### 1. No Liability & Informational Purpose ("Use at Your Own Risk")
+Mangos Watch is provided as an open-source, educational, and informational tool designed to raise awareness about network activity and privacy on Android devices. 
+- **No Guarantees**: The endpoint classifications, taxonomy matching, and traffic insights provided by the app are based on heuristics, public knowledge bases, and best-effort analysis. They may contain inaccuracies, false positives, or incomplete data.
+- **Sole User Responsibility**: The authors, maintainers, and contributors of Mangos Watch accept **zero liability** for any decisions, actions, financial losses, operational disruptions, or consequences resulting from the use of this app or reliance on its data. If you make personal, technical, or legal choices based on insights shown by Mangos Watch, **that is entirely your own responsibility**. Always verify network behavior independently.
+
+### 2. Trademarks, Big Tech & Fair Use
+- **Nominative Fair Use**: All corporate names, brands, trademarks, and logos referenced within Mangos Watch (including Meta, Google, Apple, Microsoft, Amazon, etc.) belong exclusively to their respective owners. Their mention is strictly for identification, research, transparency, and educational purposes under nominative fair use.
+- **No Affiliation**: This project is an independent, community-driven FOSS initiative. It is **not** affiliated with, endorsed by, sponsored by, or officially connected to any of the Big Tech companies or entities monitored or referenced by the app.
+- **Non-Disparagement & Freedom of Expression**: The app merely observes and classifies local network connections and publicly documented endpoints. Nothing in this software or repository constitutes commercial disparagement, defamation, or official legal/technical certification of corporate practices.
+
+
+
 ## Why the Mango?
 
 The MANGOS acronym (Meta, Anthropic, Nvidia, Google, OpenAI, SpaceX) worked well when it came time to choose a name (and it also inspired the cute puppet used as the app icon).
