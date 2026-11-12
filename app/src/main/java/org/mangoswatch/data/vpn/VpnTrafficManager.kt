@@ -200,7 +200,7 @@ class VpnTrafficManager : VpnService() {
                             address: 127.0.0.1
                             udp: 'udp'
                         misc:
-                            log-level: debug
+                            log-level: info
                         """.trimIndent()
             )
         }

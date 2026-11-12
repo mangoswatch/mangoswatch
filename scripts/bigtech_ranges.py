@@ -98,16 +98,15 @@ def fetch_amazon():
 
 
 def fetch_azure():
-    url = os.environ.get("MS_TAGS_URL")
+    try:
+        html = get("https://www.microsoft.com/en-us/download/details.aspx?id=56519").text
+        m = re.search(r"https://download\.microsoft\.com/download/[^\"'\s]+?ServiceTags_Public_\d+\.json", html)
+        url = m.group(0) if m else None
+    except Exception:
+        url = None
+
     if not url:
-        try:
-            html = get("https://www.microsoft.com/en-us/download/details.aspx?id=56519").text
-            m = re.search(r"https://download\.microsoft\.com/download/[^\"'\s]+?ServiceTags_Public_\d+\.json", html)
-            url = m.group(0) if m else None
-        except Exception:
-            pass
-    if not url:
-        raise RuntimeError("Azure Service Tags URL not found; set MS_TAGS_URL environment variable")
+        raise RuntimeError("Azure Service Tags URL could not be retrieved from Microsoft download page.")
 
     for v in get(url).json()["values"]:
         if v["name"] == "AzureCloud":
