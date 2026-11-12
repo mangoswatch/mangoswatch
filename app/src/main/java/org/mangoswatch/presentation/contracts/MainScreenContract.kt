@@ -1,5 +1,6 @@
 package org.mangoswatch.presentation.contracts
 
+import org.mangoswatch.data.vpn.VpnStateEnum
 import org.mangoswatch.presentation.viewmodel.AppTrafficUi
 
 sealed class MainScreenEvent {
@@ -17,7 +18,7 @@ enum class VpnAction {
 
 
 data class MainScreenState(
-    val isVpnRunning: Boolean = false,
+    val vpnState: VpnStateEnum = VpnStateEnum.IDLE,
     val selectedUid: Int? = null,
     val apps: List<AppTrafficUi> = emptyList(),
     val errorMessage: String? = null,

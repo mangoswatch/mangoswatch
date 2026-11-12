@@ -7,17 +7,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import org.mangoswatch.data.vpn.VpnStateEnum
 import org.mangoswatch.presentation.contracts.MainScreenEvent
 import org.mangoswatch.presentation.ui.components.AppBottomBar
 import org.mangoswatch.presentation.ui.components.AppOverviewItem
@@ -51,10 +54,10 @@ fun MainScreen(
                 .padding(8.dp),
         ) {
 
-            if (mainScreenState.vpnAction == null) {
+            if (mainScreenState.vpnState == VpnStateEnum.IDLE) {
                 AppPlaceholder(
                     icon = Icons.Default.Visibility,
-                    title = "Inspection Paused",
+                    title = "Inspection Idle",
                     subtitle = "Start the traffic inspection with the button below",
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -77,7 +80,14 @@ fun MainScreen(
                         modifier = Modifier.weight(1f)
                     )
                 } else {
+                    val listState = rememberLazyListState()
+                    LaunchedEffect(mainScreenState.apps.size) {
+                        if (mainScreenState.apps.isNotEmpty()) {
+                            listState.animateScrollToItem(0)
+                        }
+                    }
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier.weight(1F),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         content = {
