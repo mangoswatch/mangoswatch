@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +27,7 @@ import org.koin.android.ext.android.inject
 import java.io.File
 import java.net.Inet6Address
 import java.net.InetAddress
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * It's the starting point of interception, it tells the OS:
@@ -84,12 +86,14 @@ class VpnTrafficManager : VpnService() {
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     fun startVpn() {
         if (vpnState.state == VpnStateEnum.RUNNING) return
+        vpnState.state = VpnStateEnum.LOADING
         Log.d(TAG, "startVpn - Starting VPN...")
 
         startForeground(1001, createNotification())
 
         serviceScope.launch {
             try {
+                delay(500.milliseconds)         // hacky hacky to show the loader in mainscreen
                 establishVpnConnection()
                 if (vpnState.state == VpnStateEnum.STOPPED) {
                     Log.d(TAG, "startVpn - establish() returned null (revoked VPN permission?)")
@@ -102,23 +106,32 @@ class VpnTrafficManager : VpnService() {
                 startTun2Socks(fd)
             } catch (e: Exception) {
                 Log.d(TAG, "startVpn failed: ${e.message}")
+                vpnState.state = VpnStateEnum.STOPPED
                 stopForeground(STOP_FOREGROUND_REMOVE)
             }
         }
     }
 
+    // No LOADING state here, since what is already currently shown (= the app list) should stay visible
     fun stopVpn() {
         if (vpnState.state == VpnStateEnum.STOPPED) return
         Log.d(TAG, "stopVpn - Stopping VPN connection...")
-        vpnState.state = VpnStateEnum.STOPPED
-        TProxyService.TProxyStopService()
-        socksProxyRelay.closeSocksServer()
-        trafficAnalyzer.stopTrafficAnalyzer()
-        serviceJob.cancelChildren()
-        vpnInterface?.close()
-        vpnInterface = null
-        stopForeground(STOP_FOREGROUND_REMOVE)
-        Log.d(TAG, "stopVpn - VPN Connection stopped")
+        serviceScope.launch {
+            try {
+                TProxyService.TProxyStopService()
+                socksProxyRelay.closeSocksServer()
+                trafficAnalyzer.stopTrafficAnalyzer()
+                serviceJob.cancelChildren()
+                vpnInterface?.close()
+                vpnInterface = null
+                vpnState.state = VpnStateEnum.STOPPED
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                Log.d(TAG, "stopVpn - VPN Connection stopped")
+            } catch (e: Exception) {
+                Log.d(TAG, "stopVpn failed: ${e.message}")
+                vpnState.state = VpnStateEnum.RUNNING
+            }
+        }
     }
 
     private fun createNotification(): android.app.Notification {
@@ -206,6 +219,8 @@ class VpnTrafficManager : VpnService() {
 
         if (vpnInterface != null) {
             vpnState.state = VpnStateEnum.RUNNING
+        } else {
+            vpnState.state = VpnStateEnum.STOPPED
         }
         Log.d(TAG, "establishVpnConnection - VPN Connection established")
     }
@@ -255,15 +270,25 @@ class VpnTrafficManager : VpnService() {
     }
 }
 
-enum class VpnStateEnum { RUNNING, STOPPED, IDLE}
+enum class VpnStateEnum { RUNNING, STOPPED, LOADING, IDLE } // LOADING as an intermediate state when starting the service
+enum class VpnAction { START, STOP, CONSUMED }
 
 class VpnState {
     private val _running = MutableStateFlow(VpnStateEnum.IDLE)
     val running: StateFlow<VpnStateEnum> = _running.asStateFlow()
 
+    private val _request = MutableStateFlow(VpnAction.CONSUMED)
+    val request: StateFlow<VpnAction> = _request.asStateFlow()
+
     var state: VpnStateEnum
         get() = _running.value
         set(value) {
             _running.value = value
+        }
+
+    var actionRequest: VpnAction
+        get() = _request.value
+        set(value) {
+            _request.value = value
         }
 }
