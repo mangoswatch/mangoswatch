@@ -6,14 +6,11 @@ import org.mangoswatch.presentation.viewmodel.AppTrafficUi
 sealed class MainScreenEvent {
     object OnBack : MainScreenEvent()
     data class OnAppClick (val appUid: Int) : MainScreenEvent()
-    object OnStartVpnClick : MainScreenEvent()
-    object OnStopVpnClick : MainScreenEvent()
+    object OnStartVpnRequest : MainScreenEvent()
+    object OnStopVpnRequest : MainScreenEvent()
 }
 
-enum class VpnAction {
-    START,
-    STOP
-}
+
 
 
 
@@ -22,7 +19,6 @@ data class MainScreenState(
     val selectedUid: Int? = null,
     val apps: List<AppTrafficUi> = emptyList(),
     val errorMessage: String? = null,
-    val vpnAction: VpnAction? = null,
     // TUNNEL
     val eventTunnel: (MainScreenEvent) -> Unit = {}
 ){

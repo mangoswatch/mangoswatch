@@ -5,17 +5,6 @@ import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import org.mangoswatch.domain.model.IpOwner
-import org.mangoswatch.domain.model.StreamModel
-import org.mangoswatch.domain.model.EndpointTaxonomy
-import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
-import org.mangoswatch.domain.repository.StreamsRepository
-import org.mangoswatch.data.resolver.AppInfoResolver
-import org.mangoswatch.presentation.contracts.MainScreenEvent
-import org.mangoswatch.presentation.contracts.MainScreenState
-import org.mangoswatch.presentation.contracts.VpnAction
-import org.mangoswatch.data.vpn.VpnState
-import org.mangoswatch.domain.model.StreamProtocol
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +17,18 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.mangoswatch.data.resolver.AppInfoResolver
+import org.mangoswatch.data.vpn.VpnAction
+import org.mangoswatch.data.vpn.VpnState
 import org.mangoswatch.data.vpn.VpnStateEnum
+import org.mangoswatch.domain.model.EndpointTaxonomy
+import org.mangoswatch.domain.model.IpOwner
+import org.mangoswatch.domain.model.StreamModel
+import org.mangoswatch.domain.model.StreamProtocol
+import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
+import org.mangoswatch.domain.repository.StreamsRepository
+import org.mangoswatch.presentation.contracts.MainScreenEvent
+import org.mangoswatch.presentation.contracts.MainScreenState
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainScreenViewModel(
@@ -50,9 +50,9 @@ class MainScreenViewModel(
     private fun processEvent(event: MainScreenEvent) {
         when (event) {
             MainScreenEvent.OnBack -> onBack()
-            is MainScreenEvent.OnAppClick -> onAppClick(event.appUid)
-            MainScreenEvent.OnStartVpnClick -> _state.update { it.copy(vpnAction = VpnAction.START) }
-            MainScreenEvent.OnStopVpnClick -> _state.update { it.copy(vpnAction = VpnAction.STOP) }
+            is MainScreenEvent.OnAppClick -> _state.update { it.copy(selectedUid = event.appUid) }
+            MainScreenEvent.OnStartVpnRequest -> vpnState.actionRequest = VpnAction.START
+            MainScreenEvent.OnStopVpnRequest -> vpnState.actionRequest = VpnAction.STOP
         }
     }
 
@@ -72,10 +72,6 @@ class MainScreenViewModel(
                 }
         }
 
-    }
-
-    private fun onAppClick(uid: Int) {
-        _state.update { it.copy(selectedUid = uid) }
     }
 
     private fun onBack() {

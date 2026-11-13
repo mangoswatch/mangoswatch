@@ -34,8 +34,8 @@ fun AppBottomBar(
             contentColor = MaterialTheme.colorScheme.onSurface
         ) {
             AppBottomBarContent(
-                onStartVPN = { eventTunnel(MainScreenEvent.OnStartVpnClick) },
-                onStopVPN = { eventTunnel(MainScreenEvent.OnStopVpnClick) },
+                onStartVPN = { eventTunnel(MainScreenEvent.OnStartVpnRequest) },
+                onStopVPN = { eventTunnel(MainScreenEvent.OnStopVpnRequest) },
                 vpnState = mainScreenState.vpnState
             )
         }
