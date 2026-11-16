@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-17 (GOOGLE IPv6)
+# Updated automatically on 2026-11-16 (GOOGLE IPv6)
 2001:4860::/32
 2404:6800::/32
 2404:f340::/32

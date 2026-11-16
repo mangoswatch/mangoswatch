@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-17 (AMAZON IPv6)
+# Updated automatically on 2026-11-16 (AMAZON IPv6)
 2001:3fc5:800::/40
 2001:3fc6::/55
 2001:3fc6:4::/47
