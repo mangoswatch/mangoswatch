@@ -145,10 +145,10 @@ Please keep your PR small and specific: a flood of AI slop that changes 3/4 of t
 
 
 
-## Acknowledgements
+## Acknowledgements & Third-Party Licenses
 
-- hev-socks5-tunnel: [https://github.com/heiher/hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel)
-- PCAPdroid for the inspiration: [https://github.com/emanuele-f/PCAPdroid](https://github.com/emanuele-f/PCAPdroid)
+- **hev-socks5-tunnel**: [https://github.com/heiher/hev-socks5-tunnel](https://github.com/heiher/hev-socks5-tunnel) (Licensed under the MIT License — see [NOTICE](NOTICE) for copyright details)
+- **PCAPdroid** for inspiration: [https://github.com/emanuele-f/PCAPdroid](https://github.com/emanuele-f/PCAPdroid)
 
 
 
