@@ -94,7 +94,7 @@ def fetch_amazon():
             add_prefix("amazon", p["ip_prefix"], "aws-ip-ranges")
     for p in d["ipv6_prefixes"]:
         if p["service"] == "AMAZON":
-            add_prefix("amazon", p["ip_prefix"], "aws-ip-ranges")
+            add_prefix("amazon", p["ipv6_prefix"], "aws-ip-ranges") 
 
 
 def fetch_azure():
