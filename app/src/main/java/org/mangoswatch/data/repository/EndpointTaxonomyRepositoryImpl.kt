@@ -16,6 +16,23 @@ class EndpointTaxonomyRepositoryImpl(
     private val items = mutableListOf<EndpointTaxonomy>()
     private val compiledPatterns = mutableMapOf<EndpointTaxonomy, Pattern>()
 
+    private val noMatchSentinel = EndpointTaxonomy(
+        id = "__NO_MATCH__",
+        provider = "",
+        hostnamePattern = "",
+        displayName = "",
+        category = EndpointTaxonomyCategory.UNKNOWN,
+        description = "",
+        dataCollected = emptyList(),
+        optOutDescription = ""
+    )
+
+    private val matchCache = object : LinkedHashMap<String, EndpointTaxonomy>(512, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, EndpointTaxonomy>?): Boolean {
+            return size > 1024
+        }
+    }
+
     init {
         loadTaxonomy()
     }
@@ -78,15 +95,33 @@ class EndpointTaxonomyRepositoryImpl(
 
     override fun findMatch(hostnameOrUrl: String?): EndpointTaxonomy? {
         if (hostnameOrUrl.isNullOrBlank()) return null
+
+        synchronized(matchCache) {
+            val cached = matchCache[hostnameOrUrl]
+            if (cached != null) {
+                return if (cached === noMatchSentinel) null else cached
+            }
+        }
+
+        var matchedItem: EndpointTaxonomy? = null
         for (item in items) {
             val pattern = compiledPatterns[item] ?: continue
             if (pattern.matcher(hostnameOrUrl).find()) {
-                //Log.d("EndpointTaxonomyRepo", "Matched host '$hostnameOrUrl' to taxonomy item '${item.id}' (${item.displayName})")
-                return item
+                matchedItem = item
+                break
             }
         }
-        Log.d("EndpointTaxonomyRepo", "Unclassified endpoint host: $hostnameOrUrl")
-        return null
+
+        synchronized(matchCache) {
+            matchCache[hostnameOrUrl] = matchedItem ?: noMatchSentinel
+        }
+
+        if (matchedItem == null) {
+            try {
+                Log.d("EndpointTaxonomyRepo", "Unclassified endpoint host: $hostnameOrUrl")
+            } catch (_: Exception) {}
+        }
+        return matchedItem
     }
 
     override fun getAllItems(): List<EndpointTaxonomy> = items

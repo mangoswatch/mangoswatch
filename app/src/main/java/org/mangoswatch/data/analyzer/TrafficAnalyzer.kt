@@ -13,6 +13,7 @@ import org.mangoswatch.data.vpn.VpnStateEnum
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.util.concurrent.ArrayBlockingQueue
 
 /**
  * This component works as an "observer" placed between the VPN service and the output to the Internet.
@@ -59,7 +60,7 @@ class TrafficAnalyzer(
         val mirrorWriter = FileOutputStream(mirrorInputPfd!!.fileDescriptor)
 
         Thread({                                  // app -> hev(proxy)
-            val buf = ByteArray(32767)
+            val buf = obtainBuffer()
             val pollFds = arrayOf(StructPollfd().apply {
                 fd = vpnInterface.fileDescriptor
                 events = OsConstants.POLLIN.toShort()
@@ -75,11 +76,13 @@ class TrafficAnalyzer(
                 }
             } catch (e: Exception) {
                 Log.d(TAG, "tap out ended: ${e.message}")
+            } finally {
+                releaseBuffer(buf)
             }
         }, "analyzer-outbound (app--->>>proxy)").start()
 
         Thread({                                  // hev(proxy) -> app
-            val buf = ByteArray(32767)
+            val buf = obtainBuffer()
             try {
                 while (vpnState.state == VpnStateEnum.RUNNING) {
                     val n = mirrorReader.read(buf)
@@ -90,6 +93,8 @@ class TrafficAnalyzer(
                 }
             } catch (e: Exception) {
                 Log.d(TAG, "tap in ended: ${e.message}")
+            } finally {
+                releaseBuffer(buf)
             }
         }, "analyzer-inbound (proxy--->>>app)").start()
     }
@@ -120,5 +125,15 @@ class TrafficAnalyzer(
 
     companion object {
         const val TAG = "[MANGOS_WATCH] - TRAFFIC_ANALYZER"
+        private const val BUFFER_SIZE = 32767
+        private val bufferPool = ArrayBlockingQueue<ByteArray>(16)
+
+        private fun obtainBuffer(): ByteArray = bufferPool.poll() ?: ByteArray(BUFFER_SIZE)
+
+        private fun releaseBuffer(buf: ByteArray) {
+            if (buf.size == BUFFER_SIZE) {
+                bufferPool.offer(buf)
+            }
+        }
     }
 }
