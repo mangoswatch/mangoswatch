@@ -22,8 +22,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import org.mangoswatch.R
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.model.DnsSettings
 
@@ -39,7 +41,7 @@ fun SettingsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("VPN DNS Settings") },
+        title = { Text(stringResource(R.string.dns_settings_title)) },
         text = {
             Column(
                 modifier = Modifier
@@ -48,7 +50,7 @@ fun SettingsDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "Choose how DNS is handled inside the VPN tunnel. If you use a private DNS or local resolver, select System/Private DNS.",
+                    text = stringResource(R.string.dns_settings_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -73,8 +75,8 @@ fun SettingsDialog(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text(text = "Cloudflare DNS (Default)", style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "1.1.1.1, 2606:4700:4700::1111", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(text = stringResource(R.string.dns_cloudflare_title), style = MaterialTheme.typography.bodyLarge)
+                        Text(text = stringResource(R.string.dns_cloudflare_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -96,8 +98,8 @@ fun SettingsDialog(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text(text = "System / Private DNS", style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "Respects your private DNS or local resolver", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(text = stringResource(R.string.dns_system_title), style = MaterialTheme.typography.bodyLarge)
+                        Text(text = stringResource(R.string.dns_system_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -119,8 +121,8 @@ fun SettingsDialog(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text(text = "Custom DNS Servers", style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "Specify your own IPv4 and IPv6 servers", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(text = stringResource(R.string.dns_custom_title), style = MaterialTheme.typography.bodyLarge)
+                        Text(text = stringResource(R.string.dns_custom_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -129,7 +131,7 @@ fun SettingsDialog(
                     OutlinedTextField(
                         value = v4,
                         onValueChange = { v4 = it },
-                        label = { Text("Custom IPv4 DNS (comma separated)") },
+                        label = { Text(stringResource(R.string.dns_custom_ipv4_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         textStyle = MaterialTheme.typography.bodyMedium
@@ -138,7 +140,7 @@ fun SettingsDialog(
                     OutlinedTextField(
                         value = v6,
                         onValueChange = { v6 = it },
-                        label = { Text("Custom IPv6 DNS (comma separated)") },
+                        label = { Text(stringResource(R.string.dns_custom_ipv6_label)) },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         textStyle = MaterialTheme.typography.bodyMedium
@@ -153,12 +155,12 @@ fun SettingsDialog(
                     onDismiss()
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.dialog_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.dialog_cancel))
             }
         }
     )

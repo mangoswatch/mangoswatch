@@ -12,7 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.mangoswatch.R
 
 @Composable
 fun LoadingIndicator(
@@ -34,12 +36,12 @@ fun LoadingIndicator(
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "Establishing Secure Tunnel...",
+                text = stringResource(R.string.loading_establishing_tunnel),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = "Configuring local proxy & packet interceptor",
+                text = stringResource(R.string.loading_configuring_proxy),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

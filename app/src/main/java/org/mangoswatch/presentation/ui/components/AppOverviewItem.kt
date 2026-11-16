@@ -15,8 +15,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.mangoswatch.R
 import org.mangoswatch.presentation.viewmodel.AppTrafficUi
 import org.mangoswatch.util.formatBytes
 
@@ -85,12 +87,9 @@ fun AppOverviewHeader(app: AppTrafficUi) {
             Text("↑ ${formatBytes(app.bytesUp)}")
             Text("↓ ${formatBytes(app.bytesDown)}")
             Text(
-                text = "${app.streamCount} stream",
+                text = stringResource(R.string.app_stream_count, app.streamCount),
                 style = MaterialTheme.typography.bodySmall,
             )
         }
     }
 }
-
-
-

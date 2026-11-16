@@ -16,7 +16,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.mangoswatch.R
 import org.mangoswatch.presentation.contracts.LocalEventTunnel
 import org.mangoswatch.presentation.contracts.LocalMainScreenState
 import org.mangoswatch.presentation.contracts.MainScreenEvent
@@ -38,7 +40,7 @@ fun AppTopBar() {
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "MangosWatch",
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.displaySmall,
                     )
                 },
@@ -49,7 +51,7 @@ fun AppTopBar() {
                             content = {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowBackIos,
-                                    contentDescription = "Back"
+                                    contentDescription = stringResource(R.string.cd_back)
                                 )
                             }
                         )
@@ -61,7 +63,7 @@ fun AppTopBar() {
                     ) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
+                            contentDescription = stringResource(R.string.cd_settings),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }

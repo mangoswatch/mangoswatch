@@ -1,3 +1,48 @@
 <resources>
     <string name="app_name">MangosWatch</string>
+
+    <!-- DNS Settings Dialog -->
+    <string name="dns_settings_title">VPN DNS Settings</string>
+    <string name="dns_settings_description">Choose how DNS is handled inside the VPN tunnel. If you use a private DNS or local resolver, select System/Private DNS.</string>
+    <string name="dns_cloudflare_title">Cloudflare DNS (Default)</string>
+    <string name="dns_cloudflare_subtitle">1.1.1.1, 2606:4700:4700::1111</string>
+    <string name="dns_system_title">System / Private DNS</string>
+    <string name="dns_system_subtitle">Respects your private DNS or local resolver</string>
+    <string name="dns_custom_title">Custom DNS Servers</string>
+    <string name="dns_custom_subtitle">Specify your own IPv4 and IPv6 servers</string>
+    <string name="dns_custom_ipv4_label">Custom IPv4 DNS (comma separated)</string>
+    <string name="dns_custom_ipv6_label">Custom IPv6 DNS (comma separated)</string>
+    <string name="dialog_save">Save</string>
+    <string name="dialog_cancel">Cancel</string>
+
+    <!-- Privacy Details Dialog -->
+    <string name="privacy_category_prefix">Category: %s</string>
+    <string name="privacy_data_collected">Data Collected:</string>
+    <string name="privacy_opt_out">Opt-out / Mitigation:</string>
+    <string name="dialog_close">Close</string>
+
+    <!-- Bottom Bar Buttons -->
+    <string name="btn_inspect">INSPECT</string>
+    <string name="btn_kill_tunnel">KILL TUNNEL</string>
+
+    <!-- Top Bar & Summary -->
+    <string name="cd_back">Back</string>
+    <string name="cd_settings">Settings</string>
+    <string name="summary_intercepted_bytes">Big Tech intercepted bytes</string>
+    <string name="summary_bytes_from_apps">%1$s from %2$d app</string>
+    <string name="summary_traffic_detail_title">Big Tech traffic detail</string>
+    <string name="cd_open_traffic_detail">Open Total traffic detail</string>
+
+    <!-- Placeholders & Loading -->
+    <string name="placeholder_waiting_title">Waiting for Traffic</string>
+    <string name="placeholder_waiting_subtitle">Inspect network activity as apps generate traffic</string>
+    <string name="placeholder_idle_title">Inspection Idle</string>
+    <string name="placeholder_idle_subtitle">Start the traffic inspection with the button below</string>
+    <string name="loading_establishing_tunnel">Establishing Secure Tunnel…</string>
+    <string name="loading_configuring_proxy">Configuring local proxy &amp; packet interceptor</string>
+
+    <!-- Overview & Details -->
+    <string name="app_stream_count">%1$d stream</string>
+    <string name="host_stream_count">%1$d streams</string>
+    <string name="detail_streams_and_hosts">%1$d streams / %2$d host</string>
 </resources>

@@ -20,8 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.mangoswatch.R
 import org.mangoswatch.presentation.viewmodel.AppTrafficUi
 import org.mangoswatch.util.formatBytes
 
@@ -57,12 +59,12 @@ fun AppTopBarSummaryHeader(
                 modifier = Modifier.weight(1F)
             ) {
                 Text(
-                    text = "Big Tech intercepted bytes",
+                    text = stringResource(R.string.summary_intercepted_bytes),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${formatBytes(totalUp + totalDown)} from $appCount app",
+                    text = stringResource(R.string.summary_bytes_from_apps, formatBytes(totalUp + totalDown), appCount),
                     style = MaterialTheme.typography.titleLarge
                 )
                 Text(
@@ -76,7 +78,7 @@ fun AppTopBarSummaryHeader(
                 content = {
                     Icon(
                         imageVector = Icons.Filled.ArrowDropDown,
-                        contentDescription = "Open Total traffic detail",
+                        contentDescription = stringResource(R.string.cd_open_traffic_detail),
                         modifier = Modifier.rotate(if (openSummaryDetail) 180f else 0f)
                     )
                 }
@@ -91,7 +93,7 @@ fun AppTopBarSummaryHeader(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "Big Tech traffic detail",
+                    text = stringResource(R.string.summary_traffic_detail_title),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

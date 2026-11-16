@@ -16,7 +16,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import org.mangoswatch.R
 import org.mangoswatch.data.vpn.VpnStateEnum
 
 @Composable
@@ -49,7 +51,7 @@ fun AppBottomBarContent(
             )
             Spacer(modifier = Modifier.size(6.dp))
             Text(
-                text = "INSPECT",
+                text = stringResource(R.string.btn_inspect),
                 style = MaterialTheme.typography.labelLarge
             )
         }
@@ -73,7 +75,7 @@ fun AppBottomBarContent(
             )
             Spacer(modifier = Modifier.size(6.dp))
             Text(
-                text = "KILL TUNNEL",
+                text = stringResource(R.string.btn_kill_tunnel),
                 style = MaterialTheme.typography.labelLarge
             )
         }
