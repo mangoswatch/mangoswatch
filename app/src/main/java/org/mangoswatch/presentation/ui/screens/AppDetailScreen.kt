@@ -15,8 +15,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import org.mangoswatch.R
 import org.mangoswatch.presentation.ui.components.AppIcon
 import org.mangoswatch.presentation.ui.components.HostItem
 import org.mangoswatch.presentation.viewmodel.AppTrafficUi
@@ -97,7 +99,7 @@ fun AppDetailHeader(
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = "${appTraffic.streamCount} streams / ${appTraffic.hosts.size} host",
+                    text = stringResource(R.string.detail_streams_and_hosts, appTraffic.streamCount, appTraffic.hosts.size),
                     style = MaterialTheme.typography.bodyMedium
                 )
 
@@ -105,4 +107,3 @@ fun AppDetailHeader(
         }
     }
 }
-

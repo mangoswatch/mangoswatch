@@ -19,8 +19,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import org.mangoswatch.R
 import org.mangoswatch.data.vpn.VpnStateEnum
 import org.mangoswatch.presentation.contracts.LocalEventTunnel
 import org.mangoswatch.presentation.contracts.LocalMainScreenState
@@ -86,8 +88,8 @@ fun MainScreen(
                             if (mainScreenState.apps.isEmpty()) {
                                 AppPlaceholder(
                                     icon = Icons.Default.Radar,
-                                    title = "Waiting for Traffic",
-                                    subtitle = "Inspect network activity as apps generate traffic",
+                                    title = stringResource(R.string.placeholder_waiting_title),
+                                    subtitle = stringResource(R.string.placeholder_waiting_subtitle),
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                                     modifier = Modifier.weight(1f)
@@ -126,8 +128,8 @@ fun MainScreen(
                     VpnStateEnum.IDLE -> {
                         AppPlaceholder(
                             icon = Icons.Default.Visibility,
-                            title = "Inspection Idle",
-                            subtitle = "Start the traffic inspection with the button below",
+                            title = stringResource(R.string.placeholder_idle_title),
+                            subtitle = stringResource(R.string.placeholder_idle_subtitle),
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.weight(1f)

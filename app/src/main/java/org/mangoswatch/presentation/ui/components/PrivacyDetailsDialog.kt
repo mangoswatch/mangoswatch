@@ -10,8 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import org.mangoswatch.R
 import org.mangoswatch.domain.model.EndpointTaxonomy
 import org.mangoswatch.domain.model.EndpointTaxonomyCategory
 
@@ -29,7 +31,7 @@ fun PrivacyDetailsDialog(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "Category: ${item.category.displayName}",
+                    text = stringResource(R.string.privacy_category_prefix, item.category.displayName),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -47,7 +49,7 @@ fun PrivacyDetailsDialog(
 
                 if (item.dataCollected.isNotEmpty()) {
                     Text(
-                        text = "Data Collected:",
+                        text = stringResource(R.string.privacy_data_collected),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -61,7 +63,7 @@ fun PrivacyDetailsDialog(
 
                 if (item.optOutDescription.isNotBlank()) {
                     Text(
-                        text = "Opt-out / Mitigation:",
+                        text = stringResource(R.string.privacy_opt_out),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -74,7 +76,7 @@ fun PrivacyDetailsDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Close")
+                Text(stringResource(R.string.dialog_close))
             }
         }
     )
