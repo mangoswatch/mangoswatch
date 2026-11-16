@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-16 (MICROSOFT IPv6)
+# Updated automatically on 2026-11-17 (MICROSOFT IPv6)
 2001:67c:4f8::/48
 2001:698::/47
 2001:df0:7::/48
@@ -26,9 +26,6 @@
 2602:f8d5:a6::/48
 2602:f8d5:a8::/48
 2602:fc31:4::/48
-2602:fd5e:1::/63
-2602:fd5e:1:2::/64
-2602:fd5e:2::/48
 2602:fdeb:50::/48
 2602:fdeb:52::/47
 2602:fdeb:54::/47

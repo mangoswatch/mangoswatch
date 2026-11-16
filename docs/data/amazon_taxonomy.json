@@ -3,7 +3,7 @@
   "endpoints": [
     {
       "id": "aws_s3_cloudfront_001",
-      "hostname_pattern": "s3\\.amazonaws\\.com|cloudfront\\.net|amazonaws\\.com",
+      "hostname_pattern": "\\.s3\\.amazonaws\\.com|\\.s3[-a-z0-9]*\\.amazonaws\\.com",
       "display_name": "AWS S3 & CloudFront Content Delivery",
       "category": "BACKUP_SYNC",
       "description": "Cloud storage and content delivery network used by AWS-hosted apps and media services.",
