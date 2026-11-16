@@ -11,8 +11,10 @@ koin-plugin = "1.2.1"
 kotlin = "2.4.21"
 composeBom = "2026.09.00"
 materialIcons = "1.7.8"
+datastorePreferences = "1.3.0"
 
 [libraries]
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-compose-material-icons = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIcons" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
