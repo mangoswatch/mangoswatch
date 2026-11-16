@@ -8,25 +8,31 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.mangoswatch.data.resolver.AppInfoResolver
 import org.mangoswatch.data.vpn.VpnAction
 import org.mangoswatch.data.vpn.VpnState
 import org.mangoswatch.data.vpn.VpnStateEnum
+import org.mangoswatch.domain.model.DnsMode
+import org.mangoswatch.domain.model.DnsSettings
 import org.mangoswatch.domain.model.EndpointTaxonomy
 import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.model.StreamModel
 import org.mangoswatch.domain.model.StreamProtocol
 import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
 import org.mangoswatch.domain.repository.StreamsRepository
+import org.mangoswatch.domain.repository.UserPreferencesRepository
 import org.mangoswatch.presentation.contracts.MainScreenEvent
 import org.mangoswatch.presentation.contracts.MainScreenState
 
@@ -35,8 +41,16 @@ class MainScreenViewModel(
     private val streamsRepository: StreamsRepository,
     private val taxonomyRepository: EndpointTaxonomyRepository,
     private val vpnState: VpnState,
-    private val appInfo: AppInfoResolver
+    private val appInfo: AppInfoResolver,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
+
+    val userPreferences: StateFlow<DnsSettings> = userPreferencesRepository.dnsSettings
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = DnsSettings()
+        )
 
     private val _state = MutableStateFlow(
         MainScreenState(
@@ -53,6 +67,8 @@ class MainScreenViewModel(
             is MainScreenEvent.OnAppClick -> _state.update { it.copy(selectedUid = event.appUid) }
             MainScreenEvent.OnStartVpnRequest -> vpnState.actionRequest = VpnAction.START
             MainScreenEvent.OnStopVpnRequest -> vpnState.actionRequest = VpnAction.STOP
+            is MainScreenEvent.OnShowSettings -> _state.update { it.copy(isSettingsOpen = event.show) }
+            is MainScreenEvent.OnUpdateDns -> updateDns(event.mode, event.v4, event.v6)
         }
     }
 
@@ -70,8 +86,24 @@ class MainScreenViewModel(
                 .collect { apps ->
                     _state.update { it.copy(apps = apps) }
                 }
+
+            userPreferencesRepository.dnsSettings.collectLatest { dnsSettings ->
+                _state.update { it.copy (currentDnsSetting = dnsSettings ) }
+            }
         }
 
+    }
+
+    private fun updateDns(mode: DnsMode, v4: String, v6: String){
+        viewModelScope.launch {
+            userPreferencesRepository.updateDnsSettings(
+                DnsSettings(
+                    dnsMode = mode,
+                    dnsV4 = v4,
+                    dnsV6 = v6
+                )
+            )
+        }
     }
 
     private fun onBack() {
@@ -155,4 +187,3 @@ data class HostTrafficUi(
 ) {
     val totalBytes: Long get() = bytesUp + bytesDown
 }
-

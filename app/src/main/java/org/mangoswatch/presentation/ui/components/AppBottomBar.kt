@@ -6,24 +6,19 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.koin.compose.viewmodel.koinViewModel
+import org.mangoswatch.presentation.contracts.LocalEventTunnel
+import org.mangoswatch.presentation.contracts.LocalMainScreenState
 import org.mangoswatch.presentation.contracts.MainScreenEvent
-import org.mangoswatch.presentation.viewmodel.MainScreenViewModel
 
 @Composable
-fun AppBottomBar(
-    mainScreenViewModel: MainScreenViewModel = koinViewModel()
-) {
-
-    val mainScreenState by mainScreenViewModel.state.collectAsState()
-    val eventTunnel = mainScreenState.eventTunnel
+fun AppBottomBar() {
+    val mainScreenState = LocalMainScreenState.current
+    val eventTunnel = LocalEventTunnel.current
 
     Column(
-    modifier = Modifier.navigationBarsPadding()
+        modifier = Modifier.navigationBarsPadding()
     ) {
         HorizontalDivider(
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),

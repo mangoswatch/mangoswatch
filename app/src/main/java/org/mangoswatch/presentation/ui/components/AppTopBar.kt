@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -14,22 +15,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.koin.compose.viewmodel.koinViewModel
+import org.mangoswatch.presentation.contracts.LocalEventTunnel
+import org.mangoswatch.presentation.contracts.LocalMainScreenState
 import org.mangoswatch.presentation.contracts.MainScreenEvent
-import org.mangoswatch.presentation.viewmodel.MainScreenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppTopBar(
-    mainScreenViewModel: MainScreenViewModel = koinViewModel()
-) {
-
-    val mainScreenState by mainScreenViewModel.state.collectAsState()
-    val eventTunnel = mainScreenState.eventTunnel
+fun AppTopBar() {
+    val mainScreenState = LocalMainScreenState.current
+    val eventTunnel = LocalEventTunnel.current
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -56,6 +52,17 @@ fun AppTopBar(
                                     contentDescription = "Back"
                                 )
                             }
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = { eventTunnel(MainScreenEvent.OnShowSettings(true)) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 },

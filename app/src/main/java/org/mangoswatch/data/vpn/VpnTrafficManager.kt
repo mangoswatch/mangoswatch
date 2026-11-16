@@ -11,6 +11,8 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import org.mangoswatch.data.analyzer.TrafficAnalyzer
 import org.mangoswatch.data.proxy.SocksProxyRelay
+import org.mangoswatch.domain.model.DnsMode
+import org.mangoswatch.domain.repository.UserPreferencesRepository
 import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.parser.ip.IpRanges
 import hev.htproxy.TProxyService
@@ -22,6 +24,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import java.io.File
@@ -40,6 +43,7 @@ class VpnTrafficManager : VpnService() {
 
     private val vpnState by inject<VpnState>()
     private val connectivityManager by inject<ConnectivityManager>()
+    private val userPreferencesRepository by inject<UserPreferencesRepository>()
     private lateinit var trafficAnalyzer: TrafficAnalyzer
     private var socksProxyRelay = SocksProxyRelay()
     private var vpnInterface: ParcelFileDescriptor? = null
@@ -196,24 +200,59 @@ class VpnTrafficManager : VpnService() {
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    private fun establishVpnConnection() {
+    private suspend fun establishVpnConnection() {
         Log.d(TAG, "establishVpnConnection - Preparing VPN connection...")
 
+        val dns = userPreferencesRepository.dnsSettings.first()
         val withV6 = upstreamHasIpv6()
-        Log.d(TAG, "upstream IPv6: $withV6")
+        Log.d(TAG, "upstream IPv6: $withV6, dnsMode: ${dns.dnsMode}")
+
         val builder = Builder()
             .setSession("LocalVPNService")
             .setMtu(8500)
             .addAddress("172.16.0.2", 30)
             .addRoute("0.0.0.0", 0)
-            .addDnsServer("1.1.1.1")
-            .addDnsServer("1.0.0.1")
             .addDisallowedApplication(packageName) // avoid loop
+
+        when (dns.dnsMode) {
+            DnsMode.CLOUDFLARE -> {
+                builder
+                    .addDnsServer("1.1.1.1")
+                    .addDnsServer("1.0.0.1")
+                if (withV6) {
+                    builder
+                        .addDnsServer("2606:4700:4700::1111")
+                        .addDnsServer("2606:4700:4700::1001")
+                }
+            }
+            DnsMode.SYSTEM -> {
+                Log.d(TAG, "DNS Mode: SYSTEM (using upstream/private DNS without overriding)")
+            }
+            DnsMode.CUSTOM -> {
+                dns.dnsV4.split(",").map { it.trim() }.filter { it.isNotEmpty() }.forEach { ip ->
+                    try {
+                        builder.addDnsServer(ip)
+                        Log.d(TAG, "Added custom IPv4 DNS: $ip")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Invalid custom IPv4 DNS: $ip", e)
+                    }
+                }
+                if (withV6) {
+                    dns.dnsV6.split(",").map { it.trim() }.filter { it.isNotEmpty() }.forEach { ip ->
+                        try {
+                            builder.addDnsServer(ip)
+                            Log.d(TAG, "Added custom IPv6 DNS: $ip")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Invalid custom IPv6 DNS: $ip", e)
+                        }
+                    }
+                }
+            }
+        }
+
         if (withV6) {
             builder.addAddress("fd00::2", 126)
                 .addRoute("::", 0)
-                .addDnsServer("2606:4700:4700::1111")
-                .addDnsServer("2606:4700:4700::1001")
         }
         vpnInterface = builder.establish()
 
