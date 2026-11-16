@@ -121,21 +121,22 @@ class VpnTrafficManager : VpnService() {
         if (vpnState.state == VpnStateEnum.STOPPED) return
         Log.d(TAG, "stopVpn - Stopping VPN connection...")
         serviceScope.launch {
-            try {
-                TProxyService.TProxyStopService()
-                socksProxyRelay.closeSocksServer()
-                trafficAnalyzer.stopTrafficAnalyzer()
-                serviceJob.cancelChildren()
-                vpnInterface?.close()
-                vpnInterface = null
-                vpnState.state = VpnStateEnum.STOPPED
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                Log.d(TAG, "stopVpn - VPN Connection stopped")
-            } catch (e: Exception) {
-                Log.d(TAG, "stopVpn failed: ${e.message}")
-                vpnState.state = VpnStateEnum.RUNNING
-            }
+            runCatching { TProxyService.TProxyStopService() }
+            runCatching { socksProxyRelay.closeSocksServer() }
+            runCatching { trafficAnalyzer.stopTrafficAnalyzer() }
+            runCatching { serviceJob.cancelChildren() }
+            runCatching { vpnInterface?.close() }
+            vpnInterface = null
+            vpnState.state = VpnStateEnum.STOPPED
+            runCatching { stopForeground(STOP_FOREGROUND_REMOVE) }
+            Log.d(TAG, "stopVpn - VPN Connection stopped")
         }
+    }
+
+    override fun onRevoke() {
+        Log.d(TAG, "onRevoke - VPN permission revoked by user or another VPN service.")
+        stopVpn()
+        super.onRevoke()
     }
 
     private fun createNotification(): android.app.Notification {
@@ -266,11 +267,21 @@ class VpnTrafficManager : VpnService() {
 
     private fun initSocksProxyRelay() {
         socksProxyRelay.startSocksProxyRelay(
-            protectSocket = {
-                protect(it)
+            protectSocket = { socket ->
+                try {
+                    protect(socket)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to protect socket", e)
+                    false
+                }
             },
-            protectDatagramSocket = {
-                protect(it)
+            protectDatagramSocket = { dSocket ->
+                try {
+                    protect(dSocket)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to protect datagram socket", e)
+                    false
+                }
             }
         )
     }
