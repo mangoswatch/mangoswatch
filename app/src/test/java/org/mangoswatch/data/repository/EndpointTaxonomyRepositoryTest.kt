@@ -9,6 +9,7 @@ import org.mangoswatch.domain.model.EndpointTaxonomyCategory
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import java.io.File
+import java.util.regex.Pattern
 
 @RunWith(RobolectricTestRunner::class)
 class EndpointTaxonomyRepositoryTest {
@@ -82,5 +83,32 @@ class EndpointTaxonomyRepositoryTest {
         val items = repository.getAllItems()
         assertEquals(1, items.size)
         assertEquals("openai_api_001", items[0].id)
+    }
+
+    @Test
+    fun testTaxonomyPatternsReDoSProtection() {
+        val docsDir = File("../docs/data")
+        if (!docsDir.exists()) return
+
+        val taxonomyFiles = docsDir.listFiles { _, name -> name.endsWith("_taxonomy.json") } ?: return
+        val longTestString = "sub.".repeat(100) + "example.com"
+
+        for (file in taxonomyFiles) {
+            val jsonString = file.readText()
+            val root = org.json.JSONObject(jsonString)
+            val endpoints = root.getJSONArray("endpoints")
+            for (i in 0 until endpoints.length()) {
+                val endpoint = endpoints.getJSONObject(i)
+                val patternStr = endpoint.getString("hostname_pattern")
+
+                val startTime = System.currentTimeMillis()
+                val pattern = Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE)
+                val matcher = pattern.matcher(longTestString)
+                matcher.find()
+                val duration = System.currentTimeMillis() - startTime
+
+                assertTrue("Potential ReDoS or slow regex in ${file.name}: $patternStr", duration < 200)
+            }
+        }
     }
 }

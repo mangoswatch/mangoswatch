@@ -21,13 +21,25 @@ object AssetManager {
     private const val PREFS_NAME = "mangoswatch_remote_prefs"
     private const val KEY_LAST_SYNC_TIMESTAMP = "last_sync_timestamp"
     private const val WEEK_IN_MILLIS = 7 * 24 * 60 * 60 * 1000L
+    private val ASSET_FILENAME_REGEX = Regex("^[a-z0-9_]+_(ipv4|ipv6)\\.txt$|^[a-z0-9_]+_taxonomy\\.json$")
+    private const val MAX_ASSET_SIZE_BYTES = 5 * 1024 * 1024L // 5 MB
+
+    private fun isValidFileName(fileName: String): Boolean = ASSET_FILENAME_REGEX.matches(fileName)
+
+    private fun isSafeFile(file: File, cacheDir: File): Boolean {
+        return try {
+            file.canonicalPath.startsWith(cacheDir.canonicalPath)
+        } catch (_: Exception) {
+            false
+        }
+    }
 
     fun getIpV4FileName(ipOwner: IpOwner): String = "${ipOwner.name.lowercase()}_ipv4.txt"
     fun getIpV6FileName(ipOwner: IpOwner): String = "${ipOwner.name.lowercase()}_ipv6.txt"
 
     fun getTaxonomyFiles(context: Context): List<String> {
         val cacheDir = getAssetsCacheDir(context)
-        return cacheDir.list()?.filter { it.endsWith("_taxonomy.json") }?.sorted() ?: emptyList()
+        return cacheDir.list()?.filter { isValidFileName(it) && it.endsWith("_taxonomy.json") }?.sorted() ?: emptyList()
     }
 
     private fun getAssetsCacheDir(context: Context): File {
@@ -39,8 +51,17 @@ object AssetManager {
     }
 
     fun getAsset(context: Context, fileName: String): InputStream {
+        if (!isValidFileName(fileName)) {
+            Log.w(TAG, "Access denied to unauthorized asset filename: $fileName")
+            return "".byteInputStream()
+        }
         val cacheDir = getAssetsCacheDir(context)
         val cachedFile = File(cacheDir, fileName)
+
+        if (!isSafeFile(cachedFile, cacheDir)) {
+            Log.e(TAG, "Path traversal attempt detected on getAsset: $fileName")
+            return "".byteInputStream()
+        }
 
         if (cachedFile.exists() && cachedFile.length() > 0L) {
             try {
@@ -65,7 +86,11 @@ object AssetManager {
                 for (i in 0 until jsonArray.length()) {
                     val fileName = jsonArray.getString(i)
                     if (fileName.isNotBlank()) {
-                        assetList.add(fileName)
+                        if (isValidFileName(fileName)) {
+                            assetList.add(fileName)
+                        } else {
+                            Log.w(TAG, "Ignored invalid asset filename from index.json: $fileName")
+                        }
                     }
                 }
             }
@@ -88,11 +113,16 @@ object AssetManager {
             CoroutineScope(Dispatchers.IO).launch {
                 val remoteFiles = fetchRemoteAssetList()
                 val filesToSync = remoteFiles.ifEmpty {
-                    cachedFiles?.toList() ?: emptyList()
+                    cachedFiles?.toList()?.filter { isValidFileName(it) } ?: emptyList()
                 }
 
                 for (fileName in filesToSync) {
                     try {
+                        if (!isValidFileName(fileName)) {
+                            Log.w(TAG, "Skipping asset with invalid filename: $fileName")
+                            continue
+                        }
+
                         val fileUrl = "$GITHUB_PAGES_BASE_URL$fileName"
                         val url = URL(fileUrl)
                         val connection = url.openConnection() as HttpURLConnection
@@ -100,14 +130,31 @@ object AssetManager {
                         connection.readTimeout = 10000
                         if (connection.responseCode == 200) {
                             val tempFile = File(cacheDir, "$fileName.tmp")
+                            val finalFile = File(cacheDir, fileName)
+
+                            if (!isSafeFile(tempFile, cacheDir) || !isSafeFile(finalFile, cacheDir)) {
+                                Log.e(TAG, "Path traversal attempt detected for: $fileName")
+                                continue
+                            }
+
                             connection.inputStream.use { input ->
                                 tempFile.outputStream().use { output ->
-                                    input.copyTo(output)
+                                    var totalBytes = 0L
+                                    val buffer = ByteArray(8192)
+                                    var bytesRead: Int
+                                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                                        totalBytes += bytesRead
+                                        if (totalBytes > MAX_ASSET_SIZE_BYTES) {
+                                            throw java.io.IOException("Asset file exceeds maximum allowed size ($MAX_ASSET_SIZE_BYTES bytes)")
+                                        }
+                                        output.write(buffer, 0, bytesRead)
+                                    }
                                 }
                             }
-                            val finalFile = File(cacheDir, fileName)
+
                             if (!tempFile.renameTo(finalFile)) {
                                 Log.e(TAG, "Failed to rename temp file for: $fileName")
+                                tempFile.delete()
                             }
                         }
                     } catch (e: Exception) {
