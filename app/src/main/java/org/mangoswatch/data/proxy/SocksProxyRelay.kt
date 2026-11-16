@@ -5,7 +5,6 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.mangoswatch.data.vpn.VpnState
 import org.mangoswatch.data.vpn.VpnStateEnum
-import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
 import java.io.IOException
 import java.net.DatagramPacket
@@ -193,9 +192,11 @@ class SocksProxyRelay: KoinComponent {
 
         // client -> internet
         Thread {
+            val buf = ByteArray(65535)
+            val pkt = DatagramPacket(buf, buf.size)
             try {
                 while (true) {
-                    val pkt = DatagramPacket(ByteArray(65535), 65535)
+                    pkt.setData(buf, 0, buf.size)
                     relay.receive(pkt)
                     clientAddr.set(pkt.socketAddress)
                     val d = pkt.data
@@ -219,24 +220,35 @@ class SocksProxyRelay: KoinComponent {
                         } else {
                             Log.w(TAG, "UDP send to $host:$port failed: ${e.message}")
                         }
-                    }                }
+                    }
+                }
             } catch (_: Exception) {}
         }.start()
 
         // internet -> client
         Thread {
+            val recvBuf = ByteArray(65535)
+            val pkt = DatagramPacket(recvBuf, recvBuf.size)
+            val sendBuf = ByteArray(65535 + 256)
             try {
                 while (true) {
-                    val pkt = DatagramPacket(ByteArray(65535), 65535)
+                    pkt.setData(recvBuf, 0, recvBuf.size)
                     outSock.receive(pkt)
                     val src = pkt.address.address
-                    val bos = ByteArrayOutputStream()
-                    bos.write(byteArrayOf(0, 0, 0, if (src.size == 4) 1 else 4))
-                    bos.write(src)
-                    bos.write(pkt.port shr 8); bos.write(pkt.port and 0xFF)
-                    bos.write(pkt.data, 0, pkt.length)
-                    val data = bos.toByteArray()
-                    clientAddr.get()?.let { relay.send(DatagramPacket(data, data.size, it)) }
+                    val isV4 = src.size == 4
+                    sendBuf[0] = 0
+                    sendBuf[1] = 0
+                    sendBuf[2] = 0
+                    sendBuf[3] = if (isV4) 1 else 4
+                    System.arraycopy(src, 0, sendBuf, 4, src.size)
+                    var off = 4 + src.size
+                    sendBuf[off] = (pkt.port shr 8).toByte()
+                    sendBuf[off + 1] = (pkt.port and 0xFF).toByte()
+                    off += 2
+                    System.arraycopy(pkt.data, 0, sendBuf, off, pkt.length)
+                    val totalLen = off + pkt.length
+
+                    clientAddr.get()?.let { relay.send(DatagramPacket(sendBuf, totalLen, it)) }
                 }
             } catch (_: Exception) {}
         }.start()
