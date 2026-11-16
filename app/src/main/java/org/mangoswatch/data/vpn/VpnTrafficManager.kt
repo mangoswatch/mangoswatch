@@ -46,6 +46,9 @@ class VpnTrafficManager : VpnService() {
     private val userPreferencesRepository by inject<UserPreferencesRepository>()
     private lateinit var trafficAnalyzer: TrafficAnalyzer
     private var socksProxyRelay = SocksProxyRelay()
+    private var socksUsername: String = ""
+    private var socksPassword: String = ""
+    private var socksPort: Int = 1080
     private var vpnInterface: ParcelFileDescriptor? = null
 
     private val serviceJob = Job()
@@ -277,7 +280,12 @@ class VpnTrafficManager : VpnService() {
     }
 
     private fun initSocksProxyRelay() {
-        socksProxyRelay.startSocksProxyRelay(
+        socksUsername = java.util.UUID.randomUUID().toString()
+        socksPassword = java.util.UUID.randomUUID().toString()
+
+        socksPort = socksProxyRelay.startSocksProxyRelay(
+            username = socksUsername,
+            password = socksPassword,
             protectSocket = { socket ->
                 try {
                     protect(socket)
@@ -302,6 +310,7 @@ class VpnTrafficManager : VpnService() {
     }
 
     private fun startTun2Socks(fd: Int) {
+
         val config = File(cacheDir, "hev.yml").apply {
             writeText(
                 """
@@ -310,13 +319,15 @@ class VpnTrafficManager : VpnService() {
                             ipv4: 172.16.0.2
                             ipv6: 'fd00::2'
                         socks5:
-                            port: 1080
+                            port: $socksPort
                             address: 127.0.0.1
+                            username: '$socksUsername'
+                            password: '$socksPassword'
                             udp: 'udp'
                         misc:
                             log-level: info
                         """.trimIndent()
-            )
+                    )
         }
         val ok = TProxyService.TProxyStartService(
             config.absolutePath,

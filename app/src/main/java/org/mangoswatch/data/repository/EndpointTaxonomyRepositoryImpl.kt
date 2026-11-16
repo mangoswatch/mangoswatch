@@ -116,9 +116,12 @@ class EndpointTaxonomyRepositoryImpl(
             matchCache[hostnameOrUrl] = matchedItem ?: noMatchSentinel
         }
 
+        // DEBUG Log: this serves for an observation of untracked host to report in the assets
         if (matchedItem == null) {
             try {
-                Log.d("EndpointTaxonomyRepo", "Unclassified endpoint host: $hostnameOrUrl")
+                if (org.mangoswatch.BuildConfig.DEBUG) {
+                    Log.d("EndpointTaxonomyRepo", "Unclassified endpoint host: $hostnameOrUrl")
+                }
             } catch (_: Exception) {}
         }
         return matchedItem

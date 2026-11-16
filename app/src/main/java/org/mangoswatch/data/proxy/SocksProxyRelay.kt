@@ -1,9 +1,9 @@
 package org.mangoswatch.data.proxy
 
 import android.util.Log
-import org.mangoswatch.data.vpn.VpnState
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.mangoswatch.data.vpn.VpnState
 import org.mangoswatch.data.vpn.VpnStateEnum
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
@@ -26,15 +26,26 @@ class SocksProxyRelay: KoinComponent {
 
     private val vpnState by inject<VpnState>()
     var socksServer: ServerSocket? = null
+    var localPort: Int = 1080
+        private set
+
+    private var proxyUsername: String? = null
+    private var proxyPassword: String? = null
 
     fun startSocksProxyRelay(
+        username: String? = null,
+        password: String? = null,
         protectSocket: (socket: Socket) -> Unit,
         protectDatagramSocket: (datagramSocket: DatagramSocket) -> Unit
-    ) {
+    ): Int {
         Log.d(TAG,"startSocksServer - Starting Socket Server...")
+        proxyUsername = username
+        proxyPassword = password
 
-        val server = ServerSocket(1080, 50, InetAddress.getByName("127.0.0.1"))
+        val server = ServerSocket(0, 50, InetAddress.getByName("127.0.0.1"))
         socksServer = server
+        localPort = server.localPort
+
         Thread {
             try {
                 while (vpnState.state == VpnStateEnum.RUNNING) {
@@ -52,7 +63,8 @@ class SocksProxyRelay: KoinComponent {
             }
         }.start()
 
-        Log.d(TAG,"startSocksServer - Socket Server Started")
+        Log.d(TAG,"startSocksServer - Socket Server Started on ephemeral port $localPort")
+        return localPort
     }
 
     fun closeSocksServer() {
@@ -68,8 +80,47 @@ class SocksProxyRelay: KoinComponent {
             val input = DataInputStream(client.getInputStream())
             val output = client.getOutputStream()
 
-            input.readByte(); val n = input.readUnsignedByte(); input.skipBytes(n)   // greeting
-            output.write(byteArrayOf(5, 0))
+            val ver = input.readByte()
+            if (ver.toInt() != 5) {
+                client.close()
+                return
+            }
+            val nMethods = input.readUnsignedByte()
+            val methods = ByteArray(nMethods)
+            input.readFully(methods)
+
+            val useAuth = !proxyUsername.isNullOrEmpty() && !proxyPassword.isNullOrEmpty()
+            if (useAuth && methods.contains(2)) {
+                output.write(byteArrayOf(5, 2))
+                val authVer = input.readByte()
+                if (authVer.toInt() != 1) {
+                    client.close()
+                    return
+                }
+                val uLen = input.readUnsignedByte()
+                val uBytes = ByteArray(uLen)
+                input.readFully(uBytes)
+                val user = String(uBytes)
+
+                val pLen = input.readUnsignedByte()
+                val pBytes = ByteArray(pLen)
+                input.readFully(pBytes)
+                val pass = String(pBytes)
+
+                if (user == proxyUsername && pass == proxyPassword) {
+                    output.write(byteArrayOf(1, 0))
+                } else {
+                    output.write(byteArrayOf(1, 1))
+                    client.close()
+                    return
+                }
+            } else if (useAuth && !methods.contains(2)) {
+                output.write(byteArrayOf(5, 0xFF.toByte()))
+                client.close()
+                return
+            } else {
+                output.write(byteArrayOf(5, 0))
+            }
 
             input.skipBytes(1)                          // ver
             val cmd = input.readUnsignedByte()              // 1 = CONNECT, 3 = UDP ASSOCIATE
@@ -200,6 +251,4 @@ class SocksProxyRelay: KoinComponent {
     companion object {
         const val TAG = "[MANGOS_WATCH] - SOCKS_PROXY_RELAY"
     }
-
-
 }
