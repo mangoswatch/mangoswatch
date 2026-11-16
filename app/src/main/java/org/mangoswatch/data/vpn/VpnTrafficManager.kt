@@ -98,20 +98,22 @@ class VpnTrafficManager : VpnService() {
         serviceScope.launch {
             try {
                 delay(500.milliseconds)         // hacky hacky to show the loader in mainscreen
-                establishVpnConnection()
-                if (vpnState.state == VpnStateEnum.STOPPED) {
+                if (!establishVpnConnection()) {
                     Log.d(TAG, "startVpn - establish() returned null (revoked VPN permission?)")
-                    stopForeground(STOP_FOREGROUND_REMOVE)
+                    stopVpn()
                     return@launch
                 }
                 initSocksProxyRelay()
                 initTrafficAnalyzer()
-                val fd = trafficAnalyzer.mirrorOutputPfd?.fd ?: return@launch
+                val fd = trafficAnalyzer.mirrorOutputPfd?.fd
+                if (fd == null) {
+                    stopVpn()
+                    return@launch
+                }
                 startTun2Socks(fd)
             } catch (e: Exception) {
                 Log.d(TAG, "startVpn failed: ${e.message}")
-                vpnState.state = VpnStateEnum.STOPPED
-                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopVpn()
             }
         }
     }
@@ -121,16 +123,21 @@ class VpnTrafficManager : VpnService() {
         if (vpnState.state == VpnStateEnum.STOPPED) return
         Log.d(TAG, "stopVpn - Stopping VPN connection...")
         serviceScope.launch {
-            runCatching { TProxyService.TProxyStopService() }
-            runCatching { socksProxyRelay.closeSocksServer() }
-            runCatching { trafficAnalyzer.stopTrafficAnalyzer() }
-            runCatching { serviceJob.cancelChildren() }
-            runCatching { vpnInterface?.close() }
-            vpnInterface = null
-            vpnState.state = VpnStateEnum.STOPPED
-            runCatching { stopForeground(STOP_FOREGROUND_REMOVE) }
-            Log.d(TAG, "stopVpn - VPN Connection stopped")
+            performVpnCleanup()
         }
+    }
+
+    // Synchronous
+    private fun performVpnCleanup() {
+        runCatching { TProxyService.TProxyStopService() }
+        runCatching { socksProxyRelay.closeSocksServer() }
+        runCatching { trafficAnalyzer.stopTrafficAnalyzer() }
+        runCatching { serviceJob.cancelChildren() }
+        runCatching { vpnInterface?.close() }
+        vpnInterface = null
+        vpnState.state = VpnStateEnum.STOPPED
+        runCatching { stopForeground(STOP_FOREGROUND_REMOVE) }
+        Log.d(TAG, "performVpnCleanup - VPN Connection stopped")
     }
 
     override fun onRevoke() {
@@ -168,14 +175,14 @@ class VpnTrafficManager : VpnService() {
     }
 
     override fun onDestroy() {
-        stopVpn()
+        performVpnCleanup()
         serviceJob.cancel()
         super.onDestroy()
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         Log.d(TAG, "onTaskRemoved: App removed from recents. Stopping VPN.")
-        stopVpn()
+        performVpnCleanup()
         stopSelf()
         super.onTaskRemoved(rootIntent)
     }
@@ -201,7 +208,7 @@ class VpnTrafficManager : VpnService() {
     }
 
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
-    private suspend fun establishVpnConnection() {
+    private suspend fun establishVpnConnection(): Boolean {
         Log.d(TAG, "establishVpnConnection - Preparing VPN connection...")
 
         val dns = userPreferencesRepository.dnsSettings.first()
@@ -259,10 +266,14 @@ class VpnTrafficManager : VpnService() {
 
         if (vpnInterface != null) {
             vpnState.state = VpnStateEnum.RUNNING
+            Log.d(TAG, "establishVpnConnection - VPN Connection established")
+            return true
         } else {
             vpnState.state = VpnStateEnum.STOPPED
+            Log.d(TAG, "establishVpnConnection - VPN Connection NOT established")
+            return false
         }
-        Log.d(TAG, "establishVpnConnection - VPN Connection established")
+
     }
 
     private fun initSocksProxyRelay() {
@@ -271,7 +282,7 @@ class VpnTrafficManager : VpnService() {
                 try {
                     protect(socket)
                 } catch (e: Exception) {
-                    Log.e(TAG, "Failed to protect socket", e)
+                    Log.e(TAG, "initSocksProxyRelay - Failed to protect socket", e)
                     false
                 }
             },
@@ -279,7 +290,7 @@ class VpnTrafficManager : VpnService() {
                 try {
                     protect(dSocket)
                 } catch (e: Exception) {
-                    Log.e(TAG, "Failed to protect datagram socket", e)
+                    Log.e(TAG, "initSocksProxyRelay - Failed to protect datagram socket", e)
                     false
                 }
             }

@@ -71,7 +71,11 @@ class TrafficAnalyzer(
                     val n = tunInput.read(buf)
                     if (n < 0) break
                     if (n == 0) continue
-                    trafficProcessor.onPacket(buf, n, outbound = true)
+                    runCatching {
+                        trafficProcessor.onPacket(buf, n, outbound = true)
+                    }.onFailure { e ->
+                        Log.e(TAG, "Error processing outbound packet", e)
+                    }
                     mirrorWriter.write(buf, 0, n)
                 }
             } catch (e: Exception) {
@@ -88,7 +92,11 @@ class TrafficAnalyzer(
                     val n = mirrorReader.read(buf)
                     if (n < 0) break
                     if (n == 0) continue
-                    trafficProcessor.onPacket(buf, n, outbound = false)
+                    runCatching {
+                        trafficProcessor.onPacket(buf, n, outbound = false)
+                    }.onFailure { e ->
+                        Log.e(TAG, "Error processing inbound packet", e)
+                    }
                     tunOutput.write(buf, 0, n)
                 }
             } catch (e: Exception) {
