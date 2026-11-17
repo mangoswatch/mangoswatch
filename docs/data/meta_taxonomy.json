@@ -3,7 +3,7 @@
   "endpoints": [
     {
       "id": "graph_api_001",
-      "hostname_pattern": "graph\\.facebook\\.com|edge\\.instagram\\.com|www\\.facebook\\.com|b-graph\\.facebook\\.com|m\\.facebook\\.com|api\\.instagram\\.com|graph\\.instagram\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:graph\\.facebook\\.com|edge\\.instagram\\.com|www\\.facebook\\.com|b-graph\\.facebook\\.com|m\\.facebook\\.com|api\\.instagram\\.com|graph\\.instagram\\.com)$",
       "display_name": "Meta Graph, Instagram & Core API Services",
       "category": "AUTHENTICATION",
       "description": "Core API gateway, Instagram API, web front-end, and connected third-party SDK applications for Facebook and Instagram.",
@@ -17,7 +17,7 @@
     },
     {
       "id": "whatsapp_chat_002",
-      "hostname_pattern": "whatsapp\\.net|g\\.whatsapp\\.net|chat\\.whatsapp\\.com|media\\.whatsapp\\.net|pps\\.whatsapp\\.net",
+      "hostname_pattern": "(?:^|\\.)(?:whatsapp\\.net|g\\.whatsapp\\.net|chat\\.whatsapp\\.com|media\\.whatsapp\\.net|pps\\.whatsapp\\.net)$",
       "display_name": "WhatsApp Messaging, Realtime & Media",
       "category": "NOTIFICATION_PUSH",
       "description": "Real-time messaging connection, presence sync, media delivery, and push notifications for WhatsApp.",
@@ -30,7 +30,7 @@
     },
     {
       "id": "meta_analytics_003",
-      "hostname_pattern": "connect\\.facebook\\.net|star\\.facebook\\.com|logging\\.facebook\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:connect\\.facebook\\.net|star\\.facebook\\.com|logging\\.facebook\\.com)$",
       "display_name": "Meta Analytics, Logging & SDK Telemetry",
       "category": "FIREBASE_ANALYTICS",
       "description": "App event logging, analytics tracking, and user interaction telemetry via Meta SDK.",
@@ -44,7 +44,7 @@
     },
     {
       "id": "meta_ads_004",
-      "hostname_pattern": "ads\\.facebook\\.com|an\\.facebook\\.com|pixel\\.facebook\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:ads\\.facebook\\.com|an\\.facebook\\.com|pixel\\.facebook\\.com)$",
       "display_name": "Meta Audience Network, Pixel & Ads",
       "category": "ADVERTISING_ID",
       "description": "Targeted ad delivery, web pixel conversion tracking, and tracking across third-party mobile apps.",
@@ -57,7 +57,7 @@
     },
     {
       "id": "threads_messenger_005",
-      "hostname_pattern": "threads\\.net|www\\.threads\\.net|mqtt\\.facebook\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:threads\\.net|www\\.threads\\.net|mqtt\\.facebook\\.com)$",
       "display_name": "Threads & Messenger Realtime MQTT Channel",
       "category": "NOTIFICATION_PUSH",
       "description": "Threads social network API and Messenger MQTT persistent connection channel.",

@@ -3,7 +3,7 @@
   "endpoints": [
     {
       "id": "aws_s3_cloudfront_001",
-      "hostname_pattern": "\\.s3\\.amazonaws\\.com|\\.s3[-a-z0-9]*\\.amazonaws\\.com",
+      "hostname_pattern": "(?:^|\\.)s3[-a-z0-9]*\\.amazonaws\\.com$",
       "display_name": "AWS S3 & CloudFront Content Delivery",
       "category": "BACKUP_SYNC",
       "description": "Cloud storage and content delivery network used by AWS-hosted apps and media services.",
@@ -17,7 +17,7 @@
     },
     {
       "id": "alexa_voice_002",
-      "hostname_pattern": "avs-alexa\\.amazon\\.com|api\\.amazonalexa\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:avs-alexa\\.amazon\\.com|api\\.amazonalexa\\.com)$",
       "display_name": "Alexa Voice Services",
       "category": "VOICE_AUDIO",
       "description": "Voice command processing and audio streaming endpoint for Alexa integration.",
@@ -31,7 +31,7 @@
     },
     {
       "id": "amazon_auth_003",
-      "hostname_pattern": "signin\\.amazon\\.com|api\\.amazon\\.com/auth|auth\\.amazon\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:signin\\.amazon\\.com|api\\.amazon\\.com(?:/.*)?|auth\\.amazon\\.com)$",
       "display_name": "Amazon Authentication & Login",
       "category": "AUTHENTICATION",
       "description": "Customer login, credential verification, and OAuth token management.",
@@ -44,7 +44,7 @@
     },
     {
       "id": "amazon_metrics_004",
-      "hostname_pattern": "device-metrics\\.amazon\\.com|amazon-adsystem\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:device-metrics\\.amazon\\.com|amazon-adsystem\\.com)$",
       "display_name": "Amazon Device Metrics & Ads",
       "category": "ADVERTISING_ID",
       "description": "Telemetry collection, advertising ID synchronization, and usage analytics.",

@@ -3,7 +3,7 @@
   "endpoints": [
     {
       "id": "gfn_cloud_001",
-      "hostname_pattern": "gfn\\.nvidia\\.com|cloudgaming\\.nvidia\\.com|events\\.gfn\\.nvidia\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:gfn\\.nvidia\\.com|cloudgaming\\.nvidia\\.com|events\\.gfn\\.nvidia\\.com)$",
       "display_name": "GeForce NOW Cloud Gaming & Telemetry",
       "category": "CONFIG_A_B_TESTING",
       "description": "Cloud gaming session streaming, matchmaking infrastructure, and streaming event telemetry.",
@@ -16,7 +16,7 @@
     },
     {
       "id": "nvidia_telemetry_002",
-      "hostname_pattern": "telemetry\\.nvidia\\.com|driverupdate\\.nvidia\\.com|ota\\.nvidia\\.com|events\\.nvidia\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:telemetry\\.nvidia\\.com|driverupdate\\.nvidia\\.com|ota\\.nvidia\\.com|events\\.nvidia\\.com)$",
       "display_name": "NVIDIA Telemetry, OTA & Update Services",
       "category": "UPDATE_CHECK",
       "description": "Driver update checks, OTA firmware delivery, telemetry logging, and system diagnostics.",
@@ -29,7 +29,7 @@
     },
     {
       "id": "nvidia_auth_003",
-      "hostname_pattern": "sso\\.nvidia\\.com|login\\.nvidia\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:sso\\.nvidia\\.com|login\\.nvidia\\.com)$",
       "display_name": "NVIDIA Account Authentication",
       "category": "AUTHENTICATION",
       "description": "Single sign-on and account credential verification.",
@@ -42,7 +42,7 @@
     },
     {
       "id": "nvidia_dev_004",
-      "hostname_pattern": "developer\\.nvidia\\.com|api\\.nvidia\\.com|build\\.nvidia\\.com|ngc\\.nvidia\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:developer\\.nvidia\\.com|api\\.nvidia\\.com|build\\.nvidia\\.com|ngc\\.nvidia\\.com)$",
       "display_name": "NVIDIA Developer Network, NGC & AI APIs",
       "category": "SEARCH_USAGE",
       "description": "Developer documentation, NGC container registry, AI model building, and API access.",
