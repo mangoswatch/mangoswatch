@@ -10,7 +10,8 @@ class IpV4ParserTest {
     private val parser = IpV4Parser(
         emptyRanges, emptyRanges, emptyRanges, emptyRanges,
         emptyRanges, emptyRanges, emptyRanges, emptyRanges,
-        emptyRanges, emptyRanges
+        emptyRanges, emptyRanges, emptyRanges, emptyRanges,
+        emptyRanges
     )
 
     @Test

@@ -11,12 +11,15 @@ class IpV4Parser(
     private val amazonRanges: IpRanges,
     private val anthropicRanges: IpRanges,
     private val appleRanges: IpRanges,
+    private val appsflyerRanges: IpRanges,
     private val googleRanges: IpRanges,
     private val metaRanges: IpRanges,
     private val microsoftRanges: IpRanges,
     private val netflixRanges: IpRanges,
     private val nvidiaRanges: IpRanges,
     private val openaiRanges: IpRanges,
+    private val xiaomiRanges: IpRanges,
+    private val xTwitterRanges: IpRanges,
     private val reservedRanges: IpRanges,
 ) {
 
@@ -70,12 +73,15 @@ class IpV4Parser(
         amazonRanges.containsV4(ipL)        -> IpOwner.AMAZON
         anthropicRanges.containsV4(ipL)     -> IpOwner.ANTHROPIC
         appleRanges.containsV4(ipL)         -> IpOwner.APPLE
+        appsflyerRanges.containsV4(ipL)     -> IpOwner.APPSFLYER
         googleRanges.containsV4(ipL)        -> IpOwner.GOOGLE
         metaRanges.containsV4(ipL)          -> IpOwner.META
         microsoftRanges.containsV4(ipL)     -> IpOwner.MICROSOFT
         netflixRanges.containsV4(ipL)       -> IpOwner.NETFLIX
         nvidiaRanges.containsV4(ipL)        -> IpOwner.NVIDIA
         openaiRanges.containsV4(ipL)        -> IpOwner.OPENAI
+        xiaomiRanges.containsV4(ipL)        -> IpOwner.XIAOMI
+        xTwitterRanges.containsV4(ipL)      -> IpOwner.X_TWITTER
         reservedRanges.containsV4(ipL)      -> IpOwner.RESERVED
         else                                -> IpOwner.OTHER
     }

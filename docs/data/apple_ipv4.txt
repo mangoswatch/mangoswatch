@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-16 (APPLE IPv4)
+# Updated automatically on 2026-11-17 (APPLE IPv4)
 17.0.0.0/8
 57.102.0.0/15
 65.199.22.0/23

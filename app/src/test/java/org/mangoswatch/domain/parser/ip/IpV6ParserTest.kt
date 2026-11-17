@@ -6,17 +6,21 @@ import org.mangoswatch.domain.model.IpOwner
 
 class IpV6ParserTest {
 
+    private val emptyRanges = IpRanges.empty()
     private val parser = IpV6Parser(
-        amazonRanges = IpRanges.empty(),
-        anthropicRanges = IpRanges.empty(),
-        appleRanges = IpRanges.empty(),
-        googleRanges = IpRanges.empty(),
-        metaRanges = IpRanges.empty(),
-        microsoftRanges = IpRanges.empty(),
-        netflixRanges = IpRanges.empty(),
-        nvidiaRanges = IpRanges.empty(),
-        openaiRanges = IpRanges.empty(),
-        reservedRanges = IpRanges.empty()
+        amazonRanges = emptyRanges,
+        anthropicRanges = emptyRanges,
+        appleRanges = emptyRanges,
+        appsflyerRanges = emptyRanges,
+        googleRanges = emptyRanges,
+        metaRanges = emptyRanges,
+        microsoftRanges = emptyRanges,
+        netflixRanges = emptyRanges,
+        nvidiaRanges = emptyRanges,
+        openaiRanges = emptyRanges,
+        xiaomiRanges = emptyRanges,
+        xTwitterRanges = emptyRanges,
+        reservedRanges = emptyRanges
     )
 
     @Test

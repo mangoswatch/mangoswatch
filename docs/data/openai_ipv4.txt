@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-16 (OPENAI IPv4)
+# Updated automatically on 2026-11-17 (OPENAI IPv4)
 4.151.71.176/28
 4.151.119.48/28
 4.189.118.208/28

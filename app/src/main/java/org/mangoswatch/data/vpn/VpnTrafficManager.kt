@@ -60,12 +60,15 @@ class VpnTrafficManager : VpnService() {
             amazonRanges = IpRanges.load(this, IpOwner.AMAZON),
             anthropicRanges = IpRanges.load(this, IpOwner.ANTHROPIC),
             appleRanges = IpRanges.load(this, IpOwner.APPLE),
+            appsflyerRanges = IpRanges.load(this, IpOwner.APPSFLYER),
             googleRanges = IpRanges.load(this, IpOwner.GOOGLE),
             metaRanges = IpRanges.load(this, IpOwner.META),
             microsoftRanges = IpRanges.load(this, IpOwner.MICROSOFT),
             netflixRanges = IpRanges.load(this, IpOwner.NETFLIX),
             nvidiaRanges = IpRanges.load(this, IpOwner.NVIDIA),
             openaiRanges = IpRanges.load(this, IpOwner.OPENAI),
+            xiaomiRanges = IpRanges.load(this, IpOwner.XIAOMI),
+            xTwitterRanges = IpRanges.load(this, IpOwner.X_TWITTER),
             reservedRanges = IpRanges.load(this, IpOwner.RESERVED)
         )
     }

@@ -45,12 +45,15 @@ class StreamTrafficProcessorTest {
             amazonRanges = emptyRanges,
             anthropicRanges = emptyRanges,
             appleRanges = emptyRanges,
+            appsflyerRanges = emptyRanges,
             googleRanges = emptyRanges,
             metaRanges = emptyRanges,
             microsoftRanges = emptyRanges,
             netflixRanges = emptyRanges,
             nvidiaRanges = emptyRanges,
             openaiRanges = emptyRanges,
+            xiaomiRanges = emptyRanges,
+            xTwitterRanges = emptyRanges,
             reservedRanges = emptyRanges
         )
     }
