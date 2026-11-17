@@ -111,7 +111,10 @@ class MainScreenViewModel(
     }
 
     private fun List<StreamModel>.toAppTraffic(): List<AppTrafficUi> =
-        filter { it.ipOwner != IpOwner.RESERVED && it.ipOwner != IpOwner.OTHER } // We only show confirmed big tech
+        filter {
+            it.ipOwner != IpOwner.RESERVED &&
+            (it.ipOwner != IpOwner.OTHER || taxonomyRepository.findMatch(it.hostname()) != null)
+        }
             .groupBy { it.uid }
             .map { (uid, streams) ->
                 val (title, pkg) = resolveTitle(uid, streams)

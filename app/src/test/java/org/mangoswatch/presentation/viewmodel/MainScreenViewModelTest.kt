@@ -21,6 +21,10 @@ import org.mangoswatch.domain.model.DnsSettings
 import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
 import org.mangoswatch.domain.repository.StreamsRepository
 import org.mangoswatch.domain.repository.UserPreferencesRepository
+import org.mangoswatch.domain.model.EndpointTaxonomy
+import org.mangoswatch.domain.model.EndpointTaxonomyCategory
+import org.mangoswatch.domain.model.IpOwner
+import org.mangoswatch.domain.model.StreamModel
 import org.mangoswatch.presentation.contracts.MainScreenEvent
 import org.robolectric.RobolectricTestRunner
 import org.mockito.Mockito.*
@@ -109,6 +113,86 @@ class MainScreenViewModelTest {
     }
 
     @Test
+    fun testToAppTrafficFilterOtherAndReserved() = runTest {
+        val taxonomyItem = EndpointTaxonomy(
+            id = "appsflyer_sdk_001",
+            provider = "APPSFLYER",
+            hostnamePattern = "(?:^|\\.)appsflyersdk\\.com$",
+            displayName = "AppsFlyer",
+            category = EndpointTaxonomyCategory.ADVERTISING_ID,
+            description = "Desc",
+            dataCollected = emptyList(),
+            optOutDescription = ""
+        )
+        `when`(taxonomyRepository.findMatch("appsflyersdk.com")).thenReturn(taxonomyItem)
+        `when`(taxonomyRepository.findMatch("unknown.com")).thenReturn(null)
+        `when`(taxonomyRepository.findMatch("?")).thenReturn(null)
+
+        val matchingOtherStream = StreamModel(
+            protocol = 6,
+            srcIpStr = "10.0.0.1",
+            srcPort = 12345,
+            dstIpStr = "1.2.3.4",
+            dstPort = 443,
+            ipOwner = IpOwner.OTHER,
+            firstSeen = System.currentTimeMillis(),
+            uid = 10001,
+            sni = "appsflyersdk.com"
+        )
+
+        val nonMatchingOtherStream = StreamModel(
+            protocol = 6,
+            srcIpStr = "10.0.0.1",
+            srcPort = 12346,
+            dstIpStr = "5.6.7.8",
+            dstPort = 443,
+            ipOwner = IpOwner.OTHER,
+            firstSeen = System.currentTimeMillis(),
+            uid = 10002,
+            sni = "unknown.com"
+        )
+
+        val reservedMatchingStream = StreamModel(
+            protocol = 6,
+            srcIpStr = "10.0.0.1",
+            srcPort = 12347,
+            dstIpStr = "127.0.0.1",
+            dstPort = 443,
+            ipOwner = IpOwner.RESERVED,
+            firstSeen = System.currentTimeMillis(),
+            uid = 10003,
+            sni = "appsflyersdk.com"
+        )
+
+        val mockStreamsRepo = mock(StreamsRepository::class.java)
+        `when`(mockStreamsRepo.getStreams()).thenReturn(flowOf(listOf(
+            matchingOtherStream,
+            nonMatchingOtherStream,
+            reservedMatchingStream
+        )))
+
+        vpnState.state = VpnStateEnum.RUNNING
+
+        val vm = MainScreenViewModel(
+            streamsRepository = mockStreamsRepo,
+            taxonomyRepository = taxonomyRepository,
+            vpnState = vpnState,
+            appInfo = appInfoResolver,
+            userPreferencesRepository = userPreferencesRepository
+        )
+
+        testDispatcher.scheduler.advanceUntilIdle()
+        Thread.sleep(200)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val apps = vm.state.value.apps
+        assertEquals(1, apps.size)
+        assertEquals(10001, apps[0].uid)
+        assertEquals("appsflyersdk.com", apps[0].hosts[0].host)
+        assertEquals(IpOwner.APPSFLYER, apps[0].hosts[0].ipOwner)
+    }
+
+    @Test
     fun testOnUpdateDnsEvent() = runTest {
         viewModel.state.value.eventTunnel(MainScreenEvent.OnUpdateDns(DnsMode.CUSTOM, "1.1.1.1", "2606:4700:4700::1111"))
         testDispatcher.scheduler.advanceUntilIdle()
@@ -118,6 +202,8 @@ class MainScreenViewModelTest {
     @Test
     fun testStreamProcessingWhenVpnRunning() = runTest {
         vpnState.state = VpnStateEnum.RUNNING
+        testDispatcher.scheduler.advanceUntilIdle()
+        Thread.sleep(200)
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.state.value
