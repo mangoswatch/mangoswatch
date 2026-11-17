@@ -111,16 +111,7 @@ class MainScreenViewModel(
     }
 
     private fun List<StreamModel>.toAppTraffic(): List<AppTrafficUi> =
-        asSequence().map { stream ->
-            val taxonomyMatch = taxonomyRepository.findMatch(stream.hostname())
-            val resolvedOwner = if (taxonomyMatch != null) {
-                try { IpOwner.valueOf(taxonomyMatch.provider) } catch (_: Exception) { stream.ipOwner }
-            } else {
-                stream.ipOwner
-            }
-            stream.copy(ipOwner = resolvedOwner)
-        }
-            .filter { it.ipOwner != IpOwner.RESERVED && it.ipOwner != IpOwner.OTHER } // We only show confirmed big tech
+        filter { it.ipOwner != IpOwner.RESERVED && it.ipOwner != IpOwner.OTHER } // We only show confirmed big tech
             .groupBy { it.uid }
             .map { (uid, streams) ->
                 val (title, pkg) = resolveTitle(uid, streams)
@@ -157,7 +148,7 @@ class MainScreenViewModel(
                         .sortedByDescending { it.totalBytes }
                 )
             }
-            .sortedByDescending { it.totalBytes }.toList()
+            .sortedByDescending { it.totalBytes }
 
 
     private fun resolveTitle(uid: Int, streams: List<StreamModel>): Pair<String, String?> {
