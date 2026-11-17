@@ -106,20 +106,20 @@ class VpnTrafficManager : VpnService() {
                 delay(500.milliseconds)         // hacky hacky to show the loader in mainscreen
                 if (!establishVpnConnection()) {
                     Log.d(TAG, "startVpn - establish() returned null (revoked VPN permission?)")
-                    stopVpn()
+                    performVpnCleanup()
                     return@launch
                 }
                 initSocksProxyRelay()
                 initTrafficAnalyzer()
                 val fd = trafficAnalyzer.mirrorOutputPfd?.fd
                 if (fd == null) {
-                    stopVpn()
+                    performVpnCleanup()
                     return@launch
                 }
                 startTun2Socks(fd)
             } catch (e: Exception) {
                 Log.d(TAG, "startVpn failed: ${e.message}")
-                stopVpn()
+                performVpnCleanup()
             }
         }
     }
@@ -275,7 +275,6 @@ class VpnTrafficManager : VpnService() {
             Log.d(TAG, "establishVpnConnection - VPN Connection established")
             return true
         } else {
-            vpnState.state = VpnStateEnum.STOPPED
             Log.d(TAG, "establishVpnConnection - VPN Connection NOT established")
             return false
         }
