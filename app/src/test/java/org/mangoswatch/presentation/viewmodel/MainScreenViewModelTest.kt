@@ -114,4 +114,13 @@ class MainScreenViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
         verify(userPreferencesRepository).updateDnsSettings(any())
     }
+
+    @Test
+    fun testStreamProcessingWhenVpnRunning() = runTest {
+        vpnState.state = VpnStateEnum.RUNNING
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val state = viewModel.state.value
+        assertEquals(VpnStateEnum.RUNNING, state.vpnState)
+    }
 }
