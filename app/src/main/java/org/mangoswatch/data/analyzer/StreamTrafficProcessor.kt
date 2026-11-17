@@ -23,12 +23,15 @@ class StreamTrafficProcessor(
     amazonRanges: IpRanges,
     anthropicRanges: IpRanges,
     appleRanges: IpRanges,
+    appsflyerRanges: IpRanges,
     googleRanges: IpRanges,
     metaRanges: IpRanges,
     microsoftRanges: IpRanges,
     netflixRanges: IpRanges,
     nvidiaRanges: IpRanges,
     openaiRanges: IpRanges,
+    xiaomiRanges: IpRanges,
+    xTwitterRanges: IpRanges,
     reservedRanges: IpRanges
 ): KoinComponent {
 
@@ -38,24 +41,30 @@ class StreamTrafficProcessor(
         amazonRanges = amazonRanges,
         anthropicRanges = anthropicRanges,
         appleRanges = appleRanges,
+        appsflyerRanges = appsflyerRanges,
         googleRanges = googleRanges,
         metaRanges = metaRanges,
         microsoftRanges = microsoftRanges,
         netflixRanges = netflixRanges,
         nvidiaRanges = nvidiaRanges,
         openaiRanges = openaiRanges,
+        xiaomiRanges = xiaomiRanges,
+        xTwitterRanges = xTwitterRanges,
         reservedRanges = reservedRanges
     )
     private val ipV6Parser = IpV6Parser(
         amazonRanges = amazonRanges,
         anthropicRanges = anthropicRanges,
         appleRanges = appleRanges,
+        appsflyerRanges = appsflyerRanges,
         googleRanges = googleRanges,
         metaRanges = metaRanges,
         microsoftRanges = microsoftRanges,
         netflixRanges = netflixRanges,
         nvidiaRanges = nvidiaRanges,
         openaiRanges = openaiRanges,
+        xiaomiRanges = xiaomiRanges,
+        xTwitterRanges = xTwitterRanges,
         reservedRanges = reservedRanges
     )
     private val dnsQueryParser = DnsQueryParser()

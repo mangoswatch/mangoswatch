@@ -27,7 +27,6 @@ ASNS = {
     "apple": [714, 6185],
     "netflix": [2906, 40027, 55095],
     "nvidia": [11414, 20347, 50889, 398037, 38834, 60977],
-    "microsoft": [8075],
     "x_twitter": [13414],
     "xiaomi": [55960, 133957],
 }
@@ -92,11 +91,12 @@ def fetch_google():
 def fetch_amazon():
     d = get("https://ip-ranges.amazonaws.com/ip-ranges.json").json()
     all_prefixes = d.get("prefixes", []) + d.get("ipv6_prefixes", [])
+    customer_services = {"EC2", "EC2_INSTANCE_CONNECT", "CLOUDFRONT", "S3", "ROUTE53_HEALTHCHECKS"}
     for v in (4, 6):
         amazon_nets = [ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")) for p in all_prefixes if p.get("service") in ("AMAZON", "GLOBAL") and ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")).version == v]
-        ec2_nets = [ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")) for p in all_prefixes if p.get("service") in ("EC2", "EC2_INSTANCE_CONNECT") and ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")).version == v]
-        for n in subtract(amazon_nets, ec2_nets):
-            add_prefix("amazon", str(n), "aws-amazon-minus-ec2")
+        customer_nets = [ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")) for p in all_prefixes if p.get("service") in customer_services and ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")).version == v]
+        for n in subtract(amazon_nets, customer_nets):
+            add_prefix("amazon", str(n), "aws-amazon-minus-customer-services")
 
 
 def fetch_azure():
@@ -110,9 +110,9 @@ def fetch_azure():
     if not url:
         raise RuntimeError("Azure Service Tags URL could not be retrieved from Microsoft download page.")
 
-    target_services = {"AzureActiveDirectory", "AzureFrontDoor.FrontEnd", "Storage", "Sql", "AzureResourceManager", "AzureCore"}
+    first_party_services = {"AzureActiveDirectory", "AzureResourceManager"}
     for v in get(url).json()["values"]:
-        if v["name"] in target_services:
+        if v["name"] in first_party_services:
             for p in v["properties"]["addressPrefixes"]:
                 add_prefix("microsoft", p, f"azure-service-{v['name']}")
 

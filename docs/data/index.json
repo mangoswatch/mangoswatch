@@ -29,6 +29,10 @@
   "openai_taxonomy.json",
   "reserved_ipv4.txt",
   "reserved_ipv6.txt",
+  "x_twitter_ipv4.txt",
+  "x_twitter_ipv6.txt",
   "x_twitter_taxonomy.json",
+  "xiaomi_ipv4.txt",
+  "xiaomi_ipv6.txt",
   "xiaomi_taxonomy.json"
 ]

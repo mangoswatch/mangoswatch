@@ -10,12 +10,15 @@ class IpV6Parser(
     private val amazonRanges: IpRanges,
     private val anthropicRanges: IpRanges,
     private val appleRanges: IpRanges,
+    private val appsflyerRanges: IpRanges,
     private val googleRanges: IpRanges,
     private val metaRanges: IpRanges,
     private val microsoftRanges: IpRanges,
     private val netflixRanges: IpRanges,
     private val nvidiaRanges: IpRanges,
     private val openaiRanges: IpRanges,
+    private val xiaomiRanges: IpRanges,
+    private val xTwitterRanges: IpRanges,
     private val reservedRanges: IpRanges,
 ) {
 
@@ -67,13 +70,16 @@ class IpV6Parser(
         amazonRanges.containsV6(b, off)     -> IpOwner.AMAZON
         anthropicRanges.containsV6(b, off)  -> IpOwner.ANTHROPIC
         appleRanges.containsV6(b, off)      -> IpOwner.APPLE
+        appsflyerRanges.containsV6(b, off)  -> IpOwner.APPSFLYER
         googleRanges.containsV6(b, off)     -> IpOwner.GOOGLE
         metaRanges.containsV6(b, off)       -> IpOwner.META
         microsoftRanges.containsV6(b, off)  -> IpOwner.MICROSOFT
         netflixRanges.containsV6(b, off)    -> IpOwner.NETFLIX
         nvidiaRanges.containsV6(b, off)     -> IpOwner.NVIDIA
         openaiRanges.containsV6(b, off)     -> IpOwner.OPENAI
+        xiaomiRanges.containsV6(b, off)     -> IpOwner.XIAOMI
+        xTwitterRanges.containsV6(b, off)   -> IpOwner.X_TWITTER
         reservedRanges.containsV6(b, off)   -> IpOwner.RESERVED
-        else                                       -> IpOwner.OTHER
+        else                                -> IpOwner.OTHER
     }
 }
