@@ -3,7 +3,7 @@
   "endpoints": [
     {
       "id": "anthropic_api_001",
-      "hostname_pattern": "api\\.anthropic\\.com|claude\\.ai|assets-proxy\\.anthropic\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:api\\.anthropic\\.com|claude\\.ai|assets-proxy\\.anthropic\\.com)$",
       "display_name": "Claude Web, API & Message Completions",
       "category": "SEARCH_USAGE",
       "description": "Core API and web interface endpoints for conversational prompt processing, assets, and text generation using Claude models.",
@@ -17,7 +17,7 @@
     },
     {
       "id": "anthropic_auth_002",
-      "hostname_pattern": "auth\\.anthropic\\.com|console\\.anthropic\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:auth\\.anthropic\\.com|console\\.anthropic\\.com)$",
       "display_name": "Anthropic Authentication & Console",
       "category": "AUTHENTICATION",
       "description": "User authentication, API key management, and console login services.",
@@ -30,7 +30,7 @@
     },
     {
       "id": "anthropic_telemetry_003",
-      "hostname_pattern": "stats\\.anthropic\\.com|telemetry\\.anthropic\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:stats\\.anthropic\\.com|telemetry\\.anthropic\\.com)$",
       "display_name": "Anthropic Telemetry & Analytics",
       "category": "CLEARCUT_TELEMETRY",
       "description": "Performance monitoring, error logging, and usage diagnostics.",

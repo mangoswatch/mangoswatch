@@ -3,7 +3,7 @@
   "endpoints": [
     {
       "id": "appsflyer_sdk_001",
-      "hostname_pattern": "appsflyersdk\\.com|appsflyer\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:appsflyersdk\\.com|appsflyer\\.com)$",
       "display_name": "AppsFlyer Attribution & Marketing SDK",
       "category": "ADVERTISING_ID",
       "description": "Mobile attribution, deep linking, conversion measurement, and marketing analytics SDK.",

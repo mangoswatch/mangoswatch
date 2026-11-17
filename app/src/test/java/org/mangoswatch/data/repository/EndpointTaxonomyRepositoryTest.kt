@@ -111,4 +111,51 @@ class EndpointTaxonomyRepositoryTest {
             }
         }
     }
+
+    @Test
+    fun testAnchoredPatternsCorpus() {
+        val context = RuntimeEnvironment.getApplication()
+        val assetsCacheDir = File(context.cacheDir, "assets_cache")
+        val docsDir = File("../docs/data")
+        assertTrue("docs/data must exist", docsDir.exists())
+
+        val taxonomyFiles = docsDir.listFiles { _, name -> name.endsWith("_taxonomy.json") } ?: emptyArray()
+        assertTrue("Taxonomy files must exist in docs/data", taxonomyFiles.isNotEmpty())
+
+        for (file in taxonomyFiles) {
+            file.copyTo(File(assetsCacheDir, file.name), overwrite = true)
+        }
+
+        val repository = EndpointTaxonomyRepositoryImpl(context)
+
+        // Negative corpus: these must NOT falsely match X_TWITTER or GOOGLE or ANY unassociated provider
+        val negatives = listOf(
+            "reddit.com",
+            "dropbox.com",
+            "fedex.com",
+            "wix.com",
+            "notgoogle.com.evil.net"
+        )
+
+        for (host in negatives) {
+            val match = repository.findMatch(host)
+            assertNull("Host '$host' should not match any taxonomy item but matched ${match?.provider}/${match?.id}", match)
+        }
+
+        // Positive corpus:
+        val positives = mapOf(
+            "api.twitter.com" to "X_TWITTER",
+            "x.com" to "X_TWITTER",
+            "t.co" to "X_TWITTER",
+            "graph.microsoft.com" to "MICROSOFT",
+            "foo.s3.amazonaws.com" to "AMAZON",
+            "foo.blob.core.windows.net" to "MICROSOFT"
+        )
+
+        for ((host, expectedProvider) in positives) {
+            val match = repository.findMatch(host)
+            assertNotNull("Host '$host' should match $expectedProvider", match)
+            assertEquals("Host '$host' matched wrong provider", expectedProvider, match?.provider)
+        }
+    }
 }

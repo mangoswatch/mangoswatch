@@ -3,7 +3,7 @@
   "endpoints": [
     {
       "id": "netflix_api_001",
-      "hostname_pattern": "android\\.prod\\.ftl\\.netflix\\.com|api\\.netflix\\.com|customerevents\\.netflix\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:android\\.prod\\.ftl\\.netflix\\.com|api\\.netflix\\.com|customerevents\\.netflix\\.com)$",
       "display_name": "Netflix API, Customer Events & Config",
       "category": "CONFIG_A_B_TESTING",
       "description": "App initialization, customer event telemetry, configuration fetching, and content catalog metadata retrieval.",
@@ -16,7 +16,7 @@
     },
     {
       "id": "netflix_telemetry_002",
-      "hostname_pattern": "ichnaea\\.netflix\\.com|nrdp\\.netflix\\.com|logs\\.netflix\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:ichnaea\\.netflix\\.com|nrdp\\.netflix\\.com|logs\\.netflix\\.com)$",
       "display_name": "Netflix Telemetry & Quality Logs",
       "category": "CLEARCUT_TELEMETRY",
       "description": "Playback quality metrics, error logging, NRDP logs, and performance telemetry.",
@@ -29,7 +29,7 @@
     },
     {
       "id": "netflix_streaming_003",
-      "hostname_pattern": "nflxvideo\\.net|nflximg\\.net|nflxso\\.net|nflxext\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:nflxvideo\\.net|nflximg\\.net|nflxso\\.net|nflxext\\.com)$",
       "display_name": "Netflix Video & Image Delivery CDN",
       "category": "UPDATE_CHECK",
       "description": "Content delivery network for streaming video media, artwork assets, and client extensions.",
@@ -42,7 +42,7 @@
     },
     {
       "id": "netflix_auth_004",
-      "hostname_pattern": "secure\\.netflix\\.com|netflix\\.com/login|auth\\.netflix\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:secure\\.netflix\\.com|netflix\\.com(?:/.*)?|auth\\.netflix\\.com)$",
       "display_name": "Netflix Authentication & Member Services",
       "category": "AUTHENTICATION",
       "description": "Customer login, subscription verification, and session management.",

@@ -26,7 +26,7 @@ Taxonomy JSON files categorize known Big Tech endpoints and data collection beha
   "endpoints": [
     {
       "id": "provider_feature_001",
-      "hostname_pattern": "api\\.example\\.com|subdomain\\.example\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:api\\.example\\.com|subdomain\\.example\\.com)$",
       "display_name": "Feature or Service Name",
       "category": "SEARCH_USAGE",
       "description": "Clear description of what this endpoint does.",
@@ -40,7 +40,10 @@ Taxonomy JSON files categorize known Big Tech endpoints and data collection beha
 }
 ```
 
-3. Ensure valid categories from `EndpointTaxonomyCategory` (e.g. `SEARCH_USAGE`, `CLEARCUT_TELEMETRY`, `AUTHENTICATION`, `ANALYTICS`, `UNKNOWN`).
+3. **Hostname Pattern Anchoring & Precedence Rules**:
+   - **Anchoring**: All `hostname_pattern` regexes **MUST** be explicitly anchored to prevent partial substring matches (e.g., preventing `x\.com` from matching `reddit.com` or `dropbox.com`). Always format patterns using `(?:^|\.)(?:domain1\.com|domain2\.com)$` (or `(?:^|\.)(?:domain\.com(?:/.*)?)$` if matching optional paths). A candidate host matches only if it is an exact match or a subdomain preceded by a dot (`.`).
+   - **Precedence**: Taxonomy files are loaded in alphabetical order of their filenames (`*_taxonomy.json`), and endpoints within a file are evaluated sequentially. The first matching rule takes precedence.
+4. Ensure valid categories from `EndpointTaxonomyCategory` (e.g. `SEARCH_USAGE`, `CLEARCUT_TELEMETRY`, `AUTHENTICATION`, `ANALYTICS`, `UNKNOWN`).
 
 ---
 

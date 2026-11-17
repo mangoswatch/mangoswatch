@@ -3,7 +3,7 @@
   "endpoints": [
     {
       "id": "openai_api_001",
-      "hostname_pattern": "api\\.openai\\.com",
+      "hostname_pattern": "(?:^|\\.)api\\.openai\\.com$",
       "display_name": "OpenAI API & Model Completions",
       "category": "SEARCH_USAGE",
       "description": "Core API endpoint for GPT model inference, embeddings, and completions.",
@@ -17,7 +17,7 @@
     },
     {
       "id": "chatgpt_backend_002",
-      "hostname_pattern": "chatgpt\\.com|chat\\.openai\\.com|oaistatic\\.com|oaiusercontent\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:chatgpt\\.com|chat\\.openai\\.com|oaistatic\\.com|oaiusercontent\\.com)$",
       "display_name": "ChatGPT Web, App Backend & Static Assets",
       "category": "SEARCH_USAGE",
       "description": "Backend services and static asset CDN supporting ChatGPT mobile apps and web interface conversations.",
@@ -31,7 +31,7 @@
     },
     {
       "id": "openai_telemetry_003",
-      "hostname_pattern": "stats\\.openai\\.com|events\\.openai\\.com|telemetry\\.openai\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:stats\\.openai\\.com|events\\.openai\\.com|telemetry\\.openai\\.com)$",
       "display_name": "OpenAI Telemetry & Analytics",
       "category": "CLEARCUT_TELEMETRY",
       "description": "App performance monitoring, crash reporting, and usage analytics.",
@@ -44,7 +44,7 @@
     },
     {
       "id": "openai_auth_004",
-      "hostname_pattern": "auth\\.openai\\.com|auth0\\.openai\\.com",
+      "hostname_pattern": "(?:^|\\.)(?:auth\\.openai\\.com|auth0\\.openai\\.com)$",
       "display_name": "OpenAI Authentication & Login",
       "category": "AUTHENTICATION",
       "description": "User login, session management, and OAuth verification.",
