@@ -33,7 +33,8 @@ import org.mangoswatch.domain.model.DnsSettings
 fun SettingsDialog(
     dnsSettings: DnsSettings,
     onDismiss: () -> Unit,
-    onUpdateDns: (DnsMode,String, String) -> Unit
+    onUpdateDns: (DnsMode,String, String) -> Unit,
+    onManualSync: () -> Unit
 ) {
     var selectedMode by remember { mutableStateOf(dnsSettings.dnsMode) }
     var v4 by remember { mutableStateOf(dnsSettings.dnsV4) }
@@ -145,6 +146,14 @@ fun SettingsDialog(
                         singleLine = true,
                         textStyle = MaterialTheme.typography.bodyMedium
                     )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+                androidx.compose.material3.OutlinedButton(
+                    onClick = onManualSync,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.btn_sync_assets))
                 }
             }
         },

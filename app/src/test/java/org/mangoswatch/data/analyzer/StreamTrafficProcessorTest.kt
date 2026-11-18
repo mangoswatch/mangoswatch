@@ -8,7 +8,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.mangoswatch.domain.model.StreamModel
-import org.mangoswatch.domain.parser.ip.IpRanges
+import org.mangoswatch.domain.repository.AssetRepository
 import org.mangoswatch.domain.repository.StreamsRepository
 import org.robolectric.RobolectricTestRunner
 import org.mockito.Mockito.*
@@ -19,16 +19,21 @@ import org.mockito.kotlin.whenever
 class StreamTrafficProcessorTest {
 
     private lateinit var streamsRepository: StreamsRepository
+    private lateinit var assetRepository: AssetRepository
     private lateinit var processor: StreamTrafficProcessor
 
     @Before
     fun setUp() {
         streamsRepository = mock(StreamsRepository::class.java)
+        assetRepository = mock(AssetRepository::class.java)
+
+        whenever(assetRepository.getFileFromAssetsCache(any())).thenReturn("".byteInputStream())
 
         startKoin {
             modules(
                 module {
                     single { streamsRepository }
+                    single { assetRepository }
                 }
             )
         }
@@ -40,22 +45,7 @@ class StreamTrafficProcessorTest {
             null
         }.whenever(streamsRepository).updateStream(any(), any())
 
-        val emptyRanges = IpRanges.empty()
-        processor = StreamTrafficProcessor(
-            amazonRanges = emptyRanges,
-            anthropicRanges = emptyRanges,
-            appleRanges = emptyRanges,
-            appsflyerRanges = emptyRanges,
-            googleRanges = emptyRanges,
-            metaRanges = emptyRanges,
-            microsoftRanges = emptyRanges,
-            netflixRanges = emptyRanges,
-            nvidiaRanges = emptyRanges,
-            openaiRanges = emptyRanges,
-            xiaomiRanges = emptyRanges,
-            xTwitterRanges = emptyRanges,
-            reservedRanges = emptyRanges
-        )
+        processor = StreamTrafficProcessor()
     }
 
     @After

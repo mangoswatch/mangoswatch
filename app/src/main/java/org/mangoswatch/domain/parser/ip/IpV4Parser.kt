@@ -1,27 +1,12 @@
 package org.mangoswatch.domain.parser.ip
 
-import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.model.Packet
 import org.mangoswatch.domain.parser.ip.IpHelpers.ipStrV4
 import org.mangoswatch.domain.parser.ip.IpHelpers.u16
 import org.mangoswatch.domain.parser.ip.IpHelpers.u32
 import org.mangoswatch.domain.parser.ip.IpHelpers.u8
 
-class IpV4Parser(
-    private val amazonRanges: IpRanges,
-    private val anthropicRanges: IpRanges,
-    private val appleRanges: IpRanges,
-    private val appsflyerRanges: IpRanges,
-    private val googleRanges: IpRanges,
-    private val metaRanges: IpRanges,
-    private val microsoftRanges: IpRanges,
-    private val netflixRanges: IpRanges,
-    private val nvidiaRanges: IpRanges,
-    private val openaiRanges: IpRanges,
-    private val xiaomiRanges: IpRanges,
-    private val xTwitterRanges: IpRanges,
-    private val reservedRanges: IpRanges,
-) {
+class IpV4Parser : IpParser()  {
 
     fun parseV4Packet(b: ByteArray, n: Int, outbound: Boolean): Packet? {
         if (n < 20) return null
@@ -50,7 +35,7 @@ class IpV4Parser(
         val flags = if (protocol == 6) u8(b, ihl + 13) else 0
 
         val remoteIpLong  = if (outbound) dstIpL else srcIpL
-        val ipOwner = identifyV4Owner(remoteIpLong)
+        val ipOwner = identifyOwner(remoteIpLong)
 
         return Packet(
             protocol = protocol,
@@ -67,23 +52,6 @@ class IpV4Parser(
             outbound = outbound
         )
 
-    }
-
-    private fun identifyV4Owner(ipL: Long): IpOwner = when {
-        amazonRanges.containsV4(ipL)        -> IpOwner.AMAZON
-        anthropicRanges.containsV4(ipL)     -> IpOwner.ANTHROPIC
-        appleRanges.containsV4(ipL)         -> IpOwner.APPLE
-        appsflyerRanges.containsV4(ipL)     -> IpOwner.APPSFLYER
-        googleRanges.containsV4(ipL)        -> IpOwner.GOOGLE
-        metaRanges.containsV4(ipL)          -> IpOwner.META
-        microsoftRanges.containsV4(ipL)     -> IpOwner.MICROSOFT
-        netflixRanges.containsV4(ipL)       -> IpOwner.NETFLIX
-        nvidiaRanges.containsV4(ipL)        -> IpOwner.NVIDIA
-        openaiRanges.containsV4(ipL)        -> IpOwner.OPENAI
-        xiaomiRanges.containsV4(ipL)        -> IpOwner.XIAOMI
-        xTwitterRanges.containsV4(ipL)      -> IpOwner.X_TWITTER
-        reservedRanges.containsV4(ipL)      -> IpOwner.RESERVED
-        else                                -> IpOwner.OTHER
     }
 
 }

@@ -21,6 +21,8 @@ import org.mangoswatch.domain.model.DnsSettings
 import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
 import org.mangoswatch.domain.repository.StreamsRepository
 import org.mangoswatch.domain.repository.UserPreferencesRepository
+import org.mangoswatch.domain.repository.AssetRepository
+import org.mangoswatch.data.repository.AssetSync
 import org.mangoswatch.domain.model.EndpointTaxonomy
 import org.mangoswatch.domain.model.EndpointTaxonomyCategory
 import org.mangoswatch.domain.model.IpOwner
@@ -42,6 +44,8 @@ class MainScreenViewModelTest {
     private lateinit var vpnState: VpnState
     private lateinit var appInfoResolver: AppInfoResolver
     private lateinit var userPreferencesRepository: UserPreferencesRepository
+    private lateinit var assetRepository: AssetRepository
+    private lateinit var assetSync: AssetSync
 
     private lateinit var viewModel: MainScreenViewModel
 
@@ -53,16 +57,21 @@ class MainScreenViewModelTest {
         vpnState = VpnState()
         appInfoResolver = mock(AppInfoResolver::class.java)
         userPreferencesRepository = mock(UserPreferencesRepository::class.java)
+        assetRepository = mock(AssetRepository::class.java)
+        assetSync = AssetSync().apply { state = org.mangoswatch.data.repository.AssetsSyncState.SYNCED }
 
         `when`(streamsRepository.getStreams()).thenReturn(flowOf(emptyList()))
         `when`(userPreferencesRepository.dnsSettings).thenReturn(flowOf(DnsSettings()))
+        `when`(assetRepository.isCachePopulated()).thenReturn(true)
 
         viewModel = MainScreenViewModel(
             streamsRepository = streamsRepository,
             taxonomyRepository = taxonomyRepository,
             vpnState = vpnState,
+            assetSync = assetSync,
             appInfo = appInfoResolver,
-            userPreferencesRepository = userPreferencesRepository
+            userPreferencesRepository = userPreferencesRepository,
+            assetRepository = assetRepository
         )
     }
 
@@ -177,8 +186,10 @@ class MainScreenViewModelTest {
             streamsRepository = mockStreamsRepo,
             taxonomyRepository = taxonomyRepository,
             vpnState = vpnState,
+            assetSync = assetSync,
             appInfo = appInfoResolver,
-            userPreferencesRepository = userPreferencesRepository
+            userPreferencesRepository = userPreferencesRepository,
+            assetRepository = assetRepository
         )
 
         testDispatcher.scheduler.advanceUntilIdle()
@@ -197,6 +208,17 @@ class MainScreenViewModelTest {
         viewModel.state.value.eventTunnel(MainScreenEvent.OnUpdateDns(DnsMode.CUSTOM, "1.1.1.1", "2606:4700:4700::1111"))
         testDispatcher.scheduler.advanceUntilIdle()
         verify(userPreferencesRepository).updateDnsSettings(any())
+    }
+
+    @Test
+    fun testStartVpnWhenAssetsMissingFailsWithMessage() = runTest {
+        assetSync.state = org.mangoswatch.data.repository.AssetsSyncState.SYNCING
+
+        viewModel.state.value.eventTunnel(MainScreenEvent.OnStartVpnRequest)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertNotNull(viewModel.state.value.errorMessage)
+        assertNotEquals(VpnAction.START, vpnState.actionRequest)
     }
 
     @Test

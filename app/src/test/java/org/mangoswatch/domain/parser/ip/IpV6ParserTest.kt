@@ -1,27 +1,43 @@
 package org.mangoswatch.domain.parser.ip
 
+import org.junit.After
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import org.mangoswatch.domain.model.IpOwner
+import org.mangoswatch.domain.repository.AssetRepository
+import org.robolectric.RobolectricTestRunner
+import org.mockito.Mockito.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 
+@RunWith(RobolectricTestRunner::class)
 class IpV6ParserTest {
 
-    private val emptyRanges = IpRanges.empty()
-    private val parser = IpV6Parser(
-        amazonRanges = emptyRanges,
-        anthropicRanges = emptyRanges,
-        appleRanges = emptyRanges,
-        appsflyerRanges = emptyRanges,
-        googleRanges = emptyRanges,
-        metaRanges = emptyRanges,
-        microsoftRanges = emptyRanges,
-        netflixRanges = emptyRanges,
-        nvidiaRanges = emptyRanges,
-        openaiRanges = emptyRanges,
-        xiaomiRanges = emptyRanges,
-        xTwitterRanges = emptyRanges,
-        reservedRanges = emptyRanges
-    )
+    private lateinit var assetRepository: AssetRepository
+    private val parser = IpV6Parser()
+
+    @Before
+    fun setUp() {
+        assetRepository = mock(AssetRepository::class.java)
+        whenever(assetRepository.getFileFromAssetsCache(any())).thenReturn("".byteInputStream())
+        startKoin {
+            modules(
+                module {
+                    single { assetRepository }
+                }
+            )
+        }
+    }
+
+    @After
+    fun tearDown() {
+        stopKoin()
+    }
 
     @Test
     fun testParseV6PacketTruncated() {

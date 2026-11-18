@@ -6,7 +6,6 @@ import android.system.OsConstants
 import android.system.StructPollfd
 import android.util.Log
 import org.mangoswatch.data.vpn.VpnState
-import org.mangoswatch.domain.parser.ip.IpRanges
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.mangoswatch.data.vpn.VpnStateEnum
@@ -20,42 +19,14 @@ import java.util.concurrent.ArrayBlockingQueue
  * Using a mirroring strategy thru socketPair, it doubles the input and output data stream:
  * while a stream passes thru, the other gets fed into the [StreamTrafficProcessor] and analyzed
  * */
-class TrafficAnalyzer(
-    amazonRanges: IpRanges,
-    anthropicRanges: IpRanges,
-    appleRanges: IpRanges,
-    appsflyerRanges: IpRanges,
-    googleRanges: IpRanges,
-    metaRanges: IpRanges,
-    microsoftRanges: IpRanges,
-    netflixRanges: IpRanges,
-    nvidiaRanges: IpRanges,
-    openaiRanges: IpRanges,
-    xiaomiRanges: IpRanges,
-    xTwitterRanges: IpRanges,
-    reservedRanges: IpRanges,
-) : KoinComponent {
+class TrafficAnalyzer : KoinComponent {
 
     private val vpnState by inject<VpnState>()
 
     var mirrorInputPfd: ParcelFileDescriptor? = null
     var mirrorOutputPfd: ParcelFileDescriptor? = null
 
-    private val trafficProcessor = StreamTrafficProcessor(
-        amazonRanges = amazonRanges,
-        anthropicRanges = anthropicRanges,
-        appleRanges = appleRanges,
-        appsflyerRanges = appsflyerRanges,
-        googleRanges = googleRanges,
-        metaRanges = metaRanges,
-        microsoftRanges = microsoftRanges,
-        netflixRanges = netflixRanges,
-        nvidiaRanges = nvidiaRanges,
-        openaiRanges = openaiRanges,
-        xiaomiRanges = xiaomiRanges,
-        xTwitterRanges = xTwitterRanges,
-        reservedRanges = reservedRanges
-    )
+    private val trafficProcessor = StreamTrafficProcessor()
 
     fun startTrafficAnalyzer(vpnInterface: ParcelFileDescriptor) {
         createTapEnds()

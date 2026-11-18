@@ -50,7 +50,9 @@ class EndpointTaxonomyRepositoryTest {
     @Test
     fun testFindMatchSuccessAndCaseInsensitive() {
         val context = RuntimeEnvironment.getApplication()
-        val repository = EndpointTaxonomyRepositoryImpl(context)
+        val assetSync = AssetSync()
+        val assetRepository = AssetRepositoryImpl(context, assetSync)
+        val repository = EndpointTaxonomyRepositoryImpl(assetRepository)
         val match = repository.findMatch("API.OpenAI.COM")
         assertNotNull(match)
         assertEquals("openai_api_001", match?.id)
@@ -62,7 +64,9 @@ class EndpointTaxonomyRepositoryTest {
     @Test
     fun testFindMatchNoMatch() {
         val context = RuntimeEnvironment.getApplication()
-        val repository = EndpointTaxonomyRepositoryImpl(context)
+        val assetSync = AssetSync()
+        val assetRepository = AssetRepositoryImpl(context, assetSync)
+        val repository = EndpointTaxonomyRepositoryImpl(assetRepository)
         val match = repository.findMatch("unknown.domain.com")
         assertNull(match)
     }
@@ -70,19 +74,12 @@ class EndpointTaxonomyRepositoryTest {
     @Test
     fun testFindMatchBlank() {
         val context = RuntimeEnvironment.getApplication()
-        val repository = EndpointTaxonomyRepositoryImpl(context)
+        val assetSync = AssetSync()
+        val assetRepository = AssetRepositoryImpl(context, assetSync)
+        val repository = EndpointTaxonomyRepositoryImpl(assetRepository)
         assertNull(repository.findMatch(null))
         assertNull(repository.findMatch(""))
         assertNull(repository.findMatch("   "))
-    }
-
-    @Test
-    fun testGetAllItems() {
-        val context = RuntimeEnvironment.getApplication()
-        val repository = EndpointTaxonomyRepositoryImpl(context)
-        val items = repository.getAllItems()
-        assertEquals(1, items.size)
-        assertEquals("openai_api_001", items[0].id)
     }
 
     @Test
@@ -126,7 +123,9 @@ class EndpointTaxonomyRepositoryTest {
             file.copyTo(File(assetsCacheDir, file.name), overwrite = true)
         }
 
-        val repository = EndpointTaxonomyRepositoryImpl(context)
+        val assetSync = AssetSync()
+        val assetRepository = AssetRepositoryImpl(context, assetSync)
+        val repository = EndpointTaxonomyRepositoryImpl(assetRepository)
 
         // Negative corpus: these must NOT falsely match X_TWITTER or GOOGLE or ANY unassociated provider
         val negatives = listOf(

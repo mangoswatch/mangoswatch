@@ -1,72 +1,29 @@
 package org.mangoswatch.data.analyzer
 
 import android.os.SystemClock
-import org.mangoswatch.data.resolver.UidResolver
-import org.mangoswatch.domain.parser.DnsQueryParser
-import org.mangoswatch.domain.parser.ip.IpRanges
-import org.mangoswatch.domain.parser.ip.IpV4Parser
-import org.mangoswatch.domain.parser.ip.IpV6Parser
-import org.mangoswatch.domain.parser.handshake.tls.ClientHello
-import org.mangoswatch.domain.parser.handshake.tls.TlsAssembler
-import org.mangoswatch.domain.parser.handshake.tls.HelloResult
-import org.mangoswatch.domain.parser.handshake.tls.NotTls
-import org.mangoswatch.domain.parser.handshake.quic.QuicInitialAssembler
-import org.mangoswatch.domain.parser.handshake.quic.looksLikeQuicInitial
-import org.mangoswatch.domain.parser.tcpSeq
-import org.mangoswatch.domain.model.Packet
-import org.mangoswatch.domain.model.StreamModel
-import org.mangoswatch.domain.repository.StreamsRepository
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.mangoswatch.data.resolver.UidResolver
+import org.mangoswatch.domain.model.Packet
+import org.mangoswatch.domain.model.StreamModel
+import org.mangoswatch.domain.parser.DnsQueryParser
+import org.mangoswatch.domain.parser.handshake.quic.QuicInitialAssembler
+import org.mangoswatch.domain.parser.handshake.quic.looksLikeQuicInitial
+import org.mangoswatch.domain.parser.handshake.tls.ClientHello
+import org.mangoswatch.domain.parser.handshake.tls.HelloResult
+import org.mangoswatch.domain.parser.handshake.tls.NotTls
+import org.mangoswatch.domain.parser.handshake.tls.TlsAssembler
+import org.mangoswatch.domain.parser.ip.IpV4Parser
+import org.mangoswatch.domain.parser.ip.IpV6Parser
+import org.mangoswatch.domain.parser.tcpSeq
+import org.mangoswatch.domain.repository.StreamsRepository
 
-class StreamTrafficProcessor(
-    amazonRanges: IpRanges,
-    anthropicRanges: IpRanges,
-    appleRanges: IpRanges,
-    appsflyerRanges: IpRanges,
-    googleRanges: IpRanges,
-    metaRanges: IpRanges,
-    microsoftRanges: IpRanges,
-    netflixRanges: IpRanges,
-    nvidiaRanges: IpRanges,
-    openaiRanges: IpRanges,
-    xiaomiRanges: IpRanges,
-    xTwitterRanges: IpRanges,
-    reservedRanges: IpRanges
-): KoinComponent {
+class StreamTrafficProcessor: KoinComponent {
 
-    private val repository by inject<StreamsRepository>()
+    private val streamsRepository by inject<StreamsRepository>()
 
-    private val ipV4Parser = IpV4Parser(
-        amazonRanges = amazonRanges,
-        anthropicRanges = anthropicRanges,
-        appleRanges = appleRanges,
-        appsflyerRanges = appsflyerRanges,
-        googleRanges = googleRanges,
-        metaRanges = metaRanges,
-        microsoftRanges = microsoftRanges,
-        netflixRanges = netflixRanges,
-        nvidiaRanges = nvidiaRanges,
-        openaiRanges = openaiRanges,
-        xiaomiRanges = xiaomiRanges,
-        xTwitterRanges = xTwitterRanges,
-        reservedRanges = reservedRanges
-    )
-    private val ipV6Parser = IpV6Parser(
-        amazonRanges = amazonRanges,
-        anthropicRanges = anthropicRanges,
-        appleRanges = appleRanges,
-        appsflyerRanges = appsflyerRanges,
-        googleRanges = googleRanges,
-        metaRanges = metaRanges,
-        microsoftRanges = microsoftRanges,
-        netflixRanges = netflixRanges,
-        nvidiaRanges = nvidiaRanges,
-        openaiRanges = openaiRanges,
-        xiaomiRanges = xiaomiRanges,
-        xTwitterRanges = xTwitterRanges,
-        reservedRanges = reservedRanges
-    )
+    private val ipV4Parser = IpV4Parser()
+    private val ipV6Parser = IpV6Parser()
     private val dnsQueryParser = DnsQueryParser()
     private val uidResolver = UidResolver()
 
@@ -128,7 +85,7 @@ class StreamTrafficProcessor(
 
             var claimed: StreamModel? = null
 
-            repository.updateStream(key) { old ->
+            streamsRepository.updateStream(key) { old ->
                 val reused = outbound && old != null && syn && old.finSeen
                 val base = when {
                     old != null && !reused -> old
@@ -192,14 +149,14 @@ class StreamTrafficProcessor(
 
             claimed?.let { c ->
                 val queued = uidResolver.resolveAsync(c) { uid, pkg ->
-                    repository.updateStream(key) { stream ->
+                    streamsRepository.updateStream(key) { stream ->
                         if (stream != null && stream.firstSeen == c.firstSeen) {
                             stream.copy(uid = uid, pkg = pkg)
                         } else stream
                     }
                 }
                 if (!queued) {
-                    repository.updateStream(key) { stream ->
+                    streamsRepository.updateStream(key) { stream ->
                         stream?.copy(uidAttempts = (stream.uidAttempts - 1).coerceAtLeast(0))
                     }
                 }

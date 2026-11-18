@@ -5,7 +5,8 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mangoswatch.domain.model.IpOwner
+import org.mangoswatch.data.repository.AssetRepositoryImpl
+import org.mangoswatch.data.repository.AssetSync
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import java.io.File
@@ -43,6 +44,8 @@ class IpRangesTest {
     @Test
     fun testLoadV4Ranges() {
         val context = RuntimeEnvironment.getApplication()
+        val assetSync = AssetSync()
+        val assetRepository = AssetRepositoryImpl(context, assetSync)
         val v4Content = """
             # Sample IPv4 Ranges
             192.168.1.0/24
@@ -51,7 +54,7 @@ class IpRangesTest {
 
         File(cacheDir, "google_ipv4.txt").writeText(v4Content)
 
-        val ranges = IpRanges.load(context, IpOwner.GOOGLE)
+        val ranges = IpRanges.loadFromFile(assetRepository.getFileFromAssetsCache("google_ipv4.txt"), null)
 
         assertTrue(ranges.containsV4(ipToLong("192.168.1.1")))
         assertTrue(ranges.containsV4(ipToLong("192.168.1.254")))
@@ -65,6 +68,8 @@ class IpRangesTest {
     @Test
     fun testLoadV6Ranges() {
         val context = RuntimeEnvironment.getApplication()
+        val assetSync = AssetSync()
+        val assetRepository = AssetRepositoryImpl(context, assetSync)
         val v6Content = """
             # Sample IPv6 Ranges
             2001:db8::/32
@@ -73,7 +78,7 @@ class IpRangesTest {
 
         File(cacheDir, "google_ipv6.txt").writeText(v6Content)
 
-        val ranges = IpRanges.load(context, IpOwner.GOOGLE)
+        val ranges = IpRanges.loadFromFile(null, assetRepository.getFileFromAssetsCache("google_ipv6.txt"))
 
         val targetV6In = InetAddress.getByName("2001:db8::1").address
         val targetV6Out = InetAddress.getByName("2001:db9::1").address

@@ -1,17 +1,16 @@
-package org.mangoswatch.data.util
+package org.mangoswatch.data.repository
 
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mangoswatch.domain.model.IpOwner
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
-class AssetManagerTest {
+class AssetRepositoryTest {
 
     private lateinit var cacheDir: File
 
@@ -28,20 +27,15 @@ class AssetManagerTest {
     }
 
     @Test
-    fun testFileNameGenerators() {
-        assertEquals("google_ipv4.txt", AssetManager.getIpV4FileName(IpOwner.GOOGLE))
-        assertEquals("google_ipv6.txt", AssetManager.getIpV6FileName(IpOwner.GOOGLE))
-        assertEquals("x_twitter_ipv4.txt", AssetManager.getIpV4FileName(IpOwner.X_TWITTER))
-    }
-
-    @Test
     fun testGetTaxonomyFiles() {
         val context = RuntimeEnvironment.getApplication()
+        val assetSync = AssetSync()
+        val repo = AssetRepositoryImpl(context, assetSync)
         File(cacheDir, "google_taxonomy.json").writeText("{}")
         File(cacheDir, "apple_taxonomy.json").writeText("{}")
         File(cacheDir, "invalid_file.txt").writeText("data")
 
-        val files = AssetManager.getTaxonomyFiles(context)
+        val files = repo.getTaxonomyFiles()
         assertEquals(2, files.size)
         assertTrue(files.contains("apple_taxonomy.json"))
         assertTrue(files.contains("google_taxonomy.json"))
@@ -50,9 +44,11 @@ class AssetManagerTest {
     @Test
     fun testGetAssetValid() {
         val context = RuntimeEnvironment.getApplication()
+        val assetSync = AssetSync()
+        val repo = AssetRepositoryImpl(context, assetSync)
         File(cacheDir, "google_ipv4.txt").writeText("1.2.3.4/32")
 
-        val stream = AssetManager.getAsset(context, "google_ipv4.txt")
+        val stream = repo.getFileFromAssetsCache("google_ipv4.txt")
         val content = stream.bufferedReader().use { it.readText() }
         assertEquals("1.2.3.4/32", content)
     }
@@ -60,7 +56,9 @@ class AssetManagerTest {
     @Test
     fun testGetAssetPathTraversalDenied() {
         val context = RuntimeEnvironment.getApplication()
-        val stream = AssetManager.getAsset(context, "../shared_prefs/secret.xml")
+        val assetSync = AssetSync()
+        val repo = AssetRepositoryImpl(context, assetSync)
+        val stream = repo.getFileFromAssetsCache("../shared_prefs/secret.xml")
         val content = stream.bufferedReader().use { it.readText() }
         assertEquals("", content)
     }
@@ -68,8 +66,21 @@ class AssetManagerTest {
     @Test
     fun testGetAssetUnauthorizedFilenameDenied() {
         val context = RuntimeEnvironment.getApplication()
-        val stream = AssetManager.getAsset(context, "unauthorized_script.sh")
+        val assetSync = AssetSync()
+        val repo = AssetRepositoryImpl(context, assetSync)
+        val stream = repo.getFileFromAssetsCache("unauthorized_script.sh")
         val content = stream.bufferedReader().use { it.readText() }
         assertEquals("", content)
+    }
+
+    @Test
+    fun testCachePopulationCheck() {
+        val context = RuntimeEnvironment.getApplication()
+        val assetSync = AssetSync()
+        val repo = AssetRepositoryImpl(context, assetSync)
+        assertFalse(repo.isCachePopulated())
+
+        File(cacheDir, "google_taxonomy.json").writeText("{}")
+        assertTrue(repo.isCachePopulated())
     }
 }

@@ -15,11 +15,12 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.mangoswatch.data.repository.AssetSync
+import org.mangoswatch.data.repository.AssetsSyncState
 import org.mangoswatch.data.resolver.AppInfoResolver
 import org.mangoswatch.data.vpn.VpnAction
 import org.mangoswatch.data.vpn.VpnState
@@ -30,6 +31,7 @@ import org.mangoswatch.domain.model.EndpointTaxonomy
 import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.model.StreamModel
 import org.mangoswatch.domain.model.StreamProtocol
+import org.mangoswatch.domain.repository.AssetRepository
 import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
 import org.mangoswatch.domain.repository.StreamsRepository
 import org.mangoswatch.domain.repository.UserPreferencesRepository
@@ -41,8 +43,10 @@ class MainScreenViewModel(
     private val streamsRepository: StreamsRepository,
     private val taxonomyRepository: EndpointTaxonomyRepository,
     private val vpnState: VpnState,
+    private val assetSync: AssetSync,
     private val appInfo: AppInfoResolver,
-    private val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val assetRepository: AssetRepository
 ) : ViewModel() {
 
     val userPreferences: StateFlow<DnsSettings> = userPreferencesRepository.dnsSettings
@@ -65,23 +69,31 @@ class MainScreenViewModel(
         when (event) {
             MainScreenEvent.OnBack -> onBack()
             is MainScreenEvent.OnAppClick -> _state.update { it.copy(selectedUid = event.appUid) }
-            MainScreenEvent.OnStartVpnRequest -> vpnState.actionRequest = VpnAction.START
+            MainScreenEvent.OnStartVpnRequest -> onStartVpnRequested()
             MainScreenEvent.OnStopVpnRequest -> vpnState.actionRequest = VpnAction.STOP
             is MainScreenEvent.OnShowSettings -> _state.update { it.copy(isSettingsOpen = event.show) }
             is MainScreenEvent.OnUpdateDns -> updateDns(event.mode, event.v4, event.v6)
+            MainScreenEvent.OnManualAssetSync -> syncAssets()
         }
     }
 
     init {
         Log.d("[MANGOS_WATCH] - MAINSCREENVIEWMODEL ", "VM Initialized")
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            assetSync.assetSyncState
+                .collect { assetsSyncState ->
+                    _state.update { it.copy(assetsSyncState = assetsSyncState) }
+                    if (assetsSyncState == AssetsSyncState.SYNC_NEEDED) syncAssets()
+                }
+        }
+
+        viewModelScope.launch(Dispatchers.Default) {
             vpnState.running
                 .flatMapLatest { vpnState ->
                     _state.update { it.copy(vpnState = vpnState) }
                     if (vpnState == VpnStateEnum.RUNNING) streamsRepository.getStreams() else emptyFlow()
                 }
                 .map { it.toAppTraffic() }
-                .flowOn(Dispatchers.Default)
                 .distinctUntilChanged()
                 .collect { apps ->
                     _state.update { it.copy(apps = apps) }
@@ -91,7 +103,23 @@ class MainScreenViewModel(
                 _state.update { it.copy (currentDnsSetting = dnsSettings ) }
             }
         }
+    }
 
+    private fun onStartVpnRequested() {
+        if (assetSync.state != AssetsSyncState.SYNCED) {
+            _state.update {
+                it.copy(errorMessage = "Asset sync needed or syncing")
+            }
+        } else {
+            vpnState.actionRequest = VpnAction.START
+        }
+    }
+
+    private fun syncAssets() {
+        viewModelScope.launch(Dispatchers.IO) {
+            assetRepository.syncAssets()
+            taxonomyRepository.reloadTaxonomy()
+        }
     }
 
     private fun updateDns(mode: DnsMode, v4: String, v6: String){
