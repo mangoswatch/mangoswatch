@@ -28,13 +28,14 @@ import org.mangoswatch.data.vpn.VpnStateEnum
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.model.DnsSettings
 import org.mangoswatch.domain.model.EndpointTaxonomy
+import org.mangoswatch.domain.model.UserSettings
 import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.model.StreamModel
 import org.mangoswatch.domain.model.StreamProtocol
 import org.mangoswatch.domain.repository.AssetRepository
 import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
 import org.mangoswatch.domain.repository.StreamsRepository
-import org.mangoswatch.domain.repository.UserPreferencesRepository
+import org.mangoswatch.domain.repository.UserSettingsRepository
 import org.mangoswatch.presentation.contracts.MainScreenEvent
 import org.mangoswatch.presentation.contracts.MainScreenState
 
@@ -45,15 +46,15 @@ class MainScreenViewModel(
     private val vpnState: VpnState,
     private val assetSync: AssetSync,
     private val appInfo: AppInfoResolver,
-    private val userPreferencesRepository: UserPreferencesRepository,
+    private val userSettingsRepository: UserSettingsRepository,
     private val assetRepository: AssetRepository
 ) : ViewModel() {
 
-    val userPreferences: StateFlow<DnsSettings> = userPreferencesRepository.dnsSettings
+    val userSettings: StateFlow<UserSettings> = userSettingsRepository.userSettings
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = DnsSettings()
+            initialValue = UserSettings()
         )
 
     private val _state = MutableStateFlow(
@@ -88,6 +89,16 @@ class MainScreenViewModel(
         }
 
         viewModelScope.launch(Dispatchers.Default) {
+            userSettingsRepository.userSettings.collectLatest { userSettings ->
+                _state.update {
+                    it.copy(
+                        currentUserSetting = userSettings
+                    )
+                }
+            }
+        }
+
+        viewModelScope.launch(Dispatchers.Default) {
             vpnState.running
                 .flatMapLatest { vpnState ->
                     _state.update { it.copy(vpnState = vpnState) }
@@ -98,10 +109,6 @@ class MainScreenViewModel(
                 .collect { apps ->
                     _state.update { it.copy(apps = apps) }
                 }
-
-            userPreferencesRepository.dnsSettings.collectLatest { dnsSettings ->
-                _state.update { it.copy (currentDnsSetting = dnsSettings ) }
-            }
         }
     }
 
@@ -124,7 +131,7 @@ class MainScreenViewModel(
 
     private fun updateDns(mode: DnsMode, v4: String, v6: String){
         viewModelScope.launch {
-            userPreferencesRepository.updateDnsSettings(
+            userSettingsRepository.updateDnsSettings(
                 DnsSettings(
                     dnsMode = mode,
                     dnsV4 = v4,

@@ -20,7 +20,7 @@ import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.model.DnsSettings
 import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
 import org.mangoswatch.domain.repository.StreamsRepository
-import org.mangoswatch.domain.repository.UserPreferencesRepository
+import org.mangoswatch.domain.repository.UserSettingsRepository
 import org.mangoswatch.domain.repository.AssetRepository
 import org.mangoswatch.data.repository.AssetSync
 import org.mangoswatch.domain.model.EndpointTaxonomy
@@ -43,7 +43,7 @@ class MainScreenViewModelTest {
     private lateinit var taxonomyRepository: EndpointTaxonomyRepository
     private lateinit var vpnState: VpnState
     private lateinit var appInfoResolver: AppInfoResolver
-    private lateinit var userPreferencesRepository: UserPreferencesRepository
+    private lateinit var userSettingsRepository: UserSettingsRepository
     private lateinit var assetRepository: AssetRepository
     private lateinit var assetSync: AssetSync
 
@@ -56,12 +56,12 @@ class MainScreenViewModelTest {
         taxonomyRepository = mock(EndpointTaxonomyRepository::class.java)
         vpnState = VpnState()
         appInfoResolver = mock(AppInfoResolver::class.java)
-        userPreferencesRepository = mock(UserPreferencesRepository::class.java)
+        userSettingsRepository = mock(UserSettingsRepository::class.java)
         assetRepository = mock(AssetRepository::class.java)
         assetSync = AssetSync().apply { state = org.mangoswatch.data.repository.AssetsSyncState.SYNCED }
 
         `when`(streamsRepository.getStreams()).thenReturn(flowOf(emptyList()))
-        `when`(userPreferencesRepository.dnsSettings).thenReturn(flowOf(DnsSettings()))
+        `when`(userSettingsRepository.userSettings).thenReturn(flowOf(org.mangoswatch.domain.model.UserSettings()))
         `when`(assetRepository.isCachePopulated()).thenReturn(true)
 
         viewModel = MainScreenViewModel(
@@ -70,7 +70,7 @@ class MainScreenViewModelTest {
             vpnState = vpnState,
             assetSync = assetSync,
             appInfo = appInfoResolver,
-            userPreferencesRepository = userPreferencesRepository,
+            userSettingsRepository = userSettingsRepository,
             assetRepository = assetRepository
         )
     }
@@ -188,7 +188,7 @@ class MainScreenViewModelTest {
             vpnState = vpnState,
             assetSync = assetSync,
             appInfo = appInfoResolver,
-            userPreferencesRepository = userPreferencesRepository,
+            userSettingsRepository = userSettingsRepository,
             assetRepository = assetRepository
         )
 
@@ -207,7 +207,7 @@ class MainScreenViewModelTest {
     fun testOnUpdateDnsEvent() = runTest {
         viewModel.state.value.eventTunnel(MainScreenEvent.OnUpdateDns(DnsMode.CUSTOM, "1.1.1.1", "2606:4700:4700::1111"))
         testDispatcher.scheduler.advanceUntilIdle()
-        verify(userPreferencesRepository).updateDnsSettings(any())
+        verify(userSettingsRepository).updateDnsSettings(any())
     }
 
     @Test

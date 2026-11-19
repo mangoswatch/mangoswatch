@@ -132,6 +132,10 @@ To ensure full transparency regarding security, privacy, and architecture, the f
 ### 4. `QUERY_ALL_PACKAGES` Permission
 - **Usage**: Required to query installed application packages on the device, enabling attribution of network connections and streams to specific apps.
 
+### 5. In-Memory Stream Eviction & Memory Management
+- **Eviction Strategy**: To prevent active stream tracking (`_streams`) from growing unboundedly during long VPN inspection sessions, Mangos Watch utilizes an automated in-memory time-based and size-based eviction mechanism (maximum 2000 active streams and 5-minute inactivity timeout).
+- **TODO**: Optional historical session data persistence and saving are planned for future iterations. For now, this in-memory bounding approach ensures stable memory consumption without OOM risks.
+
 
 
 ## Contributing

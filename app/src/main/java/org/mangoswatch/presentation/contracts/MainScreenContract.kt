@@ -2,9 +2,9 @@ package org.mangoswatch.presentation.contracts
 
 import androidx.compose.runtime.compositionLocalOf
 import org.mangoswatch.data.repository.AssetsSyncState
-import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.data.vpn.VpnStateEnum
-import org.mangoswatch.domain.model.DnsSettings
+import org.mangoswatch.domain.model.DnsMode
+import org.mangoswatch.domain.model.UserSettings
 import org.mangoswatch.presentation.viewmodel.AppTrafficUi
 
 sealed class MainScreenEvent {
@@ -24,7 +24,7 @@ data class MainScreenState(
     val apps: List<AppTrafficUi> = emptyList(),
     val errorMessage: String? = null,
     val isSettingsOpen: Boolean = false,
-    val currentDnsSetting: DnsSettings? = null,
+    val currentUserSetting: UserSettings? = null,
     // TUNNEL
     val eventTunnel: (MainScreenEvent) -> Unit = {}
 ) {

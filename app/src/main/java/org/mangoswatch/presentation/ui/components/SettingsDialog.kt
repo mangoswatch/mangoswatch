@@ -7,10 +7,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -33,134 +37,153 @@ import org.mangoswatch.domain.model.DnsSettings
 fun SettingsDialog(
     dnsSettings: DnsSettings,
     onDismiss: () -> Unit,
-    onUpdateDns: (DnsMode,String, String) -> Unit,
+    onUpdateDns: (DnsMode, String, String) -> Unit,
     onManualSync: () -> Unit
 ) {
     var selectedMode by remember { mutableStateOf(dnsSettings.dnsMode) }
     var v4 by remember { mutableStateOf(dnsSettings.dnsV4) }
     var v6 by remember { mutableStateOf(dnsSettings.dnsV6) }
 
+    val scrollState = rememberScrollState()
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.dns_settings_title)) },
+        title = {
+            Text(
+                text = stringResource(R.string.settings_dialog_title),
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
         text = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .selectableGroup(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = stringResource(R.string.dns_settings_description),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Cloudflare option
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .selectable(
-                            selected = (selectedMode == DnsMode.CLOUDFLARE),
-                            onClick = { selectedMode = DnsMode.CLOUDFLARE },
-                            role = Role.RadioButton
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = (selectedMode == DnsMode.CLOUDFLARE),
-                        onClick = null
+                // SECTION 1: DNS Configuration
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(R.string.settings_section_dns),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(text = stringResource(R.string.dns_cloudflare_title), style = MaterialTheme.typography.bodyLarge)
-                        Text(text = stringResource(R.string.dns_cloudflare_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+                    Column(modifier = Modifier.selectableGroup()) {
+                        // Cloudflare option
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .selectable(
+                                    selected = (selectedMode == DnsMode.CLOUDFLARE),
+                                    onClick = { selectedMode = DnsMode.CLOUDFLARE },
+                                    role = Role.RadioButton
+                                ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = (selectedMode == DnsMode.CLOUDFLARE),
+                                onClick = null
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(text = stringResource(R.string.dns_cloudflare_title), style = MaterialTheme.typography.bodyLarge)
+                                Text(text = stringResource(R.string.dns_cloudflare_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+
+                        // System / Private DNS option
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .selectable(
+                                    selected = (selectedMode == DnsMode.SYSTEM),
+                                    onClick = { selectedMode = DnsMode.SYSTEM },
+                                    role = Role.RadioButton
+                                ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = (selectedMode == DnsMode.SYSTEM),
+                                onClick = null
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(text = stringResource(R.string.dns_system_title), style = MaterialTheme.typography.bodyLarge)
+                                Text(text = stringResource(R.string.dns_system_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+
+                        // Custom DNS option
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .selectable(
+                                    selected = (selectedMode == DnsMode.CUSTOM),
+                                    onClick = { selectedMode = DnsMode.CUSTOM },
+                                    role = Role.RadioButton
+                                ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = (selectedMode == DnsMode.CUSTOM),
+                                onClick = null
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(text = stringResource(R.string.dns_custom_title), style = MaterialTheme.typography.bodyLarge)
+                                Text(text = stringResource(R.string.dns_custom_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+
+                    if (selectedMode == DnsMode.CUSTOM) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        OutlinedTextField(
+                            value = v4,
+                            onValueChange = { v4 = it },
+                            label = { Text(stringResource(R.string.dns_custom_ipv4_label)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            textStyle = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        OutlinedTextField(
+                            value = v6,
+                            onValueChange = { v6 = it },
+                            label = { Text(stringResource(R.string.dns_custom_ipv6_label)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            textStyle = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
 
-                // System / Private DNS option
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .selectable(
-                            selected = (selectedMode == DnsMode.SYSTEM),
-                            onClick = { selectedMode = DnsMode.SYSTEM },
-                            role = Role.RadioButton
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = (selectedMode == DnsMode.SYSTEM),
-                        onClick = null
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                // SECTION 2: Asset Management
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(R.string.settings_section_assets),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(text = stringResource(R.string.dns_system_title), style = MaterialTheme.typography.bodyLarge)
-                        Text(text = stringResource(R.string.dns_system_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    OutlinedButton(
+                        onClick = onManualSync,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.btn_sync_assets))
                     }
-                }
-
-                // Custom DNS option
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .selectable(
-                            selected = (selectedMode == DnsMode.CUSTOM),
-                            onClick = { selectedMode = DnsMode.CUSTOM },
-                            role = Role.RadioButton
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = (selectedMode == DnsMode.CUSTOM),
-                        onClick = null
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(text = stringResource(R.string.dns_custom_title), style = MaterialTheme.typography.bodyLarge)
-                        Text(text = stringResource(R.string.dns_custom_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-
-                if (selectedMode == DnsMode.CUSTOM) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = v4,
-                        onValueChange = { v4 = it },
-                        label = { Text(stringResource(R.string.dns_custom_ipv4_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        textStyle = MaterialTheme.typography.bodyMedium
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    OutlinedTextField(
-                        value = v6,
-                        onValueChange = { v6 = it },
-                        label = { Text(stringResource(R.string.dns_custom_ipv6_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        textStyle = MaterialTheme.typography.bodyMedium
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                androidx.compose.material3.OutlinedButton(
-                    onClick = onManualSync,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.btn_sync_assets))
                 }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    onUpdateDns(selectedMode,v4,v6)
+                    onUpdateDns(selectedMode, v4, v6)
                     onDismiss()
                 }
             ) {
