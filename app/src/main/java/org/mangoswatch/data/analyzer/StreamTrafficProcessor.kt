@@ -13,6 +13,7 @@ import org.mangoswatch.domain.parser.handshake.tls.ClientHello
 import org.mangoswatch.domain.parser.handshake.tls.HelloResult
 import org.mangoswatch.domain.parser.handshake.tls.NotTls
 import org.mangoswatch.domain.parser.handshake.tls.TlsAssembler
+import org.mangoswatch.domain.parser.ip.IpParser
 import org.mangoswatch.domain.parser.ip.IpV4Parser
 import org.mangoswatch.domain.parser.ip.IpV6Parser
 import org.mangoswatch.domain.parser.tcpSeq
@@ -24,6 +25,7 @@ class StreamTrafficProcessor: KoinComponent {
 
     private val ipV4Parser = IpV4Parser()
     private val ipV6Parser = IpV6Parser()
+    private val ipParser = IpParser()
     private val dnsQueryParser = DnsQueryParser()
     private val uidResolver = UidResolver()
 
@@ -95,7 +97,7 @@ class StreamTrafficProcessor: KoinComponent {
                         srcPort = packetSrcPort,
                         dstIpStr = packetDstIp,
                         dstPort = packetDstPort,
-                        ipOwner = ipOwner,
+                        ipOwner = ipParser.identifyOwner(remoteIp),
                         firstSeen = now
                     )
                     else -> return@updateStream null

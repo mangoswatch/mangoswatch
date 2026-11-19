@@ -34,16 +34,12 @@ class IpV4Parser : IpParser()  {
         val payloadLen = n - payloadOff
         val flags = if (protocol == 6) u8(b, ihl + 13) else 0
 
-        val remoteIpLong  = if (outbound) dstIpL else srcIpL
-        val ipOwner = identifyOwner(remoteIpLong)
-
         return Packet(
             protocol = protocol,
             packetSrcIp = srcIp,
             packetSrcPort = srcPort,
             packetDstIp = dstIp,
             packetDstPort = dstPort,
-            ipOwner = ipOwner,
             flags = flags,
             b = b,
             payloadOff = payloadOff,

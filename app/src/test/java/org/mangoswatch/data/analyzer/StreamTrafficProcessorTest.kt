@@ -8,8 +8,10 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.mangoswatch.domain.model.StreamModel
+import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.repository.AssetRepository
 import org.mangoswatch.domain.repository.StreamsRepository
+import org.mangoswatch.domain.parser.ip.IpRanges
 import org.mangoswatch.domain.parser.ip.IpRangesCache
 import org.robolectric.RobolectricTestRunner
 import org.mockito.Mockito.*
@@ -21,21 +23,25 @@ class StreamTrafficProcessorTest {
 
     private lateinit var streamsRepository: StreamsRepository
     private lateinit var assetRepository: AssetRepository
+    private lateinit var ipRangesCache: IpRangesCache
     private lateinit var processor: StreamTrafficProcessor
 
     @Before
     fun setUp() {
         streamsRepository = mock(StreamsRepository::class.java)
         assetRepository = mock(AssetRepository::class.java)
+        ipRangesCache = mock(IpRangesCache::class.java)
 
         whenever(assetRepository.getFileFromAssetsCache(any())).thenReturn("".byteInputStream())
+        whenever(ipRangesCache.ownerV4(any())).thenReturn(IpRanges.empty())
+        whenever(ipRangesCache.ownerV6(any())).thenReturn(IpRanges.empty())
 
         startKoin {
             modules(
                 module {
                     single { streamsRepository }
                     single { assetRepository }
-                    single { IpRangesCache(get()) }
+                    single { ipRangesCache }
                 }
             )
         }
@@ -81,6 +87,35 @@ class StreamTrafficProcessorTest {
         processor.onPacket(packet, packet.size, true)
 
         verify(streamsRepository, atLeastOnce()).updateStream(any(), any())
+    }
+
+    @Test
+    fun testIpv4OwnerIsResolvedOnlyWhenStreamIsCreated() {
+        var stream: StreamModel? = null
+        doAnswer { invocation ->
+            val transform = invocation.getArgument<(StreamModel?) -> StreamModel?>(1)
+            stream = transform(stream)
+            null
+        }.whenever(streamsRepository).updateStream(any(), any())
+
+        val packet = byteArrayOf(
+            0x45.toByte(), 0x00.toByte(), 0x00.toByte(), 0x28.toByte(),
+            0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(),
+            0x40.toByte(), 0x06.toByte(), 0x00.toByte(), 0x00.toByte(),
+            0xC0.toByte(), 0xA8.toByte(), 0x01.toByte(), 0x02.toByte(),
+            0x08.toByte(), 0x08.toByte(), 0x08.toByte(), 0x08.toByte(),
+            0x04.toByte(), 0xD2.toByte(), 0x01.toByte(), 0xBB.toByte(),
+            0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x01.toByte(),
+            0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x01.toByte(),
+            0x50.toByte(), 0x02.toByte(), 0x71.toByte(), 0x10.toByte(),
+            0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte()
+        )
+
+        repeat(10) {
+            processor.onPacket(packet, packet.size, true)
+        }
+
+        verify(ipRangesCache, times(IpOwner.entries.size)).ownerV4(any())
     }
 
     @Test
