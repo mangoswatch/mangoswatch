@@ -14,16 +14,14 @@ class IpRanges private constructor(
 
         fun empty(): IpRanges = IpRanges(LongArray(0), LongArray(0), LongArray(0), LongArray(0))
 
-        fun loadFromFile(v4AssetFile: InputStream?, v6AssetFile: InputStream?): IpRanges {
-            val (v4starts, v6ends) = readV4AssetFile(v4AssetFile)
-            val (v6Starts, v6Ends) = readV6AssetFile(v6AssetFile)
+        fun loadV4FromFile(v4AssetFile: InputStream?): IpRanges {
+            val (v4Starts, v4Ends) = readV4AssetFile(v4AssetFile)
+            return IpRanges(v4Starts, v4Ends, LongArray(0), LongArray(0))
+        }
 
-            return IpRanges(
-                v4Starts = v4starts,
-                v4Ends = v6ends,
-                v6Starts = v6Starts,
-                v6Ends = v6Ends
-            )
+        fun loadV6FromFile(v6AssetFile: InputStream?): IpRanges {
+            val (v6Starts, v6Ends) = readV6AssetFile(v6AssetFile)
+            return IpRanges(LongArray(0), LongArray(0), v6Starts, v6Ends)
         }
 
         private fun readV4AssetFile(file: InputStream?): Pair<LongArray, LongArray> {

@@ -1,7 +1,11 @@
 package org.mangoswatch.domain.parser.ip
 
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -10,10 +14,10 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.repository.AssetRepository
-import org.robolectric.RobolectricTestRunner
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
+import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class IpV6ParserTest {
@@ -29,6 +33,7 @@ class IpV6ParserTest {
             modules(
                 module {
                     single { assetRepository }
+                    single { IpRangesCache(get()) }
                 }
             )
         }

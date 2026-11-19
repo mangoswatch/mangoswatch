@@ -38,6 +38,7 @@ import org.mangoswatch.domain.repository.StreamsRepository
 import org.mangoswatch.domain.repository.UserSettingsRepository
 import org.mangoswatch.presentation.contracts.MainScreenEvent
 import org.mangoswatch.presentation.contracts.MainScreenState
+import org.mangoswatch.domain.parser.ip.IpRangesCache
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainScreenViewModel(
@@ -47,7 +48,8 @@ class MainScreenViewModel(
     private val assetSync: AssetSync,
     private val appInfo: AppInfoResolver,
     private val userSettingsRepository: UserSettingsRepository,
-    private val assetRepository: AssetRepository
+    private val assetRepository: AssetRepository,
+    private val ipRangesCache: IpRangesCache
 ) : ViewModel() {
 
     val userSettings: StateFlow<UserSettings> = userSettingsRepository.userSettings
@@ -125,7 +127,10 @@ class MainScreenViewModel(
     private fun syncAssets() {
         viewModelScope.launch(Dispatchers.IO) {
             assetRepository.syncAssets()
-            taxonomyRepository.reloadTaxonomy()
+            if (assetSync.state == AssetsSyncState.SYNCED) {
+                ipRangesCache.reload()
+                taxonomyRepository.reloadTaxonomy()
+            }
         }
     }
 

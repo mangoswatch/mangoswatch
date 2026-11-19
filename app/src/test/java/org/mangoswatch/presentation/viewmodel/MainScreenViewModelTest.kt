@@ -8,30 +8,36 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mangoswatch.data.repository.AssetSync
 import org.mangoswatch.data.resolver.AppInfoResolver
 import org.mangoswatch.data.vpn.VpnAction
 import org.mangoswatch.data.vpn.VpnState
 import org.mangoswatch.data.vpn.VpnStateEnum
 import org.mangoswatch.domain.model.DnsMode
-import org.mangoswatch.domain.model.DnsSettings
-import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
-import org.mangoswatch.domain.repository.StreamsRepository
-import org.mangoswatch.domain.repository.UserSettingsRepository
-import org.mangoswatch.domain.repository.AssetRepository
-import org.mangoswatch.data.repository.AssetSync
 import org.mangoswatch.domain.model.EndpointTaxonomy
 import org.mangoswatch.domain.model.EndpointTaxonomyCategory
 import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.model.StreamModel
+import org.mangoswatch.domain.parser.ip.IpRangesCache
+import org.mangoswatch.domain.repository.AssetRepository
+import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
+import org.mangoswatch.domain.repository.StreamsRepository
+import org.mangoswatch.domain.repository.UserSettingsRepository
 import org.mangoswatch.presentation.contracts.MainScreenEvent
-import org.robolectric.RobolectricTestRunner
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
+import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -46,6 +52,7 @@ class MainScreenViewModelTest {
     private lateinit var userSettingsRepository: UserSettingsRepository
     private lateinit var assetRepository: AssetRepository
     private lateinit var assetSync: AssetSync
+    private lateinit var ipRangesCache: IpRangesCache
 
     private lateinit var viewModel: MainScreenViewModel
 
@@ -59,6 +66,7 @@ class MainScreenViewModelTest {
         userSettingsRepository = mock(UserSettingsRepository::class.java)
         assetRepository = mock(AssetRepository::class.java)
         assetSync = AssetSync().apply { state = org.mangoswatch.data.repository.AssetsSyncState.SYNCED }
+        ipRangesCache = mock(IpRangesCache::class.java)
 
         `when`(streamsRepository.getStreams()).thenReturn(flowOf(emptyList()))
         `when`(userSettingsRepository.userSettings).thenReturn(flowOf(org.mangoswatch.domain.model.UserSettings()))
@@ -71,7 +79,8 @@ class MainScreenViewModelTest {
             assetSync = assetSync,
             appInfo = appInfoResolver,
             userSettingsRepository = userSettingsRepository,
-            assetRepository = assetRepository
+            assetRepository = assetRepository,
+            ipRangesCache = ipRangesCache
         )
     }
 
@@ -189,7 +198,8 @@ class MainScreenViewModelTest {
             assetSync = assetSync,
             appInfo = appInfoResolver,
             userSettingsRepository = userSettingsRepository,
-            assetRepository = assetRepository
+            assetRepository = assetRepository,
+            ipRangesCache = ipRangesCache
         )
 
         testDispatcher.scheduler.advanceUntilIdle()
