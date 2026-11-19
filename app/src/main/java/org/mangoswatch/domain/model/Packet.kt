@@ -6,7 +6,6 @@ data class Packet (
     val packetSrcPort: Int,
     val packetDstIp: String,
     val packetDstPort: Int,
-    val ipOwner: IpOwner,
     val flags: Int,
     val b: ByteArray,
     val payloadOff: Int,
@@ -30,7 +29,6 @@ data class Packet (
         if (outbound != other.outbound) return false
         if (packetSrcIp != other.packetSrcIp) return false
         if (packetDstIp != other.packetDstIp) return false
-        if (ipOwner != other.ipOwner) return false
         if (!b.contentEquals(other.b)) return false
 
         return true
@@ -47,7 +45,6 @@ data class Packet (
         result = 31 * result + outbound.hashCode()
         result = 31 * result + packetSrcIp.hashCode()
         result = 31 * result + packetDstIp.hashCode()
-        result = 31 * result + ipOwner.hashCode()
         result = 31 * result + b.contentHashCode()
         return result
     }

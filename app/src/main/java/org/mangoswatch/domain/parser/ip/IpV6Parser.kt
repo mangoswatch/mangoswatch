@@ -31,16 +31,12 @@ class IpV6Parser : IpParser() {
         val payloadLen = n - payloadOff
         val flags = if (nextHdr == 6) u8(b, 40 + 13) else 0
 
-        val remoteOff = if (outbound) 24 else 8
-        val ipOwner = identifyOwner(b, remoteOff)
-
         return Packet(
             protocol = nextHdr,
             packetSrcIp = srcIp,
             packetSrcPort = srcPort,
             packetDstIp = dstIp,
             packetDstPort = dstPort,
-            ipOwner = ipOwner,
             flags = flags,
             b = b,
             payloadOff = payloadOff,

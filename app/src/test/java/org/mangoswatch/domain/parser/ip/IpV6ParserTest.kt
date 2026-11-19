@@ -12,7 +12,6 @@ import org.junit.runner.RunWith
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
-import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.repository.AssetRepository
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.any
@@ -83,7 +82,6 @@ class IpV6ParserTest {
         assertEquals(17, pkt?.protocol)
         assertEquals(5000, pkt?.packetSrcPort)
         assertEquals(53, pkt?.packetDstPort)
-        assertEquals(IpOwner.OTHER, pkt?.ipOwner)
         assertTrue(pkt?.outbound == true)
         assertEquals(12, pkt?.payloadLen) // 60 - 48
     }
