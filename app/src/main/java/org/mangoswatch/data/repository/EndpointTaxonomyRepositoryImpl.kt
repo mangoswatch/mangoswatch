@@ -1,16 +1,15 @@
 package org.mangoswatch.data.repository
 
-import android.content.Context
 import android.util.Log
 import org.mangoswatch.domain.model.EndpointTaxonomyCategory
 import org.mangoswatch.domain.model.EndpointTaxonomy
 import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
-import org.mangoswatch.data.util.AssetManager
+import org.mangoswatch.domain.repository.AssetRepository
 import org.json.JSONObject
 import java.util.regex.Pattern
 
 class EndpointTaxonomyRepositoryImpl(
-    private val context: Context
+    private val assetRepository: AssetRepository
 ) : EndpointTaxonomyRepository {
 
     private val items = mutableListOf<EndpointTaxonomy>()
@@ -37,10 +36,19 @@ class EndpointTaxonomyRepositoryImpl(
         loadTaxonomy()
     }
 
+    override fun reloadTaxonomy() {
+        synchronized(this) {
+            items.clear()
+            compiledPatterns.clear()
+            synchronized(matchCache) { matchCache.clear() }
+            loadTaxonomy()
+        }
+    }
+
     private fun loadTaxonomy() {
-        for (fileName in AssetManager.getTaxonomyFiles(context)) {
+        for (fileName in assetRepository.getTaxonomyFiles()) {
             try {
-                val assetStream = AssetManager.getAsset(context, fileName)
+                val assetStream = assetRepository.getFileFromAssetsCache(fileName)
                 val jsonString = assetStream.bufferedReader().use { it.readText() }
                 val root = JSONObject(jsonString)
                 val provider = root.optString("provider", "UNKNOWN")
@@ -96,6 +104,10 @@ class EndpointTaxonomyRepositoryImpl(
     override fun findMatch(hostnameOrUrl: String?): EndpointTaxonomy? {
         if (hostnameOrUrl.isNullOrBlank()) return null
 
+        if (items.isEmpty()) {
+            reloadTaxonomy()
+        }
+
         synchronized(matchCache) {
             val cached = matchCache[hostnameOrUrl]
             if (cached != null) {
@@ -127,5 +139,4 @@ class EndpointTaxonomyRepositoryImpl(
         return matchedItem
     }
 
-    override fun getAllItems(): List<EndpointTaxonomy> = items
 }

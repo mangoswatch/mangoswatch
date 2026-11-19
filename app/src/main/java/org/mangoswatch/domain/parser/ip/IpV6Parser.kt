@@ -1,26 +1,11 @@
 package org.mangoswatch.domain.parser.ip
 
-import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.model.Packet
 import org.mangoswatch.domain.parser.ip.IpHelpers.ipStrV6
 import org.mangoswatch.domain.parser.ip.IpHelpers.u16
 import org.mangoswatch.domain.parser.ip.IpHelpers.u8
 
-class IpV6Parser(
-    private val amazonRanges: IpRanges,
-    private val anthropicRanges: IpRanges,
-    private val appleRanges: IpRanges,
-    private val appsflyerRanges: IpRanges,
-    private val googleRanges: IpRanges,
-    private val metaRanges: IpRanges,
-    private val microsoftRanges: IpRanges,
-    private val netflixRanges: IpRanges,
-    private val nvidiaRanges: IpRanges,
-    private val openaiRanges: IpRanges,
-    private val xiaomiRanges: IpRanges,
-    private val xTwitterRanges: IpRanges,
-    private val reservedRanges: IpRanges,
-) {
+class IpV6Parser : IpParser() {
 
     fun parseV6Packet(b: ByteArray, n: Int, outbound: Boolean): Packet? {
         if (n < 40) return null
@@ -47,7 +32,7 @@ class IpV6Parser(
         val flags = if (nextHdr == 6) u8(b, 40 + 13) else 0
 
         val remoteOff = if (outbound) 24 else 8
-        val ipOwner = identifyV6Owner(b, remoteOff)
+        val ipOwner = identifyOwner(b, remoteOff)
 
         return Packet(
             protocol = nextHdr,
@@ -66,20 +51,4 @@ class IpV6Parser(
 
     }
 
-    private fun identifyV6Owner(b: ByteArray, off: Int): IpOwner = when {
-        amazonRanges.containsV6(b, off)     -> IpOwner.AMAZON
-        anthropicRanges.containsV6(b, off)  -> IpOwner.ANTHROPIC
-        appleRanges.containsV6(b, off)      -> IpOwner.APPLE
-        appsflyerRanges.containsV6(b, off)  -> IpOwner.APPSFLYER
-        googleRanges.containsV6(b, off)     -> IpOwner.GOOGLE
-        metaRanges.containsV6(b, off)       -> IpOwner.META
-        microsoftRanges.containsV6(b, off)  -> IpOwner.MICROSOFT
-        netflixRanges.containsV6(b, off)    -> IpOwner.NETFLIX
-        nvidiaRanges.containsV6(b, off)     -> IpOwner.NVIDIA
-        openaiRanges.containsV6(b, off)     -> IpOwner.OPENAI
-        xiaomiRanges.containsV6(b, off)     -> IpOwner.XIAOMI
-        xTwitterRanges.containsV6(b, off)   -> IpOwner.X_TWITTER
-        reservedRanges.containsV6(b, off)   -> IpOwner.RESERVED
-        else                                -> IpOwner.OTHER
-    }
 }

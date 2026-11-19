@@ -13,8 +13,6 @@ import org.mangoswatch.data.analyzer.TrafficAnalyzer
 import org.mangoswatch.data.proxy.SocksProxyRelay
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.repository.UserPreferencesRepository
-import org.mangoswatch.domain.model.IpOwner
-import org.mangoswatch.domain.parser.ip.IpRanges
 import hev.htproxy.TProxyService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +42,7 @@ class VpnTrafficManager : VpnService() {
     private val vpnState by inject<VpnState>()
     private val connectivityManager by inject<ConnectivityManager>()
     private val userPreferencesRepository by inject<UserPreferencesRepository>()
-    private lateinit var trafficAnalyzer: TrafficAnalyzer
+    private val trafficAnalyzer by inject<TrafficAnalyzer>()
     private var socksProxyRelay = SocksProxyRelay()
     private var socksUsername: String = ""
     private var socksPassword: String = ""
@@ -53,25 +51,6 @@ class VpnTrafficManager : VpnService() {
 
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
-
-    override fun onCreate() {
-        super.onCreate()
-        trafficAnalyzer = TrafficAnalyzer(
-            amazonRanges = IpRanges.load(this, IpOwner.AMAZON),
-            anthropicRanges = IpRanges.load(this, IpOwner.ANTHROPIC),
-            appleRanges = IpRanges.load(this, IpOwner.APPLE),
-            appsflyerRanges = IpRanges.load(this, IpOwner.APPSFLYER),
-            googleRanges = IpRanges.load(this, IpOwner.GOOGLE),
-            metaRanges = IpRanges.load(this, IpOwner.META),
-            microsoftRanges = IpRanges.load(this, IpOwner.MICROSOFT),
-            netflixRanges = IpRanges.load(this, IpOwner.NETFLIX),
-            nvidiaRanges = IpRanges.load(this, IpOwner.NVIDIA),
-            openaiRanges = IpRanges.load(this, IpOwner.OPENAI),
-            xiaomiRanges = IpRanges.load(this, IpOwner.XIAOMI),
-            xTwitterRanges = IpRanges.load(this, IpOwner.X_TWITTER),
-            reservedRanges = IpRanges.load(this, IpOwner.RESERVED)
-        )
-    }
 
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

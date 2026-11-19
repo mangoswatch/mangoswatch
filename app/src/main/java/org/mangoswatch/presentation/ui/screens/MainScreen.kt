@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Downloading
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import org.mangoswatch.R
+import org.mangoswatch.data.repository.AssetsSyncState
 import org.mangoswatch.data.vpn.VpnStateEnum
 import org.mangoswatch.presentation.contracts.LocalEventTunnel
 import org.mangoswatch.presentation.contracts.LocalMainScreenState
@@ -54,7 +56,11 @@ fun MainScreen(
             SettingsDialog(
                 dnsSettings = dnsSettings,
                 onDismiss = { eventTunnel(MainScreenEvent.OnShowSettings(false)) },
-                onUpdateDns = { mode, v4, v6 -> eventTunnel(MainScreenEvent.OnUpdateDns(mode, v4, v6)) }
+                onUpdateDns = { mode, v4, v6 -> eventTunnel(MainScreenEvent.OnUpdateDns(mode, v4, v6)) },
+                onManualSync = {
+                    eventTunnel(MainScreenEvent.OnManualAssetSync)
+                    eventTunnel(MainScreenEvent.OnShowSettings(false))
+                }
             )
         }
 
@@ -126,14 +132,25 @@ fun MainScreen(
                     }
 
                     VpnStateEnum.IDLE -> {
-                        AppPlaceholder(
-                            icon = Icons.Default.Visibility,
-                            title = stringResource(R.string.placeholder_idle_title),
-                            subtitle = stringResource(R.string.placeholder_idle_subtitle),
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.weight(1f)
-                        )
+                        if (mainScreenState.assetsSyncState != AssetsSyncState.SYNCING) {
+                            AppPlaceholder(
+                                icon = Icons.Default.Visibility,
+                                title = stringResource(R.string.placeholder_idle_title),
+                                subtitle = stringResource(R.string.placeholder_idle_subtitle),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.weight(1f)
+                            )
+                        } else {
+                            AppPlaceholder(
+                                icon = Icons.Default.Downloading,
+                                title = "Assets Loading",
+                                subtitle = "ASsets Loading",
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                 }
             }

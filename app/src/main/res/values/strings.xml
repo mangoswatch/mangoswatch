@@ -45,4 +45,11 @@
     <string name="app_stream_count">%1$d stream</string>
     <string name="host_stream_count">%1$d streams</string>
     <string name="detail_streams_and_hosts">%1$d streams / %2$d host</string>
+
+    <!-- Asset Sync & Offline First Launch -->
+    <string name="asset_sync_failed_title">Taxonomy Assets Missing</string>
+    <string name="asset_sync_failed_subtitle">First launch requires an active internet connection to download Big Tech taxonomy rules.</string>
+    <string name="btn_retry_sync">RETRY DOWNLOAD</string>
+    <string name="btn_sync_assets">Sync Taxonomy Assets</string>
+    <string name="error_no_assets_vpn">Cannot start VPN: taxonomy rules missing. Connect to Internet and retry.</string>
 </resources>

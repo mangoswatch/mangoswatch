@@ -1,8 +1,6 @@
 package org.mangoswatch.domain.parser.ip
 
-import android.content.Context
-import org.mangoswatch.data.util.AssetManager
-import org.mangoswatch.domain.model.IpOwner
+import java.io.InputStream
 import java.net.InetAddress
 
 class IpRanges private constructor(
@@ -10,22 +8,15 @@ class IpRanges private constructor(
     private val v4Ends: LongArray,
     private val v6Starts: LongArray, // 2 longs for range (hi, lo), sorted, merged, disjoint
     private val v6Ends: LongArray,
-
-    ) {
+) {
 
     companion object {
 
         fun empty(): IpRanges = IpRanges(LongArray(0), LongArray(0), LongArray(0), LongArray(0))
 
-        fun load(
-            context: Context,
-            ipOwner: IpOwner
-        ): IpRanges {
-
-            val assetV4 = AssetManager.getIpV4FileName(ipOwner)
-            val assetV6 = AssetManager.getIpV6FileName(ipOwner)
-            val (v4starts, v6ends) = loadV4(context, assetV4)
-            val (v6Starts, v6Ends) = loadV6(context, assetV6)
+        fun loadFromFile(v4AssetFile: InputStream?, v6AssetFile: InputStream?): IpRanges {
+            val (v4starts, v6ends) = readV4AssetFile(v4AssetFile)
+            val (v6Starts, v6Ends) = readV6AssetFile(v6AssetFile)
 
             return IpRanges(
                 v4Starts = v4starts,
@@ -33,13 +24,12 @@ class IpRanges private constructor(
                 v6Starts = v6Starts,
                 v6Ends = v6Ends
             )
-
         }
 
-        private fun loadV4(context: Context, asset: String): Pair<LongArray, LongArray> {
+        private fun readV4AssetFile(file: InputStream?): Pair<LongArray, LongArray> {
             val ranges = ArrayList<LongArray>()
             try {
-                AssetManager.getAsset(context, asset).bufferedReader().useLines { lines ->
+                file?.bufferedReader()?.useLines { lines ->
                     for (line in lines) {
                         val s = line.trim()
                         if (s.isEmpty() || s.startsWith("#")) continue
@@ -67,10 +57,11 @@ class IpRanges private constructor(
             }
             return st.toLongArray() to en.toLongArray()
         }
-        private fun loadV6(context: Context, asset: String): Pair<LongArray, LongArray> {
+
+        private fun readV6AssetFile(file: InputStream?): Pair<LongArray, LongArray> {
             val ranges = ArrayList<LongArray>() // [startHi, startLo, endHi, endLo]
             try {
-                AssetManager.getAsset(context, asset).bufferedReader().useLines { lines ->
+                file?.bufferedReader()?.useLines { lines ->
                     for (line in lines) {
                         val s = line.trim()
                         if (s.isEmpty() || s.startsWith("#")) continue
@@ -123,8 +114,6 @@ class IpRanges private constructor(
             val c = java.lang.Long.compareUnsigned(aHi, bHi)
             return if (c != 0) c else java.lang.Long.compareUnsigned(aLo, bLo)
         }
-
-
     }
 
     fun containsV4(ip: Long): Boolean {
@@ -159,6 +148,4 @@ class IpRanges private constructor(
         }
         return false
     }
-
-
 }

@@ -1,18 +1,43 @@
 package org.mangoswatch.domain.parser.ip
 
+import org.junit.After
 import org.junit.Assert.*
+import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 import org.mangoswatch.domain.model.IpOwner
+import org.mangoswatch.domain.repository.AssetRepository
+import org.robolectric.RobolectricTestRunner
+import org.mockito.Mockito.*
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
 
+@RunWith(RobolectricTestRunner::class)
 class IpV4ParserTest {
 
-    private val emptyRanges = IpRanges.empty()
-    private val parser = IpV4Parser(
-        emptyRanges, emptyRanges, emptyRanges, emptyRanges,
-        emptyRanges, emptyRanges, emptyRanges, emptyRanges,
-        emptyRanges, emptyRanges, emptyRanges, emptyRanges,
-        emptyRanges
-    )
+    private lateinit var assetRepository: AssetRepository
+    private val parser = IpV4Parser()
+
+    @Before
+    fun setUp() {
+        assetRepository = mock(AssetRepository::class.java)
+        whenever(assetRepository.getFileFromAssetsCache(any())).thenReturn("".byteInputStream())
+        startKoin {
+            modules(
+                module {
+                    single { assetRepository }
+                }
+            )
+        }
+    }
+
+    @After
+    fun tearDown() {
+        stopKoin()
+    }
 
     @Test
     fun testParseV4PacketTooShortReturnsNull() {
