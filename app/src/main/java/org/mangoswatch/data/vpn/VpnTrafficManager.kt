@@ -12,7 +12,7 @@ import androidx.annotation.RequiresPermission
 import org.mangoswatch.data.analyzer.TrafficAnalyzer
 import org.mangoswatch.data.proxy.SocksProxyRelay
 import org.mangoswatch.domain.model.DnsMode
-import org.mangoswatch.domain.repository.UserPreferencesRepository
+import org.mangoswatch.domain.repository.UserSettingsRepository
 import hev.htproxy.TProxyService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +41,7 @@ class VpnTrafficManager : VpnService() {
 
     private val vpnState by inject<VpnState>()
     private val connectivityManager by inject<ConnectivityManager>()
-    private val userPreferencesRepository by inject<UserPreferencesRepository>()
+    private val userSettingsRepository by inject<UserSettingsRepository>()
     private val trafficAnalyzer by inject<TrafficAnalyzer>()
     private var socksProxyRelay = SocksProxyRelay()
     private var socksUsername: String = ""
@@ -196,7 +196,7 @@ class VpnTrafficManager : VpnService() {
     private suspend fun establishVpnConnection(): Boolean {
         Log.d(TAG, "establishVpnConnection - Preparing VPN connection...")
 
-        val dns = userPreferencesRepository.dnsSettings.first()
+        val dns = userSettingsRepository.userSettings.first().dnsSettings
         val withV6 = upstreamHasIpv6()
         Log.d(TAG, "upstream IPv6: $withV6, dnsMode: ${dns.dnsMode}")
 

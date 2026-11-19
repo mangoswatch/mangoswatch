@@ -42,7 +42,7 @@ fun MainScreen(
     mainScreenViewModel: MainScreenViewModel = koinViewModel()
 ) {
     val mainScreenState by mainScreenViewModel.state.collectAsState()
-    val dnsSettings by mainScreenViewModel.userPreferences.collectAsState()
+    val userSettings by mainScreenViewModel.userSettings.collectAsState()
 
     CompositionLocalProvider(
         LocalMainScreenState provides mainScreenState,
@@ -54,7 +54,7 @@ fun MainScreen(
 
         if (mainScreenState.isSettingsOpen) {
             SettingsDialog(
-                dnsSettings = dnsSettings,
+                dnsSettings = userSettings.dnsSettings,
                 onDismiss = { eventTunnel(MainScreenEvent.OnShowSettings(false)) },
                 onUpdateDns = { mode, v4, v6 -> eventTunnel(MainScreenEvent.OnUpdateDns(mode, v4, v6)) },
                 onManualSync = {

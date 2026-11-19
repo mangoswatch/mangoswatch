@@ -6,29 +6,29 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mangoswatch.data.datasource.UserPreferences
+import org.mangoswatch.data.datasource.UserSettingsDataSource
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.model.DnsSettings
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 
 @RunWith(RobolectricTestRunner::class)
-class UserPreferencesRepositoryTest {
+class UserSettingsRepositoryTest {
 
-    private lateinit var repository: UserPreferencesRepositoryImpl
+    private lateinit var repository: UserSettingsRepositoryImpl
 
     @Before
     fun setUp() {
         val context = RuntimeEnvironment.getApplication()
-        val userPreferences = UserPreferences(context)
-        repository = UserPreferencesRepositoryImpl(userPreferences)
+        val dataSource = UserSettingsDataSource(context)
+        repository = UserSettingsRepositoryImpl(dataSource)
     }
 
     @Test
-    fun testDefaultDnsSettings() = runTest {
-        val settings = repository.dnsSettings.first()
-        assertNotNull(settings)
-        assertEquals(DnsMode.CLOUDFLARE, settings.dnsMode)
+    fun testDefaultUserSettings() = runTest {
+        val userSettings = repository.userSettings.first()
+        assertNotNull(userSettings)
+        assertEquals(DnsMode.CLOUDFLARE, userSettings.dnsSettings.dnsMode)
     }
 
     @Test
@@ -40,9 +40,9 @@ class UserPreferencesRepositoryTest {
         )
         repository.updateDnsSettings(customSettings)
 
-        val updated = repository.dnsSettings.first { it.dnsMode == DnsMode.CUSTOM }
-        assertEquals(DnsMode.CUSTOM, updated.dnsMode)
-        assertEquals("8.8.8.8,8.8.4.4", updated.dnsV4)
-        assertEquals("2001:4860:4860::8888", updated.dnsV6)
+        val updated = repository.userSettings.first { it.dnsSettings.dnsMode == DnsMode.CUSTOM }
+        assertEquals(DnsMode.CUSTOM, updated.dnsSettings.dnsMode)
+        assertEquals("8.8.8.8,8.8.4.4", updated.dnsSettings.dnsV4)
+        assertEquals("2001:4860:4860::8888", updated.dnsSettings.dnsV6)
     }
 }

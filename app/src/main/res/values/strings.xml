@@ -1,9 +1,12 @@
 <resources>
     <string name="app_name">MangosWatch</string>
 
-    <!-- DNS Settings Dialog -->
+    <!-- Settings Dialog -->
+    <string name="settings_dialog_title">App Settings</string>
+    <string name="settings_section_dns">VPN DNS Configuration</string>
+    <string name="settings_section_eviction">Stream Memory Eviction</string>
+    <string name="settings_section_assets">Asset Management</string>
     <string name="dns_settings_title">VPN DNS Settings</string>
-    <string name="dns_settings_description">Choose how DNS is handled inside the VPN tunnel. If you use a private DNS or local resolver, select System/Private DNS.</string>
     <string name="dns_cloudflare_title">Cloudflare DNS (Default)</string>
     <string name="dns_cloudflare_subtitle">1.1.1.1, 2606:4700:4700::1111</string>
     <string name="dns_system_title">System / Private DNS</string>
