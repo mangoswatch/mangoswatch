@@ -54,7 +54,7 @@ class IpRangesTest {
 
         File(cacheDir, "google_ipv4.txt").writeText(v4Content)
 
-        val ranges = IpRanges.loadFromFile(assetRepository.getFileFromAssetsCache("google_ipv4.txt"), null)
+        val ranges = IpRanges.loadV4FromFile(assetRepository.getFileFromAssetsCache("google_ipv4.txt"))
 
         assertTrue(ranges.containsV4(ipToLong("192.168.1.1")))
         assertTrue(ranges.containsV4(ipToLong("192.168.1.254")))
@@ -78,7 +78,7 @@ class IpRangesTest {
 
         File(cacheDir, "google_ipv6.txt").writeText(v6Content)
 
-        val ranges = IpRanges.loadFromFile(null, assetRepository.getFileFromAssetsCache("google_ipv6.txt"))
+        val ranges = IpRanges.loadV6FromFile(assetRepository.getFileFromAssetsCache("google_ipv6.txt"))
 
         val targetV6In = InetAddress.getByName("2001:db8::1").address
         val targetV6Out = InetAddress.getByName("2001:db9::1").address
@@ -104,7 +104,7 @@ class IpRangesTest {
 
         File(cacheDir, "google_ipv4.txt").writeText(v4Content)
 
-        val ranges = IpRanges.loadFromFile(assetRepository.getFileFromAssetsCache("google_ipv4.txt"), null)
+        val ranges = IpRanges.loadV4FromFile(assetRepository.getFileFromAssetsCache("google_ipv4.txt"))
 
         assertTrue(ranges.containsV4(ipToLong("192.168.1.1")))
         assertTrue(ranges.containsV4(ipToLong("10.0.0.1")))

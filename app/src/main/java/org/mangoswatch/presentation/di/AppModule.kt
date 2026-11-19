@@ -20,6 +20,7 @@ import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
 import org.mangoswatch.domain.repository.UserSettingsRepository
 import org.mangoswatch.domain.repository.StreamsRepository
 import org.mangoswatch.domain.repository.AssetRepository
+import org.mangoswatch.domain.parser.ip.IpRangesCache
 import org.mangoswatch.presentation.viewmodel.MainScreenViewModel
 
 val appModule = module {
@@ -28,10 +29,11 @@ val appModule = module {
     single<StreamsRepositoryImpl> { StreamsRepositoryImpl() } bind StreamsRepository::class
     single<AssetSync> { AssetSync() }
     single<AssetRepositoryImpl> { AssetRepositoryImpl(androidContext(), get()) } bind AssetRepository::class
+    single<IpRangesCache> { IpRangesCache(get()) }
     single<EndpointTaxonomyRepositoryImpl> { EndpointTaxonomyRepositoryImpl(get()) } bind EndpointTaxonomyRepository::class
     single<UserSettingsDataSource> { UserSettingsDataSource(androidContext()) }
     single<UserSettingsRepositoryImpl> { UserSettingsRepositoryImpl(get()) } bind UserSettingsRepository::class
-    viewModel<MainScreenViewModel> { MainScreenViewModel(get(), get(), get(), get(), get(), get(), get()) }
+    viewModel<MainScreenViewModel> { MainScreenViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
     single<VpnState>{ VpnState() }
     single<AppInfoResolver> { AppInfoResolver(get()) }
     single<TrafficAnalyzer> { TrafficAnalyzer() }

@@ -10,6 +10,7 @@ import org.koin.dsl.module
 import org.mangoswatch.domain.model.StreamModel
 import org.mangoswatch.domain.repository.AssetRepository
 import org.mangoswatch.domain.repository.StreamsRepository
+import org.mangoswatch.domain.parser.ip.IpRangesCache
 import org.robolectric.RobolectricTestRunner
 import org.mockito.Mockito.*
 import org.mockito.kotlin.any
@@ -34,6 +35,7 @@ class StreamTrafficProcessorTest {
                 module {
                     single { streamsRepository }
                     single { assetRepository }
+                    single { IpRangesCache(get()) }
                 }
             )
         }
