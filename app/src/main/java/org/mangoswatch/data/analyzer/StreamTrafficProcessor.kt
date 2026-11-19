@@ -109,7 +109,15 @@ class StreamTrafficProcessor: KoinComponent {
                 )
 
                 if (outbound && payloadLen > 0) {
-                    if (protocol == 6 && !stream.tlsProbed) {
+                    if (stream.dnsQuery == null && remotePort == 53) {
+                        val q = when (protocol) {
+                            17 -> dnsQueryParser.extractDnsQuery(b, payloadOff, payloadLen)
+                            6 if payloadLen > 2 ->
+                                dnsQueryParser.extractDnsQuery(b, payloadOff + 2, payloadLen - 2)
+                            else -> null
+                        }
+                        if (q != null) stream = stream.copy(dnsQuery = q)
+                    } else if (protocol == 6 && !stream.tlsProbed) {
                         if (hello is ClientHello) {
                             stream = stream.copy(
                                 tlsProbed = true,
@@ -129,14 +137,6 @@ class StreamTrafficProcessor: KoinComponent {
                             quic === NotTls -> stream.copy(tlsProbed = true)
                             else -> stream
                         }
-                    } else if (stream.dnsQuery == null && remotePort == 53) {
-                        val q = when (protocol) {
-                            17 -> dnsQueryParser.extractDnsQuery(b, payloadOff, payloadLen)
-                            6 if payloadLen > 2 ->
-                                dnsQueryParser.extractDnsQuery(b, payloadOff + 2, payloadLen - 2)
-                            else -> null
-                        }
-                        if (q != null) stream = stream.copy(dnsQuery = q)
                     }
                 }
 

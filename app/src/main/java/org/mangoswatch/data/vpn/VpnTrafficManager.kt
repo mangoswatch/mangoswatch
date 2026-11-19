@@ -9,10 +9,6 @@ import android.net.VpnService
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import androidx.annotation.RequiresPermission
-import org.mangoswatch.data.analyzer.TrafficAnalyzer
-import org.mangoswatch.data.proxy.SocksProxyRelay
-import org.mangoswatch.domain.model.DnsMode
-import org.mangoswatch.domain.repository.UserSettingsRepository
 import hev.htproxy.TProxyService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +21,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import org.mangoswatch.data.analyzer.TrafficAnalyzer
+import org.mangoswatch.data.proxy.SocksProxyRelay
+import org.mangoswatch.domain.model.DnsMode
+import org.mangoswatch.domain.repository.UserSettingsRepository
 import java.io.File
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -119,6 +119,7 @@ class VpnTrafficManager : VpnService() {
         runCatching { trafficAnalyzer.stopTrafficAnalyzer() }
         runCatching { serviceJob.cancelChildren() }
         runCatching { vpnInterface?.close() }
+        runCatching { File(cacheDir, "hev.yml").delete() }
         vpnInterface = null
         vpnState.state = VpnStateEnum.STOPPED
         runCatching { stopForeground(STOP_FOREGROUND_REMOVE) }
@@ -206,6 +207,7 @@ class VpnTrafficManager : VpnService() {
             .addAddress("172.16.0.2", 30)
             .addRoute("0.0.0.0", 0)
             .addDisallowedApplication(packageName) // avoid loop
+            .setMetered(connectivityManager.isActiveNetworkMetered)
 
         when (dns.dnsMode) {
             DnsMode.CLOUDFLARE -> {
@@ -309,6 +311,8 @@ class VpnTrafficManager : VpnService() {
                             log-level: info
                         """.trimIndent()
                     )
+            setReadable(true, true)
+            setWritable(true, true)
         }
         val ok = TProxyService.TProxyStartService(
             config.absolutePath,

@@ -33,15 +33,17 @@ class IpRanges private constructor(
                     for (line in lines) {
                         val s = line.trim()
                         if (s.isEmpty() || s.startsWith("#")) continue
-                        val slash = s.indexOf('/')
-                        if (slash < 0) continue
-                        val addr = s.substring(0, slash)
-                        val len  = s.substring(slash + 1).toIntOrNull() ?: continue
-                        if (len !in 0..32) continue
-                        val base = addr.split(".").fold(0L) { acc, p -> (acc shl 8) or p.toLong() }
-                        val size = 1L shl (32 - len)
-                        val start = base and (size - 1).inv()
-                        ranges.add(longArrayOf(start, start + size - 1))
+                        try {
+                            val slash = s.indexOf('/')
+                            if (slash < 0) continue
+                            val addr = s.substring(0, slash)
+                            val len  = s.substring(slash + 1).toIntOrNull() ?: continue
+                            if (len !in 0..32) continue
+                            val base = addr.split(".").fold(0L) { acc, p -> (acc shl 8) or p.toLong() }
+                            val size = 1L shl (32 - len)
+                            val start = base and (size - 1).inv()
+                            ranges.add(longArrayOf(start, start + size - 1))
+                        } catch (_: Exception) { /* riga malformata */ }
                     }
                 }
             } catch (_: Exception) { /* asset mancante: nessun range */ }
