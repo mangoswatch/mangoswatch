@@ -89,4 +89,24 @@ class IpRangesTest {
         val localV6In = InetAddress.getByName("fd00::1234").address
         assertTrue(ranges.containsV6(localV6In))
     }
+
+    @Test
+    fun testLoadV4RangesWithMalformedLines() {
+        val context = RuntimeEnvironment.getApplication()
+        val assetSync = AssetSync()
+        val assetRepository = AssetRepositoryImpl(context, assetSync)
+        val v4Content = """
+            invalid.ip.address/24
+            192.168.1.0/24
+            bad-line-without-slash
+            10.0.0.0/8
+        """.trimIndent()
+
+        File(cacheDir, "google_ipv4.txt").writeText(v4Content)
+
+        val ranges = IpRanges.loadFromFile(assetRepository.getFileFromAssetsCache("google_ipv4.txt"), null)
+
+        assertTrue(ranges.containsV4(ipToLong("192.168.1.1")))
+        assertTrue(ranges.containsV4(ipToLong("10.0.0.1")))
+    }
 }
