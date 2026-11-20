@@ -19,32 +19,32 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.mangoswatch.data.repository.AssetSync
-import org.mangoswatch.data.repository.AssetsSyncState
-import org.mangoswatch.data.resolver.AppInfoResolver
-import org.mangoswatch.data.vpn.VpnAction
-import org.mangoswatch.data.vpn.VpnState
-import org.mangoswatch.data.vpn.VpnStateEnum
+import org.mangoswatch.R
+import org.mangoswatch.domain.model.AssetSyncState
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.model.DnsSettings
 import org.mangoswatch.domain.model.EndpointTaxonomy
-import org.mangoswatch.domain.model.UserSettings
 import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.model.StreamModel
 import org.mangoswatch.domain.model.StreamProtocol
+import org.mangoswatch.domain.model.UserSettings
+import org.mangoswatch.domain.parser.ip.IpRangesCache
+import org.mangoswatch.domain.repository.AppInfoResolver
 import org.mangoswatch.domain.repository.AssetRepository
+import org.mangoswatch.domain.model.AssetSync
 import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
 import org.mangoswatch.domain.repository.StreamsRepository
 import org.mangoswatch.domain.repository.UserSettingsRepository
+import org.mangoswatch.domain.model.Vpn
+import org.mangoswatch.domain.model.VpnStateEnum
 import org.mangoswatch.presentation.contracts.MainScreenEvent
 import org.mangoswatch.presentation.contracts.MainScreenState
-import org.mangoswatch.domain.parser.ip.IpRangesCache
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainScreenViewModel(
     private val streamsRepository: StreamsRepository,
     private val taxonomyRepository: EndpointTaxonomyRepository,
-    private val vpnState: VpnState,
+    private val vpn: Vpn,
     private val assetSync: AssetSync,
     private val appInfo: AppInfoResolver,
     private val userSettingsRepository: UserSettingsRepository,
@@ -73,7 +73,7 @@ class MainScreenViewModel(
             MainScreenEvent.OnBack -> onBack()
             is MainScreenEvent.OnAppClick -> _state.update { it.copy(selectedUid = event.appUid) }
             MainScreenEvent.OnStartVpnRequest -> onStartVpnRequested()
-            MainScreenEvent.OnStopVpnRequest -> vpnState.actionRequest = VpnAction.STOP
+            MainScreenEvent.OnStopVpnRequest -> vpn.requestStop()
             is MainScreenEvent.OnShowSettings -> _state.update { it.copy(isSettingsOpen = event.show) }
             is MainScreenEvent.OnUpdateDns -> updateDns(event.mode, event.v4, event.v6)
             MainScreenEvent.OnManualAssetSync -> syncAssets()
@@ -83,11 +83,22 @@ class MainScreenViewModel(
     init {
         Log.d("[MANGOS_WATCH] - MAINSCREENVIEWMODEL ", "VM Initialized")
         viewModelScope.launch(Dispatchers.IO) {
-            assetSync.assetSyncState
-                .collect { assetsSyncState ->
-                    _state.update { it.copy(assetsSyncState = assetsSyncState) }
-                    if (assetsSyncState == AssetsSyncState.SYNC_NEEDED) syncAssets()
+            assetSync.state.collect { assetSyncState ->
+                _state.update {
+                    it.copy(
+                        assetSyncState = assetSyncState,
+                        errorMessage = if (
+                            assetSyncState == AssetSyncState.Synced &&
+                            it.errorMessage in setOf(
+                                R.string.error_no_assets_vpn,
+                                R.string.asset_sync_failed_subtitle
+                            )
+                        ) null
+                        else it.errorMessage
+                    )
                 }
+                if (assetSyncState == AssetSyncState.SyncNeeded) syncAssets()
+            }
         }
 
         viewModelScope.launch(Dispatchers.Default) {
@@ -101,7 +112,7 @@ class MainScreenViewModel(
         }
 
         viewModelScope.launch(Dispatchers.Default) {
-            vpnState.running
+            vpn.state
                 .flatMapLatest { vpnState ->
                     _state.update { it.copy(vpnState = vpnState) }
                     if (vpnState == VpnStateEnum.RUNNING) streamsRepository.getStreams() else emptyFlow()
@@ -115,19 +126,29 @@ class MainScreenViewModel(
     }
 
     private fun onStartVpnRequested() {
-        if (assetSync.state != AssetsSyncState.SYNCED) {
+        if (!assetRepository.isCachePopulated()) {
             _state.update {
-                it.copy(errorMessage = "Asset sync needed or syncing")
+                it.copy(errorMessage = R.string.error_no_assets_vpn)
             }
-        } else {
-            vpnState.actionRequest = VpnAction.START
+            return
         }
+
+        val currentSyncState = assetSync.state.value
+        if (currentSyncState is AssetSyncState.Syncing) return
+
+        _state.update {
+            it.copy(
+                errorMessage = if (currentSyncState == AssetSyncState.Synced) null
+                else R.string.asset_sync_failed_subtitle
+            )
+        }
+        vpn.requestStart()
     }
 
     private fun syncAssets() {
         viewModelScope.launch(Dispatchers.IO) {
             assetRepository.syncAssets()
-            if (assetSync.state == AssetsSyncState.SYNCED) {
+            if (assetSync.state.value == AssetSyncState.Synced) {
                 ipRangesCache.reload()
                 taxonomyRepository.reloadTaxonomy()
             }

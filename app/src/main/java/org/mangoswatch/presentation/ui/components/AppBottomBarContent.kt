@@ -19,15 +19,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.mangoswatch.R
-import org.mangoswatch.data.repository.AssetsSyncState
-import org.mangoswatch.data.vpn.VpnStateEnum
+import org.mangoswatch.domain.model.AssetSyncState
+import org.mangoswatch.domain.model.VpnStateEnum
 
 @Composable
 fun AppBottomBarContent(
     onStartVPN: () -> Unit,
     onStopVPN: () -> Unit,
     vpnState: VpnStateEnum,
-    assetsSyncState: AssetsSyncState
+    assetSyncState: AssetSyncState
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -35,7 +35,8 @@ fun AppBottomBarContent(
             .fillMaxWidth()
     ) {
         Button(
-            enabled = vpnState == VpnStateEnum.STOPPED || (vpnState == VpnStateEnum.IDLE && assetsSyncState != AssetsSyncState.SYNCING),
+            enabled = (vpnState == VpnStateEnum.STOPPED || vpnState == VpnStateEnum.IDLE) &&
+                assetSyncState !is AssetSyncState.Syncing,
             onClick = { onStartVPN() },
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(

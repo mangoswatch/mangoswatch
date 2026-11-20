@@ -6,7 +6,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mangoswatch.data.repository.AssetRepositoryImpl
-import org.mangoswatch.data.repository.AssetSync
+import org.mangoswatch.data.repository.AssetSyncImpl
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import java.io.File
@@ -44,7 +44,7 @@ class IpRangesTest {
     @Test
     fun testLoadV4Ranges() {
         val context = RuntimeEnvironment.getApplication()
-        val assetSync = AssetSync()
+        val assetSync = AssetSyncImpl()
         val assetRepository = AssetRepositoryImpl(context, assetSync)
         val v4Content = """
             # Sample IPv4 Ranges
@@ -68,7 +68,7 @@ class IpRangesTest {
     @Test
     fun testLoadV6Ranges() {
         val context = RuntimeEnvironment.getApplication()
-        val assetSync = AssetSync()
+        val assetSync = AssetSyncImpl()
         val assetRepository = AssetRepositoryImpl(context, assetSync)
         val v6Content = """
             # Sample IPv6 Ranges
@@ -93,7 +93,7 @@ class IpRangesTest {
     @Test
     fun testLoadV4RangesWithMalformedLines() {
         val context = RuntimeEnvironment.getApplication()
-        val assetSync = AssetSync()
+        val assetSync = AssetSyncImpl()
         val assetRepository = AssetRepositoryImpl(context, assetSync)
         val v4Content = """
             invalid.ip.address/24

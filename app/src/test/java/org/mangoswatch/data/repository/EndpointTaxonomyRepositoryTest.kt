@@ -50,7 +50,7 @@ class EndpointTaxonomyRepositoryTest {
     @Test
     fun testFindMatchSuccessAndCaseInsensitive() {
         val context = RuntimeEnvironment.getApplication()
-        val assetSync = AssetSync()
+        val assetSync = AssetSyncImpl()
         val assetRepository = AssetRepositoryImpl(context, assetSync)
         val repository = EndpointTaxonomyRepositoryImpl(assetRepository)
         val match = repository.findMatch("API.OpenAI.COM")
@@ -64,7 +64,7 @@ class EndpointTaxonomyRepositoryTest {
     @Test
     fun testFindMatchNoMatch() {
         val context = RuntimeEnvironment.getApplication()
-        val assetSync = AssetSync()
+        val assetSync = AssetSyncImpl()
         val assetRepository = AssetRepositoryImpl(context, assetSync)
         val repository = EndpointTaxonomyRepositoryImpl(assetRepository)
         val match = repository.findMatch("unknown.domain.com")
@@ -74,7 +74,7 @@ class EndpointTaxonomyRepositoryTest {
     @Test
     fun testFindMatchBlank() {
         val context = RuntimeEnvironment.getApplication()
-        val assetSync = AssetSync()
+        val assetSync = AssetSyncImpl()
         val assetRepository = AssetRepositoryImpl(context, assetSync)
         val repository = EndpointTaxonomyRepositoryImpl(assetRepository)
         assertNull(repository.findMatch(null))
@@ -123,7 +123,7 @@ class EndpointTaxonomyRepositoryTest {
             file.copyTo(File(assetsCacheDir, file.name), overwrite = true)
         }
 
-        val assetSync = AssetSync()
+        val assetSync = AssetSyncImpl()
         val assetRepository = AssetRepositoryImpl(context, assetSync)
         val repository = EndpointTaxonomyRepositoryImpl(assetRepository)
 

@@ -2,7 +2,12 @@ package org.mangoswatch.presentation.viewmodel
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -10,29 +15,32 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mangoswatch.data.repository.AssetSync
-import org.mangoswatch.data.resolver.AppInfoResolver
-import org.mangoswatch.data.vpn.VpnAction
-import org.mangoswatch.data.vpn.VpnState
-import org.mangoswatch.data.vpn.VpnStateEnum
+import org.mangoswatch.data.repository.AssetSyncImpl
+import org.mangoswatch.data.vpn.VpnImpl
+import org.mangoswatch.domain.model.AssetSyncError
+import org.mangoswatch.domain.model.AssetSyncState
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.model.EndpointTaxonomy
 import org.mangoswatch.domain.model.EndpointTaxonomyCategory
 import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.model.StreamModel
 import org.mangoswatch.domain.parser.ip.IpRangesCache
+import org.mangoswatch.domain.repository.AppInfoResolver
 import org.mangoswatch.domain.repository.AssetRepository
+import org.mangoswatch.domain.model.AssetSync
 import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
 import org.mangoswatch.domain.repository.StreamsRepository
 import org.mangoswatch.domain.repository.UserSettingsRepository
+import org.mangoswatch.domain.model.VpnAction
+import org.mangoswatch.domain.model.Vpn
+import org.mangoswatch.domain.model.VpnStateEnum
 import org.mangoswatch.presentation.contracts.MainScreenEvent
+import org.mangoswatch.R
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.mockito.kotlin.any
@@ -47,7 +55,7 @@ class MainScreenViewModelTest {
 
     private lateinit var streamsRepository: StreamsRepository
     private lateinit var taxonomyRepository: EndpointTaxonomyRepository
-    private lateinit var vpnState: VpnState
+    private lateinit var vpn: Vpn
     private lateinit var appInfoResolver: AppInfoResolver
     private lateinit var userSettingsRepository: UserSettingsRepository
     private lateinit var assetRepository: AssetRepository
@@ -61,11 +69,13 @@ class MainScreenViewModelTest {
         Dispatchers.setMain(testDispatcher)
         streamsRepository = mock(StreamsRepository::class.java)
         taxonomyRepository = mock(EndpointTaxonomyRepository::class.java)
-        vpnState = VpnState()
+        vpn = VpnImpl()
         appInfoResolver = mock(AppInfoResolver::class.java)
         userSettingsRepository = mock(UserSettingsRepository::class.java)
         assetRepository = mock(AssetRepository::class.java)
-        assetSync = AssetSync().apply { state = org.mangoswatch.data.repository.AssetsSyncState.SYNCED }
+        assetSync = AssetSyncImpl().apply {
+            updateState(AssetSyncState.Synced)
+        }
         ipRangesCache = mock(IpRangesCache::class.java)
 
         `when`(streamsRepository.getStreams()).thenReturn(flowOf(emptyList()))
@@ -75,7 +85,7 @@ class MainScreenViewModelTest {
         viewModel = MainScreenViewModel(
             streamsRepository = streamsRepository,
             taxonomyRepository = taxonomyRepository,
-            vpnState = vpnState,
+            vpn = vpn,
             assetSync = assetSync,
             appInfo = appInfoResolver,
             userSettingsRepository = userSettingsRepository,
@@ -124,10 +134,12 @@ class MainScreenViewModelTest {
     @Test
     fun testVpnStartStopRequests() = runTest {
         viewModel.state.value.eventTunnel(MainScreenEvent.OnStartVpnRequest)
-        assertEquals(VpnAction.START, vpnState.actionRequest)
-
         viewModel.state.value.eventTunnel(MainScreenEvent.OnStopVpnRequest)
-        assertEquals(VpnAction.STOP, vpnState.actionRequest)
+
+        assertEquals(
+            listOf(VpnAction.START, VpnAction.STOP),
+            vpn.requests.take(2).toList()
+        )
     }
 
     @Test
@@ -189,12 +201,12 @@ class MainScreenViewModelTest {
             reservedMatchingStream
         )))
 
-        vpnState.state = VpnStateEnum.RUNNING
+        vpn.updateState(VpnStateEnum.RUNNING)
 
         val vm = MainScreenViewModel(
             streamsRepository = mockStreamsRepo,
             taxonomyRepository = taxonomyRepository,
-            vpnState = vpnState,
+            vpn = vpn,
             assetSync = assetSync,
             appInfo = appInfoResolver,
             userSettingsRepository = userSettingsRepository,
@@ -222,18 +234,54 @@ class MainScreenViewModelTest {
 
     @Test
     fun testStartVpnWhenAssetsMissingFailsWithMessage() = runTest {
-        assetSync.state = org.mangoswatch.data.repository.AssetsSyncState.SYNCING
+        assetSync.updateState(AssetSyncState.Syncing())
+        `when`(assetRepository.isCachePopulated()).thenReturn(false)
+        val request = async(start = CoroutineStart.UNDISPATCHED) {
+            vpn.requests.first()
+        }
 
         viewModel.state.value.eventTunnel(MainScreenEvent.OnStartVpnRequest)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertNotNull(viewModel.state.value.errorMessage)
-        assertNotEquals(VpnAction.START, vpnState.actionRequest)
+        assertEquals(R.string.error_no_assets_vpn, viewModel.state.value.errorMessage)
+        assertFalse(request.isCompleted)
+        request.cancel()
+    }
+
+    @Test
+    fun testStartVpnWithCachedAssetsWhenSyncFailed() = runTest {
+        assetSync.updateState(
+            AssetSyncState.Error(AssetSyncError.Unexpected)
+        )
+        val request = async(start = CoroutineStart.UNDISPATCHED) {
+            vpn.requests.first()
+        }
+
+        viewModel.state.value.eventTunnel(MainScreenEvent.OnStartVpnRequest)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals(VpnAction.START, request.await())
+        assertEquals(R.string.asset_sync_failed_subtitle, viewModel.state.value.errorMessage)
+    }
+
+    @Test
+    fun testStartVpnWaitsForAssetsSyncWhenCacheExists() = runTest {
+        assetSync.updateState(AssetSyncState.Syncing())
+        val request = async(start = CoroutineStart.UNDISPATCHED) {
+            vpn.requests.first()
+        }
+
+        viewModel.state.value.eventTunnel(MainScreenEvent.OnStartVpnRequest)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertFalse(request.isCompleted)
+        request.cancel()
+        assertNull(viewModel.state.value.errorMessage)
     }
 
     @Test
     fun testStreamProcessingWhenVpnRunning() = runTest {
-        vpnState.state = VpnStateEnum.RUNNING
+        vpn.updateState(VpnStateEnum.RUNNING)
         testDispatcher.scheduler.advanceUntilIdle()
         Thread.sleep(200)
         testDispatcher.scheduler.advanceUntilIdle()

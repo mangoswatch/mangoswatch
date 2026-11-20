@@ -1,10 +1,11 @@
 package org.mangoswatch.presentation.contracts
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.compositionLocalOf
-import org.mangoswatch.data.repository.AssetsSyncState
-import org.mangoswatch.data.vpn.VpnStateEnum
+import org.mangoswatch.domain.model.AssetSyncState
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.model.UserSettings
+import org.mangoswatch.domain.model.VpnStateEnum
 import org.mangoswatch.presentation.viewmodel.AppTrafficUi
 
 sealed class MainScreenEvent {
@@ -19,10 +20,10 @@ sealed class MainScreenEvent {
 
 data class MainScreenState(
     val vpnState: VpnStateEnum = VpnStateEnum.IDLE,
-    val assetsSyncState: AssetsSyncState = AssetsSyncState.SYNCING,
+    val assetSyncState: AssetSyncState = AssetSyncState.Syncing(),
     val selectedUid: Int? = null,
     val apps: List<AppTrafficUi> = emptyList(),
-    val errorMessage: String? = null,
+    @StringRes val errorMessage: Int? = null,
     val isSettingsOpen: Boolean = false,
     val currentUserSetting: UserSettings? = null,
     // TUNNEL

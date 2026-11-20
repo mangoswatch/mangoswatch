@@ -3,6 +3,7 @@ package org.mangoswatch.presentation.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,7 +28,8 @@ fun AppPlaceholder(
     subtitle: String,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
+    contentColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    additionalContent: (@Composable ColumnScope.() -> Unit)? = null
 ) {
     Box(
         modifier = modifier
@@ -66,6 +68,7 @@ fun AppPlaceholder(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
+            additionalContent?.invoke(this)
         }
     }
 }
