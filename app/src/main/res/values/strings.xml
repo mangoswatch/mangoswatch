@@ -43,6 +43,8 @@
     <string name="placeholder_idle_subtitle">Start the traffic inspection with the button below</string>
     <string name="loading_establishing_tunnel">Establishing Secure Tunnel…</string>
     <string name="loading_configuring_proxy">Configuring local proxy &amp; packet interceptor</string>
+    <string name="asset_sync_loading_title">Preparing Taxonomy Data</string>
+    <string name="asset_sync_loading_subtitle">Downloading IP ranges and endpoint classifications</string>
 
     <!-- Overview & Details -->
     <string name="app_stream_count">%1$d stream</string>
@@ -50,8 +52,16 @@
     <string name="detail_streams_and_hosts">%1$d streams / %2$d host</string>
 
     <!-- Asset Sync & Offline First Launch -->
-    <string name="asset_sync_failed_title">Taxonomy Assets Missing</string>
-    <string name="asset_sync_failed_subtitle">First launch requires an active internet connection to download Big Tech taxonomy rules.</string>
+    <string name="asset_sync_progress_title">Downloading taxonomy assets</string>
+    <string name="asset_sync_progress_preparing">Preparing asset download...</string>
+    <string name="asset_sync_progress_files">Downloaded %1$d of %2$d assets</string>
+    <string name="asset_sync_failed_title">Taxonomy Sync Failed</string>
+    <string name="asset_sync_failed_subtitle">Unable to update taxonomy rules. Check your internet connection and retry.</string>
+    <string name="asset_sync_error_index_download">Unable to retrieve the taxonomy asset list. Check your internet connection and retry.</string>
+    <string name="asset_sync_error_invalid_index">The taxonomy asset list is invalid. Try again later.</string>
+    <string name="asset_sync_error_asset_download">Unable to download %1$s. Check your internet connection and retry.</string>
+    <string name="asset_sync_error_invalid_content">Downloaded asset %1$s has invalid content. Any existing cached copy was kept.</string>
+    <string name="asset_sync_error_cancelled">Taxonomy sync was cancelled. You can retry.</string>
     <string name="btn_retry_sync">RETRY DOWNLOAD</string>
     <string name="btn_sync_assets">Sync Taxonomy Assets</string>
     <string name="error_no_assets_vpn">Cannot start VPN: taxonomy rules missing. Connect to Internet and retry.</string>

@@ -24,8 +24,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import org.mangoswatch.R
-import org.mangoswatch.data.repository.AssetsSyncState
-import org.mangoswatch.data.vpn.VpnStateEnum
+import org.mangoswatch.domain.model.AssetSyncState
+import org.mangoswatch.domain.model.VpnStateEnum
 import org.mangoswatch.presentation.contracts.LocalEventTunnel
 import org.mangoswatch.presentation.contracts.LocalMainScreenState
 import org.mangoswatch.presentation.contracts.MainScreenEvent
@@ -33,6 +33,10 @@ import org.mangoswatch.presentation.ui.components.AppBottomBar
 import org.mangoswatch.presentation.ui.components.AppOverviewItem
 import org.mangoswatch.presentation.ui.components.AppPlaceholder
 import org.mangoswatch.presentation.ui.components.AppTopBar
+import org.mangoswatch.presentation.ui.components.AssetSyncNotice
+import org.mangoswatch.presentation.ui.components.AssetSyncProgressIndicator
+import org.mangoswatch.presentation.ui.components.AssetSyncProgressNotice
+import org.mangoswatch.presentation.ui.components.ErrorMessageNotice
 import org.mangoswatch.presentation.ui.components.LoadingIndicator
 import org.mangoswatch.presentation.ui.components.SettingsDialog
 import org.mangoswatch.presentation.viewmodel.MainScreenViewModel
@@ -79,6 +83,38 @@ fun MainScreen(
                     .padding(innerPadding)
                     .padding(8.dp),
             ) {
+                val messageResId = mainScreenState.errorMessage
+                val assetSyncState = mainScreenState.assetSyncState
+                val isAssetSyncMessage = messageResId == R.string.error_no_assets_vpn ||
+                    messageResId == R.string.asset_sync_failed_subtitle
+                val assetSyncMessageResId = resolveAssetSyncMessageResId(
+                    messageResId,
+                    assetSyncState
+                )
+
+                if (
+                    assetSyncState is AssetSyncState.Syncing &&
+                    mainScreenState.vpnState != VpnStateEnum.IDLE
+                ) {
+                    AssetSyncProgressNotice(assetSyncState.progress)
+                }
+                if (
+                    assetSyncMessageResId != null ||
+                    assetSyncState is AssetSyncState.Error
+                ) {
+                    AssetSyncNotice(
+                        messageResId = assetSyncMessageResId,
+                        error = if (assetSyncMessageResId == R.string.error_no_assets_vpn) {
+                            null
+                        } else {
+                            (assetSyncState as? AssetSyncState.Error)?.reason
+                        },
+                        onRetry = { eventTunnel(MainScreenEvent.OnManualAssetSync) }
+                    )
+                }
+                if (messageResId != null && !isAssetSyncMessage) {
+                    ErrorMessageNotice(messageResId)
+                }
 
                 when (mainScreenState.vpnState) {
 
@@ -107,6 +143,7 @@ fun MainScreen(
                                         listState.animateScrollToItem(0)
                                     }
                                 }
+
                                 LazyColumn(
                                     state = listState,
                                     modifier = Modifier.weight(1F),
@@ -132,7 +169,7 @@ fun MainScreen(
                     }
 
                     VpnStateEnum.IDLE -> {
-                        if (mainScreenState.assetsSyncState != AssetsSyncState.SYNCING) {
+                        if (assetSyncState !is AssetSyncState.Syncing) {
                             AppPlaceholder(
                                 icon = Icons.Default.Visibility,
                                 title = stringResource(R.string.placeholder_idle_title),
@@ -144,16 +181,33 @@ fun MainScreen(
                         } else {
                             AppPlaceholder(
                                 icon = Icons.Default.Downloading,
-                                title = "Assets Loading",
-                                subtitle = "ASsets Loading",
+                                title = stringResource(R.string.asset_sync_loading_title),
+                                subtitle = stringResource(R.string.asset_sync_loading_subtitle),
                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                additionalContent = {
+                                    AssetSyncProgressIndicator(assetSyncState.progress)
+                                }
                             )
                         }
                     }
+
                 }
             }
         }
+    }
+}
+
+private fun resolveAssetSyncMessageResId(
+    messageResId: Int?,
+    assetSyncState: AssetSyncState
+): Int? {
+    return when {
+        assetSyncState is AssetSyncState.Syncing -> null
+        messageResId == R.string.error_no_assets_vpn -> messageResId
+        assetSyncState is AssetSyncState.Error -> null
+        messageResId == R.string.asset_sync_failed_subtitle -> messageResId
+        else -> null
     }
 }

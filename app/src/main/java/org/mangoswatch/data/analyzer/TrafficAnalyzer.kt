@@ -5,10 +5,10 @@ import android.system.Os
 import android.system.OsConstants
 import android.system.StructPollfd
 import android.util.Log
-import org.mangoswatch.data.vpn.VpnState
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.mangoswatch.data.vpn.VpnStateEnum
+import org.mangoswatch.domain.model.Vpn
+import org.mangoswatch.domain.model.VpnStateEnum
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -21,7 +21,7 @@ import java.util.concurrent.ArrayBlockingQueue
  * */
 class TrafficAnalyzer : KoinComponent {
 
-    private val vpnState by inject<VpnState>()
+    private val vpn by inject<Vpn>()
 
     var mirrorInputPfd: ParcelFileDescriptor? = null
     var mirrorOutputPfd: ParcelFileDescriptor? = null
@@ -43,7 +43,7 @@ class TrafficAnalyzer : KoinComponent {
                 events = OsConstants.POLLIN.toShort()
             })
             try {
-                while (vpnState.state == VpnStateEnum.RUNNING) {
+                while (vpn.state.value == VpnStateEnum.RUNNING) {
                     if (Os.poll(pollFds, 500) <= 0) continue
                     val n = tunInput.read(buf)
                     if (n < 0) break
@@ -65,7 +65,7 @@ class TrafficAnalyzer : KoinComponent {
         Thread({                                  // hev(proxy) -> app
             val buf = obtainBuffer()
             try {
-                while (vpnState.state == VpnStateEnum.RUNNING) {
+                while (vpn.state.value == VpnStateEnum.RUNNING) {
                     val n = mirrorReader.read(buf)
                     if (n < 0) break
                     if (n == 0) continue

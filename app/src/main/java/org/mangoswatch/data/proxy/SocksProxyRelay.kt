@@ -3,8 +3,8 @@ package org.mangoswatch.data.proxy
 import android.util.Log
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.mangoswatch.data.vpn.VpnState
-import org.mangoswatch.data.vpn.VpnStateEnum
+import org.mangoswatch.domain.model.Vpn
+import org.mangoswatch.domain.model.VpnStateEnum
 import java.io.DataInputStream
 import java.io.IOException
 import java.net.DatagramPacket
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference
  * */
 class SocksProxyRelay: KoinComponent {
 
-    private val vpnState by inject<VpnState>()
+    private val vpn by inject<Vpn>()
     var socksServer: ServerSocket? = null
     var localPort: Int = 1080
         private set
@@ -47,7 +47,7 @@ class SocksProxyRelay: KoinComponent {
 
         Thread {
             try {
-                while (vpnState.state == VpnStateEnum.RUNNING) {
+                while (vpn.state.value == VpnStateEnum.RUNNING) {
                     val client = server.accept()
                     Thread {
                         dispatchSocksRequest(

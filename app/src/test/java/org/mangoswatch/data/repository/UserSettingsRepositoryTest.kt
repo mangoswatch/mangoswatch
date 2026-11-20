@@ -40,7 +40,7 @@ class UserSettingsRepositoryTest {
         )
         repository.updateDnsSettings(customSettings)
 
-        val updated = repository.userSettings.first { it.dnsSettings.dnsMode == DnsMode.CUSTOM }
+        val updated = repository.userSettings.first()
         assertEquals(DnsMode.CUSTOM, updated.dnsSettings.dnsMode)
         assertEquals("8.8.8.8,8.8.4.4", updated.dnsSettings.dnsV4)
         assertEquals("2001:4860:4860::8888", updated.dnsSettings.dnsV6)

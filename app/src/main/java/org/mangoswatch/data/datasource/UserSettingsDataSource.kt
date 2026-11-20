@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.model.DnsSettings
 import org.mangoswatch.domain.model.UserSettings
@@ -33,7 +32,7 @@ class UserSettingsDataSource(private val context: Context) {
             val dnsSettings = DnsSettings(dnsMode, dnsV4, dnsV6)
 
             UserSettings(dnsSettings)
-        }.onStart { emit(UserSettings()) }
+        }
 
     suspend fun updateDnsSettings(settings: DnsSettings) {
         context.dataStore.edit { prefs ->

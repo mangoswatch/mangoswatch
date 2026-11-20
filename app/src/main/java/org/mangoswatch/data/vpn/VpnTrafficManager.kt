@@ -15,9 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -25,6 +22,8 @@ import org.mangoswatch.data.analyzer.TrafficAnalyzer
 import org.mangoswatch.data.proxy.SocksProxyRelay
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.repository.UserSettingsRepository
+import org.mangoswatch.domain.model.VpnStateEnum
+import org.mangoswatch.domain.model.Vpn
 import java.io.File
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -39,7 +38,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @SuppressLint("VpnServicePolicy")
 class VpnTrafficManager : VpnService() {
 
-    private val vpnState by inject<VpnState>()
+    private val vpn by inject<Vpn>()
     private val connectivityManager by inject<ConnectivityManager>()
     private val userSettingsRepository by inject<UserSettingsRepository>()
     private val trafficAnalyzer by inject<TrafficAnalyzer>()
@@ -74,8 +73,8 @@ class VpnTrafficManager : VpnService() {
 
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     fun startVpn() {
-        if (vpnState.state == VpnStateEnum.RUNNING) return
-        vpnState.state = VpnStateEnum.LOADING
+        if (vpn.state.value == VpnStateEnum.RUNNING) return
+        vpn.updateState(VpnStateEnum.LOADING)
         Log.d(TAG, "startVpn - Starting VPN...")
 
         startForeground(1001, createNotification())
@@ -105,7 +104,7 @@ class VpnTrafficManager : VpnService() {
 
     // No LOADING state here, since what is already currently shown (= the app list) should stay visible
     fun stopVpn() {
-        if (vpnState.state == VpnStateEnum.STOPPED) return
+        if (vpn.state.value == VpnStateEnum.STOPPED) return
         Log.d(TAG, "stopVpn - Stopping VPN connection...")
         serviceScope.launch {
             performVpnCleanup()
@@ -121,7 +120,7 @@ class VpnTrafficManager : VpnService() {
         runCatching { vpnInterface?.close() }
         runCatching { File(cacheDir, "hev.yml").delete() }
         vpnInterface = null
-        vpnState.state = VpnStateEnum.STOPPED
+        vpn.updateState(VpnStateEnum.STOPPED)
         runCatching { stopForeground(STOP_FOREGROUND_REMOVE) }
         Log.d(TAG, "performVpnCleanup - VPN Connection stopped")
     }
@@ -252,7 +251,7 @@ class VpnTrafficManager : VpnService() {
         vpnInterface = builder.establish()
 
         if (vpnInterface != null) {
-            vpnState.state = VpnStateEnum.RUNNING
+            vpn.updateState(VpnStateEnum.RUNNING)
             Log.d(TAG, "establishVpnConnection - VPN Connection established")
             return true
         } else {
@@ -325,27 +324,4 @@ class VpnTrafficManager : VpnService() {
     companion object {
         const val TAG = "[MANGOS_WATCH] - VPN_TRAFFIC_MANAGER"
     }
-}
-
-enum class VpnStateEnum { RUNNING, STOPPED, LOADING, IDLE } // LOADING as an intermediate state when starting the service
-enum class VpnAction { START, STOP, CONSUMED }
-
-class VpnState {
-    private val _running = MutableStateFlow(VpnStateEnum.IDLE)
-    val running: StateFlow<VpnStateEnum> = _running.asStateFlow()
-
-    private val _request = MutableStateFlow(VpnAction.CONSUMED)
-    val request: StateFlow<VpnAction> = _request.asStateFlow()
-
-    var state: VpnStateEnum
-        get() = _running.value
-        set(value) {
-            _running.value = value
-        }
-
-    var actionRequest: VpnAction
-        get() = _request.value
-        set(value) {
-            _request.value = value
-        }
 }

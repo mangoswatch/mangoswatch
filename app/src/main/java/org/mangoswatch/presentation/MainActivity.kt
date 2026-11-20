@@ -12,10 +12,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.mangoswatch.data.vpn.VpnAction
-import org.mangoswatch.data.vpn.VpnState
-import org.mangoswatch.data.vpn.VpnStateEnum
 import org.mangoswatch.data.vpn.VpnTrafficManager
+import org.mangoswatch.domain.model.VpnAction
+import org.mangoswatch.domain.model.Vpn
+import org.mangoswatch.domain.model.VpnStateEnum
 import org.mangoswatch.presentation.ui.screens.MainScreen
 import org.mangoswatch.presentation.ui.theme.MangosWatchTheme
 
@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
         setContent {
             MangosWatchTheme {
 
-                val vpnState by inject<VpnState>()
+                val vpn by inject<Vpn>()
 
                 val notificationLauncher = rememberLauncherForActivityResult(
                     ActivityResultContracts.RequestPermission()
@@ -54,10 +54,10 @@ class MainActivity : ComponentActivity(), KoinComponent {
                         notificationLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                     }
 
-                    vpnState.request.collect {
+                    vpn.requests.collect {
                         when (it) {
                             VpnAction.START -> {
-                                if (vpnState.state == VpnStateEnum.RUNNING) return@collect
+                                if (vpn.state.value == VpnStateEnum.RUNNING) return@collect
                                 val intent = VpnService.prepare(this@MainActivity)
                                 if (intent != null) {
                                     Log.d(TAG, "VPN permission NOT Granted. Launching permission dialog.")
@@ -66,14 +66,11 @@ class MainActivity : ComponentActivity(), KoinComponent {
                                     Log.d(TAG, "VPN permission Granted. Starting VPN service.")
                                     startVpnService()
                                 }
-                                vpnState.actionRequest = VpnAction.CONSUMED
                             }
                             VpnAction.STOP -> {
-                                if (vpnState.state == VpnStateEnum.STOPPED) return@collect
+                                if (vpn.state.value == VpnStateEnum.STOPPED) return@collect
                                 stopVpnService()
-                                vpnState.actionRequest = VpnAction.CONSUMED
                             }
-                            VpnAction.CONSUMED -> {}
                         }
                     }
                 }
