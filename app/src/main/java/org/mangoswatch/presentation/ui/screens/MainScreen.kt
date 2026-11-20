@@ -82,6 +82,7 @@ fun MainScreen(
                 modifier = Modifier
                     .padding(innerPadding)
                     .padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 val messageResId = mainScreenState.errorMessage
                 val assetSyncState = mainScreenState.assetSyncState
