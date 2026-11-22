@@ -93,12 +93,12 @@ def fetch_google():
 def fetch_amazon():
     d = get("https://ip-ranges.amazonaws.com/ip-ranges.json").json()
     all_prefixes = d.get("prefixes", []) + d.get("ipv6_prefixes", [])
-    customer_services = {"EC2", "EC2_INSTANCE_CONNECT", "CLOUDFRONT", "S3", "ROUTE53_HEALTHCHECKS"}
+    customer_services = {"EC2", "EC2_INSTANCE_CONNECT", "ROUTE53_HEALTHCHECKS"}
     for v in (4, 6):
-        amazon_nets = [ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")) for p in all_prefixes if p.get("service") in ("AMAZON", "GLOBAL") and ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")).version == v]
+        amazon_nets = [ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")) for p in all_prefixes if (p.get("service") in ("AMAZON", "GLOBAL", "CLOUDFRONT", "S3")) and ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")).version == v]
         customer_nets = [ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")) for p in all_prefixes if p.get("service") in customer_services and ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")).version == v]
         for n in subtract(amazon_nets, customer_nets):
-            add_prefix("amazon", str(n), "aws-amazon-minus-customer-services")
+            add_prefix("amazon", str(n), "aws-amazon-cloudfront-s3-minus-customer-services")
 
 
 def fetch_azure():
