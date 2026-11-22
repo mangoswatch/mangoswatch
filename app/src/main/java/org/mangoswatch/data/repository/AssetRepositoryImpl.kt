@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.core.content.edit
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
@@ -46,36 +47,62 @@ class AssetRepositoryImpl(
         }
     }
 
-    override suspend fun syncAssets() = withContext(Dispatchers.IO) {
-        assetSync.updateState(AssetSyncState.Syncing())
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    private val syncMutex = Mutex()
 
+    override suspend fun syncAssets() = withContext(Dispatchers.IO) {
+        if (!syncMutex.tryLock()) {
+            Log.w("AssetRepositoryImpl", "Asset sync already in progress, skipping concurrent request")
+            return@withContext
+        }
+        val stagingDir = File(context.cacheDir, "assets_staging")
         try {
-            val remoteFilesList = fetchRemoteAssetList()
-            val cacheDir = getAssetsCacheDir()
-            assetSync.updateState(
-                AssetSyncState.Syncing(progress = AssetSyncProgress(0, remoteFilesList.size))
-            )
-            for ((index, fileName) in remoteFilesList.withIndex()) {
-                downloadAsset(fileName, cacheDir)
-                assetSync.updateState(
-                    AssetSyncState.Syncing(
-                        progress = AssetSyncProgress(index + 1, remoteFilesList.size)
-                    )
-                )
+            assetSync.updateState(AssetSyncState.Syncing())
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+            stagingDir.deleteRecursively()
+            if (!stagingDir.mkdirs()) {
+                throw AssetSyncFailure(AssetSyncError.Unexpected)
             }
 
-            prefs.edit { putLong(KEY_LAST_SYNC_TIMESTAMP, System.currentTimeMillis()) }
-            assetSync.updateState(AssetSyncState.Synced)
-        } catch (e: kotlinx.coroutines.CancellationException) {
-            assetSync.updateState(AssetSyncState.Error(AssetSyncError.Cancelled))
-            throw e
-        } catch (e: AssetSyncFailure) {
-            Log.e("AssetRepositoryImpl", "Asset sync failed: ${e.syncError}", e)
-            assetSync.updateState(AssetSyncState.Error(e.syncError))
-        } catch (e: Exception) {
-            Log.e("AssetRepositoryImpl", "Asset sync failed", e)
-            assetSync.updateState(AssetSyncState.Error(AssetSyncError.Unexpected))
+            try {
+                val remoteFilesList = fetchRemoteAssetList()
+                val cacheDir = getAssetsCacheDir()
+                assetSync.updateState(
+                    AssetSyncState.Syncing(progress = AssetSyncProgress(0, remoteFilesList.size))
+                )
+                for ((index, fileName) in remoteFilesList.withIndex()) {
+                    downloadAsset(fileName, stagingDir)
+                    assetSync.updateState(
+                        AssetSyncState.Syncing(
+                            progress = AssetSyncProgress(index + 1, remoteFilesList.size)
+                        )
+                    )
+                }
+
+                for (fileName in remoteFilesList) {
+                    val stagedFile = File(stagingDir, fileName)
+                    val cachedFile = File(cacheDir, fileName)
+                    cachedFile.delete()
+                    if (!stagedFile.renameTo(cachedFile)) {
+                        throw IOException("Failed to swap staged asset $fileName into cache")
+                    }
+                }
+
+                prefs.edit { putLong(KEY_LAST_SYNC_TIMESTAMP, System.currentTimeMillis()) }
+                assetSync.updateState(AssetSyncState.Synced)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                assetSync.updateState(AssetSyncState.Error(AssetSyncError.Cancelled))
+                throw e
+            } catch (e: AssetSyncFailure) {
+                Log.e("AssetRepositoryImpl", "Asset sync failed: ${e.syncError}", e)
+                assetSync.updateState(AssetSyncState.Error(e.syncError))
+            } catch (e: Exception) {
+                Log.e("AssetRepositoryImpl", "Asset sync failed", e)
+                assetSync.updateState(AssetSyncState.Error(AssetSyncError.Unexpected))
+            }
+        } finally {
+            stagingDir.deleteRecursively()
+            syncMutex.unlock()
         }
     }
 
@@ -168,7 +195,7 @@ class AssetRepositoryImpl(
         cause: Throwable? = null
     ) : IOException("Asset synchronization failed: $syncError", cause)
 
-    private fun downloadAsset(fileName: String, cacheDir: File) {
+    private fun downloadAsset(fileName: String, targetDir: File) {
         val url = URL("$GITHUB_PAGES_BASE_URL$fileName")
         val connection = try {
             assetFetcher.openConnection(url)
@@ -181,11 +208,11 @@ class AssetRepositoryImpl(
         connection.connectTimeout = 10000
         connection.readTimeout = 10000
 
-        val tempFile = File(cacheDir, "$fileName.tmp")
-        val finalFile = File(cacheDir, fileName)
+        val tempFile = File(targetDir, "$fileName.tmp")
+        val finalFile = File(targetDir, fileName)
         try {
-            if (!isSafeFile(tempFile, cacheDir) || !isSafeFile(finalFile, cacheDir)) {
-                throw IOException("Asset path is outside the cache directory")
+            if (!isSafeFile(tempFile, targetDir) || !isSafeFile(finalFile, targetDir)) {
+                throw IOException("Asset path is outside the target directory")
             }
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                 throw IOException("Asset request failed with HTTP ${connection.responseCode}")
@@ -207,7 +234,7 @@ class AssetRepositoryImpl(
             }
             validateAssetContent(tempFile, fileName)
             if (!tempFile.renameTo(finalFile)) {
-                throw IOException("Failed to move downloaded asset into cache")
+                throw IOException("Failed to move downloaded asset into target directory")
             }
         } catch (e: kotlinx.coroutines.CancellationException) {
             tempFile.delete()

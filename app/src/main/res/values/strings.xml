@@ -52,6 +52,9 @@
     <string name="app_stream_count">%1$d stream</string>
     <string name="host_stream_count">%1$d streams</string>
     <string name="detail_streams_and_hosts">%1$d streams / %2$d host</string>
+    <string name="label_unclassified">UNCLASSIFIED</string>
+    <string name="label_not_identified">Not identified</string>
+    <string name="label_uid_format">uid %d</string>
 
     <!-- Asset Sync & Offline First Launch -->
     <string name="asset_sync_progress_title">Downloading taxonomy assets</string>
