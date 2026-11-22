@@ -39,15 +39,16 @@ class StreamsRepositoryImplTest {
     }
 
     @Test
-    fun testStreamInactiveTimeoutEviction() = runTest {
+    fun testStreamInactiveTimeoutEvictionOnLimit() = runTest {
         var currentTime = 1000000L
         val repo = StreamsRepositoryImpl(
+            maxStreams = 1,
             inactiveTimeoutMs = 30000L,
             clock = { currentTime }
         )
 
-        val key = StreamModel.key(6, 12345, "1.1.1.1", 443)
-        val stream = StreamModel(
+        val key1 = StreamModel.key(6, 12345, "1.1.1.1", 443)
+        val stream1 = StreamModel(
             protocol = 6,
             srcIpStr = "192.168.1.10",
             srcPort = 12345,
@@ -59,13 +60,28 @@ class StreamsRepositoryImplTest {
             finSeen = true
         )
 
-        repo.updateStream(key) { stream }
+        repo.updateStream(key1) { stream1 }
         assertEquals(1, repo.getStreams().first().size)
 
-        // Advance time beyond 30s timeout
+        // Advance time beyond 30s timeout and trigger update at limit
         currentTime += 30001L
+        val key2 = StreamModel.key(6, 12346, "1.1.1.1", 443)
+        val stream2 = StreamModel(
+            protocol = 6,
+            srcIpStr = "192.168.1.10",
+            srcPort = 12346,
+            dstIpStr = "1.1.1.1",
+            dstPort = 443,
+            ipOwner = IpOwner.OTHER,
+            firstSeen = currentTime,
+            lastSeen = currentTime,
+            finSeen = false
+        )
+        repo.updateStream(key2) { stream2 }
+
         val listAfterEviction = repo.getStreams().first()
-        assertTrue(listAfterEviction.isEmpty())
+        assertEquals(1, listAfterEviction.size)
+        assertEquals(12346, listAfterEviction[0].srcPort)
     }
 
     @Test
@@ -101,5 +117,39 @@ class StreamsRepositoryImplTest {
         assertTrue(ports.contains(1005))
         assertFalse(ports.contains(1001))
         assertFalse(ports.contains(1002))
+    }
+
+    @Test
+    fun testMaxStreamsEvictionOnUpdateWithoutFlowReader() = runTest {
+        val currentTime = 1000000L
+        val repo = StreamsRepositoryImpl(
+            maxStreams = 2,
+            clock = { currentTime }
+        )
+
+        for (i in 1..4) {
+            val key = StreamModel.key(6, 2000 + i, "1.1.1.1", 443)
+            val stream = StreamModel(
+                protocol = 6,
+                srcIpStr = "192.168.1.10",
+                srcPort = 2000 + i,
+                dstIpStr = "1.1.1.1",
+                dstPort = 443,
+                ipOwner = IpOwner.OTHER,
+                firstSeen = currentTime,
+                lastSeen = currentTime + i,
+                finSeen = false
+            )
+            repo.updateStream(key) { stream }
+        }
+
+        // Without collecting getStreams() beforehand, updateStream must trigger performEviction
+        val snapshot = repo.getStreams().first()
+        assertEquals(2, snapshot.size)
+        val ports = snapshot.map { it.srcPort }.toSet()
+        assertTrue(ports.contains(2003))
+        assertTrue(ports.contains(2004))
+        assertFalse(ports.contains(2001))
+        assertFalse(ports.contains(2002))
     }
 }

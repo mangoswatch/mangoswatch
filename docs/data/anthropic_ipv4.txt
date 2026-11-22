@@ -1,2 +1,2 @@
-# Updated automatically on 2026-11-17 (ANTHROPIC IPv4)
+# Updated automatically on 2026-11-22 (ANTHROPIC IPv4)
 160.79.104.0/21

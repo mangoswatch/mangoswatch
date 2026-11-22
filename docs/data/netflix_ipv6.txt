@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-17 (NETFLIX IPv6)
+# Updated automatically on 2026-11-22 (NETFLIX IPv6)
 2607:fb10::/32
 2620:10c:7000::/44
 2a00:86c0::/32

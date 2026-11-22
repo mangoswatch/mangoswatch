@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-17 (NETFLIX IPv4)
+# Updated automatically on 2026-11-22 (NETFLIX IPv4)
 9.187.0.0/16
 9.188.0.0/16
 23.246.0.0/18
