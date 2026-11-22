@@ -16,3 +16,4 @@
   - **Amazon "owned by"**: Includes prefixes tagged with `service` `AMAZON` and `GLOBAL` excluding customer-facing services (`EC2`, `EC2_INSTANCE_CONNECT`, `CLOUDFRONT`, `S3`, `ROUTE53_HEALTHCHECKS`).
   - **Microsoft "owned by"**: Aggregates M365 endpoints (`https://endpoints.office.com`) and Azure first-party services (`AzureActiveDirectory`, `AzureResourceManager`).
   - **Failure Isolation & Drop Threshold**: If any source for an organization fails, or if prefix counts drop by >30% relative to committed files, file overwrites for that organization are aborted and the script exits with error code 1 to prevent committing corrupted/incomplete asset files.
+- **Decision 14**: Maintained attribution of DNS query domains to known Big Tech providers (`StreamModel.hostname = sni ?: dnsQuery`), aligning with the application's core goal of exposing user interaction, reachability, and telemetry exposure toward Big Tech domains.

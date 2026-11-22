@@ -122,19 +122,39 @@ To ensure full transparency regarding security, privacy, and architecture, the f
    - File: `app/libs/hev-socks5-tunnel.aar`
    - SHA256: `ab6c581e6157680cfe5687ee7bbdcf95405c006c2db3701879ec44b9e5f83836`
 
-### 2. Hardcoded DNS Routing
-- The local VPN service routes DNS requests through reliable public resolvers (Cloudflare `1.1.1.1`, `1.0.0.1`, and IPv6 `2606:4700:4700::1111`, `2606:4700:4700::1001`) to ensure consistent domain name resolution and interception.
+### 2. Default DNS & Routing
+- The local VPN service routes DNS requests through reliable public resolvers (Cloudflare `1.1.1.1`, `1.0.0.1`, and IPv6 `2606:4700:4700::1111`, `2606:4700:4700::1001` by default) to ensure consistent domain name resolution and interception.
 
-### 3. Remote Asset Synchronization
-- Mangos Watch periodically fetches classification assets and IP ranges from GitHub Pages (`https://mangoswatch.github.io/mangoswatch/data/index.json`).
+### 3. Remote Asset Synchronization & Network Usage
+- Mangos Watch periodically fetches classification assets and IP ranges from GitHub Pages (`https://mangoswatch.github.io/mangoswatch/data/index.json`). An active internet connection is required upon first launch to download these taxonomy files and IP datasets.
 - **Security Note**: These files contain JSON taxonomy definitions and plain-text IP ranges used solely for offline classification.
 
-### 4. `QUERY_ALL_PACKAGES` Permission
-- **Usage**: Required to query installed application packages on the device, enabling attribution of network connections and streams to specific apps.
+### 4. Required Permissions
+- `QUERY_ALL_PACKAGES`: Required to query installed application packages on the device, enabling attribution of network connections and streams to specific apps.
+- Foreground Service (`FOREGROUND_SERVICE`): Required to maintain the local VPN interception service persistently while monitoring traffic.
 
-### 5. In-Memory Stream Eviction & Memory Management
+### 5. IP Range Methodology
+- Big Tech IP ranges are aggregated via automated scripts (`scripts/bigtech_ranges.py`) combining ASN announcements and dynamic service endpoint lists, incorporating per-organization failure isolation and a 30% drop threshold safety check to prevent incomplete data deployment.
+
+### 6. In-Memory Stream Eviction & Memory Management
 - **Eviction Strategy**: To prevent active stream tracking (`_streams`) from growing unboundedly during long VPN inspection sessions, Mangos Watch utilizes an automated in-memory time-based and size-based eviction mechanism (maximum 2000 active streams and 5-minute inactivity timeout).
 - **TODO**: Optional historical session data persistence and saving are planned for future iterations. For now, this in-memory bounding approach ensures stable memory consumption without OOM risks.
+
+### 7. Known Technical Limitations
+- **Encrypted Client Hello (ECH)**: ECH / ESNI can encrypt the SNI field in TLS handshakes, rendering domain name inspection opaque for protected connections.
+- **QUIC Version 2**: QUIC v2 protocol framing is not currently parsed by the heuristic analyzer.
+- **IPv6 Extension Headers**: Complex IPv6 extension headers may bypass deep packet inspection.
+- **Single Active VPN Constraint**: Android OS permits only one active VpnService at a time.
+
+
+
+## Screenshots
+
+// TODO
+
+| Main Dashboard | Traffic Detail | Settings |
+| :---: | :---: | :---: |
+| ![Main Screen Placeholder](screenshots/main_screen_placeholder.png) | ![Detail Placeholder](screenshots/detail_placeholder.png) | ![Settings Placeholder](screenshots/settings_placeholder.png) |
 
 
 
