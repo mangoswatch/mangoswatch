@@ -98,9 +98,9 @@ fun HostItem(
                 )
 
                 Text(
-                    text = host.ipOwner.name,
+                    text = if (host.ipOwner == IpOwner.OTHER) "UNCLASSIFIED" else host.ipOwner.name,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = if (host.ipOwner == IpOwner.OTHER) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
                 )
             }
         }

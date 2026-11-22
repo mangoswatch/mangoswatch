@@ -143,7 +143,7 @@ class MainScreenViewModelTest {
     }
 
     @Test
-    fun testToAppTrafficFilterOtherAndReserved() = runTest {
+    fun testToAppTrafficIncludesUnclassifiedAndFiltersReserved() = runTest {
         val taxonomyItem = EndpointTaxonomy(
             id = "appsflyer_sdk_001",
             provider = "APPSFLYER",
@@ -219,10 +219,15 @@ class MainScreenViewModelTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         val apps = vm.state.value.apps
-        assertEquals(1, apps.size)
-        assertEquals(10001, apps[0].uid)
-        assertEquals("appsflyersdk.com", apps[0].hosts[0].host)
-        assertEquals(IpOwner.APPSFLYER, apps[0].hosts[0].ipOwner)
+        assertEquals(2, apps.size)
+        val uids = apps.map { it.uid }.toSet()
+        assertTrue(uids.contains(10001))
+        assertTrue(uids.contains(10002))
+        assertFalse(uids.contains(10003))
+
+        val unclassifiedApp = apps.first { it.uid == 10002 }
+        assertEquals("unknown.com", unclassifiedApp.hosts[0].host)
+        assertEquals(IpOwner.OTHER, unclassifiedApp.hosts[0].ipOwner)
     }
 
     @Test

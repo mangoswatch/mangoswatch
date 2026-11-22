@@ -173,8 +173,7 @@ class MainScreenViewModel(
 
     private fun List<StreamModel>.toAppTraffic(): List<AppTrafficUi> =
         filter {
-            it.ipOwner != IpOwner.RESERVED &&
-            (it.ipOwner != IpOwner.OTHER || taxonomyRepository.findMatch(it.hostname()) != null)
+            it.ipOwner != IpOwner.RESERVED
         }
             .groupBy { it.uid }
             .map { (uid, streams) ->
