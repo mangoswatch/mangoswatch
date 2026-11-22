@@ -48,6 +48,21 @@ class QuicParserTest {
     }
 
     @Test
+    fun testDeriveClientInitialKeysRfc9001Vector() {
+        val dcidHex = "8394c8f03e515708"
+        val expectedKeyHex = "1f369613dd76d5467730efcbe3b1a22d"
+        val expectedIvHex = "fa044b2f42a3fd3b46fb255c"
+        val expectedHpHex = "9f50449e04a0e810283a1e9933adedd2"
+
+        val dcid = dcidHex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+        val keys = deriveClientInitialKeys(dcid)
+
+        assertEquals(expectedKeyHex, keys.key.joinToString("") { "%02x".format(it) })
+        assertEquals(expectedIvHex, keys.iv.joinToString("") { "%02x".format(it) })
+        assertEquals(expectedHpHex, keys.hp.joinToString("") { "%02x".format(it) })
+    }
+
+    @Test
     fun testOpenQuicPacketCorrupted() {
         val buf = ByteArray(1200)
         buf[0] = 0xC0.toByte()

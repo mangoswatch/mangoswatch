@@ -4,7 +4,6 @@
     <!-- Settings Dialog -->
     <string name="settings_dialog_title">App Settings</string>
     <string name="settings_section_dns">VPN DNS Configuration</string>
-    <string name="settings_section_eviction">Stream Memory Eviction</string>
     <string name="settings_section_assets">Asset Management</string>
     <string name="dns_settings_title">VPN DNS Settings</string>
     <string name="dns_cloudflare_title">Cloudflare DNS (Default)</string>
@@ -68,4 +67,6 @@
     <string name="btn_retry_sync">Retry sync</string>
     <string name="btn_sync_assets">Sync Taxonomy Assets</string>
     <string name="error_no_assets_vpn">Cannot start VPN: taxonomy rules missing. Connect to Internet and retry.</string>
+    <string name="vpn_notification_title">Mangos Watch Active</string>
+    <string name="vpn_notification_text">Monitoring network traffic and Big Tech endpoints</string>
 </resources>

@@ -24,6 +24,7 @@ import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.repository.UserSettingsRepository
 import org.mangoswatch.domain.model.VpnStateEnum
 import org.mangoswatch.domain.model.Vpn
+import org.mangoswatch.R
 import java.io.File
 import java.net.Inet6Address
 import java.net.InetAddress
@@ -151,8 +152,8 @@ class VpnTrafficManager : VpnService() {
         )
 
         return androidx.core.app.NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Mangos Watch Active")
-            .setContentText("Monitoring network traffic and Big Tech endpoints")
+            .setContentTitle(getString(R.string.vpn_notification_title))
+            .setContentText(getString(R.string.vpn_notification_text))
             .setSmallIcon(android.R.drawable.ic_menu_compass)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
