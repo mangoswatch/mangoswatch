@@ -146,6 +146,7 @@ class MainScreenViewModel(
     }
 
     private fun syncAssets() {
+        if (assetSync.state.value is AssetSyncState.Syncing) return
         viewModelScope.launch(Dispatchers.IO) {
             assetRepository.syncAssets()
             if (assetSync.state.value == AssetSyncState.Synced) {

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.flow
 import org.mangoswatch.domain.model.StreamModel
 import org.mangoswatch.domain.repository.StreamsRepository
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.milliseconds
 
 class StreamsRepositoryImpl(
@@ -16,6 +17,7 @@ class StreamsRepositoryImpl(
 ) : StreamsRepository {
 
     private val _streams = ConcurrentHashMap<String, StreamModel>()
+    private val evicting = AtomicBoolean(false)
 
     override fun getStreams(): Flow<List<StreamModel>> {
         return flow {
@@ -33,24 +35,33 @@ class StreamsRepositoryImpl(
 
     fun performEviction(now: Long = clock()) {
         if (_streams.size < maxStreams) return
+        if (!evicting.compareAndSet(false, true)) return
+        try {
+            if (_streams.size < maxStreams) return
 
-        val iterator = _streams.entries.iterator()
-        while (iterator.hasNext()) {
-            val (_, stream) = iterator.next()
-            if (now - stream.lastSeen > inactiveTimeoutMs) {
-                iterator.remove()
+            val iterator = _streams.entries.iterator()
+            while (iterator.hasNext()) {
+                val (_, stream) = iterator.next()
+                if (now - stream.lastSeen > inactiveTimeoutMs) {
+                    iterator.remove()
+                }
             }
-        }
 
-        val overflow = _streams.size - maxStreams
-        if (overflow > 0) {
-            val keysToRemove = _streams.entries
-                .sortedBy { it.value.lastSeen }
-                .take(overflow)
-                .map { it.key }
-            for (k in keysToRemove) {
-                _streams.remove(k)
+            if (_streams.size >= maxStreams) {
+                val targetSize = if (maxStreams <= 2) maxStreams else (maxStreams * 0.9).toInt().coerceAtLeast(1)
+                val overflow = _streams.size - targetSize
+                if (overflow > 0) {
+                    val keysToRemove = _streams.entries
+                        .sortedBy { it.value.lastSeen }
+                        .take(overflow)
+                        .map { it.key }
+                    for (k in keysToRemove) {
+                        _streams.remove(k)
+                    }
+                }
             }
+        } finally {
+            evicting.set(false)
         }
     }
 

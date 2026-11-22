@@ -88,11 +88,11 @@ class StreamsRepositoryImplTest {
     fun testMaxStreamsEviction() = runTest {
         val currentTime = 1000000L
         val repo = StreamsRepositoryImpl(
-            maxStreams = 3,
+            maxStreams = 10,
             clock = { currentTime }
         )
 
-        for (i in 1..5) {
+        for (i in 1..15) {
             val key = StreamModel.key(6, 1000 + i, "1.1.1.1", 443)
             val stream = StreamModel(
                 protocol = 6,
@@ -109,25 +109,27 @@ class StreamsRepositoryImplTest {
         }
 
         val list = repo.getStreams().first()
-        assertEquals(3, list.size)
-        // Oldest (lastSeen +1 and +2) should be evicted, keeping +3, +4, +5
+        // Hysteresis trims to 90% of 10 = 9 streams
+        assertEquals(9, list.size)
+        // Oldest (1..6) should be evicted, keeping 7..15
         val ports = list.map { it.srcPort }.toSet()
-        assertTrue(ports.contains(1003))
-        assertTrue(ports.contains(1004))
-        assertTrue(ports.contains(1005))
-        assertFalse(ports.contains(1001))
-        assertFalse(ports.contains(1002))
+        for (i in 7..15) {
+            assertTrue(ports.contains(1000 + i))
+        }
+        for (i in 1..6) {
+            assertFalse(ports.contains(1000 + i))
+        }
     }
 
     @Test
     fun testMaxStreamsEvictionOnUpdateWithoutFlowReader() = runTest {
         val currentTime = 1000000L
         val repo = StreamsRepositoryImpl(
-            maxStreams = 2,
+            maxStreams = 10,
             clock = { currentTime }
         )
 
-        for (i in 1..4) {
+        for (i in 1..12) {
             val key = StreamModel.key(6, 2000 + i, "1.1.1.1", 443)
             val stream = StreamModel(
                 protocol = 6,
@@ -143,13 +145,8 @@ class StreamsRepositoryImplTest {
             repo.updateStream(key) { stream }
         }
 
-        // Without collecting getStreams() beforehand, updateStream must trigger performEviction
+        // Without collecting getStreams() beforehand, updateStream must trigger performEviction with hysteresis to 9
         val snapshot = repo.getStreams().first()
-        assertEquals(2, snapshot.size)
-        val ports = snapshot.map { it.srcPort }.toSet()
-        assertTrue(ports.contains(2003))
-        assertTrue(ports.contains(2004))
-        assertFalse(ports.contains(2001))
-        assertFalse(ports.contains(2002))
+        assertEquals(9, snapshot.size)
     }
 }

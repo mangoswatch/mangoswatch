@@ -98,7 +98,7 @@ fun HostItem(
                 )
 
                 Text(
-                    text = if (host.ipOwner == IpOwner.OTHER) "UNCLASSIFIED" else host.ipOwner.name,
+                    text = if (host.ipOwner == IpOwner.OTHER) stringResource(R.string.label_unclassified) else host.ipOwner.name,
                     style = MaterialTheme.typography.labelMedium,
                     color = if (host.ipOwner == IpOwner.OTHER) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
                 )
