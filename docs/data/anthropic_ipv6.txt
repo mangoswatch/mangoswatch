@@ -1,2 +1,2 @@
-# Updated automatically on 2026-11-17 (ANTHROPIC IPv6)
+# Updated automatically on 2026-11-22 (ANTHROPIC IPv6)
 2607:6bc0::/48

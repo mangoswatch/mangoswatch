@@ -157,4 +157,47 @@ class EndpointTaxonomyRepositoryTest {
             assertEquals("Host '$host' matched wrong provider", expectedProvider, match?.provider)
         }
     }
+
+    @Test
+    fun testConcurrentReloadAndFindMatch() {
+        val context = RuntimeEnvironment.getApplication()
+        val assetSync = AssetSyncImpl()
+        val assetRepository = AssetRepositoryImpl(context, assetSync)
+        val repository = EndpointTaxonomyRepositoryImpl(assetRepository)
+
+        val exceptions = java.util.concurrent.CopyOnWriteArrayList<Throwable>()
+        val threads = mutableListOf<Thread>()
+
+        // Writer thread doing frequent reloads
+        threads.add(Thread {
+            repeat(50) {
+                try {
+                    repository.reloadTaxonomy()
+                    Thread.sleep(2)
+                } catch (t: Throwable) {
+                    exceptions.add(t)
+                }
+            }
+        })
+
+        // Reader threads calling findMatch concurrently
+        repeat(4) {
+            threads.add(Thread {
+                repeat(100) {
+                    try {
+                        val match = repository.findMatch("api.openai.com")
+                        assertNotNull(match)
+                        assertEquals("OPENAI", match?.provider)
+                    } catch (t: Throwable) {
+                        exceptions.add(t)
+                    }
+                }
+            })
+        }
+
+        threads.forEach { it.start() }
+        threads.forEach { it.join() }
+
+        assertTrue("Concurrent operations threw exceptions: $exceptions", exceptions.isEmpty())
+    }
 }

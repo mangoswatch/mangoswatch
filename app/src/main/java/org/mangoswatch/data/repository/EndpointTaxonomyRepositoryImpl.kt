@@ -1,19 +1,24 @@
 package org.mangoswatch.data.repository
 
 import android.util.Log
-import org.mangoswatch.domain.model.EndpointTaxonomyCategory
-import org.mangoswatch.domain.model.EndpointTaxonomy
-import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
-import org.mangoswatch.domain.repository.AssetRepository
 import org.json.JSONObject
+import org.mangoswatch.domain.model.EndpointTaxonomy
+import org.mangoswatch.domain.model.EndpointTaxonomyCategory
+import org.mangoswatch.domain.repository.AssetRepository
+import org.mangoswatch.domain.repository.EndpointTaxonomyRepository
 import java.util.regex.Pattern
 
 class EndpointTaxonomyRepositoryImpl(
     private val assetRepository: AssetRepository
 ) : EndpointTaxonomyRepository {
 
-    private val items = mutableListOf<EndpointTaxonomy>()
-    private val compiledPatterns = mutableMapOf<EndpointTaxonomy, Pattern>()
+    private data class TaxonomySnapshot(
+        val items: List<EndpointTaxonomy> = emptyList(),
+        val compiledPatterns: Map<EndpointTaxonomy, Pattern> = emptyMap()
+    )
+
+    @Volatile
+    private var snapshot: TaxonomySnapshot = TaxonomySnapshot()
 
     private val noMatchSentinel = EndpointTaxonomy(
         id = "__NO_MATCH__",
@@ -33,19 +38,21 @@ class EndpointTaxonomyRepositoryImpl(
     }
 
     init {
-        loadTaxonomy()
+        reloadTaxonomy()
     }
 
     override fun reloadTaxonomy() {
+        val newSnapshot = loadTaxonomySnapshot()
         synchronized(this) {
-            items.clear()
-            compiledPatterns.clear()
+            snapshot = newSnapshot
             synchronized(matchCache) { matchCache.clear() }
-            loadTaxonomy()
         }
     }
 
-    private fun loadTaxonomy() {
+    private fun loadTaxonomySnapshot(): TaxonomySnapshot {
+        val newItems = mutableListOf<EndpointTaxonomy>()
+        val newCompiledPatterns = mutableMapOf<EndpointTaxonomy, Pattern>()
+
         for (fileName in assetRepository.getTaxonomyFiles()) {
             try {
                 val assetStream = assetRepository.getFileFromAssetsCache(fileName)
@@ -86,9 +93,9 @@ class EndpointTaxonomyRepositoryImpl(
                         optOutDescription = optOutDescription
                     )
 
-                    items.add(item)
+                    newItems.add(item)
                     try {
-                        compiledPatterns[item] = Pattern.compile(hostnamePattern, Pattern.CASE_INSENSITIVE)
+                        newCompiledPatterns[item] = Pattern.compile(hostnamePattern, Pattern.CASE_INSENSITIVE)
                     } catch (e: Exception) {
                         Log.e("EndpointTaxonomyRepo", "Invalid regex pattern: $hostnamePattern in $fileName", e)
                     }
@@ -98,15 +105,15 @@ class EndpointTaxonomyRepositoryImpl(
                 Log.e("EndpointTaxonomyRepo", "Failed to load $fileName", e)
             }
         }
-        Log.d("EndpointTaxonomyRepo", "Loaded total ${items.size} taxonomy items across all providers.")
+        Log.d("EndpointTaxonomyRepo", "Loaded total ${newItems.size} taxonomy items across all providers.")
+        return TaxonomySnapshot(
+            items = newItems.toList(),
+            compiledPatterns = newCompiledPatterns.toMap()
+        )
     }
 
     override fun findMatch(hostnameOrUrl: String?): EndpointTaxonomy? {
         if (hostnameOrUrl.isNullOrBlank()) return null
-
-        if (items.isEmpty()) {
-            reloadTaxonomy()
-        }
 
         synchronized(matchCache) {
             val cached = matchCache[hostnameOrUrl]
@@ -115,9 +122,10 @@ class EndpointTaxonomyRepositoryImpl(
             }
         }
 
+        val currentSnapshot = snapshot
         var matchedItem: EndpointTaxonomy? = null
-        for (item in items) {
-            val pattern = compiledPatterns[item] ?: continue
+        for (item in currentSnapshot.items) {
+            val pattern = currentSnapshot.compiledPatterns[item] ?: continue
             if (pattern.matcher(hostnameOrUrl).find()) {
                 matchedItem = item
                 break
@@ -138,5 +146,4 @@ class EndpointTaxonomyRepositoryImpl(
         }
         return matchedItem
     }
-
 }

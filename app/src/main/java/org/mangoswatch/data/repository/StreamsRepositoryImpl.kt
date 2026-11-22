@@ -20,7 +20,6 @@ class StreamsRepositoryImpl(
     override fun getStreams(): Flow<List<StreamModel>> {
         return flow {
             while (true) {
-                performEviction()
                 emit(_streams.values.toList())
                 delay(500.milliseconds)
             }
@@ -29,9 +28,12 @@ class StreamsRepositoryImpl(
 
     override fun updateStream(key: String, transform: (StreamModel?) -> StreamModel?) {
         _streams.compute(key) { _, old -> transform(old) }   // null = no stream (removed if already existing)
+        performEviction()
     }
 
     fun performEviction(now: Long = clock()) {
+        if (_streams.size < maxStreams) return
+
         val iterator = _streams.entries.iterator()
         while (iterator.hasNext()) {
             val (_, stream) = iterator.next()
@@ -40,8 +42,8 @@ class StreamsRepositoryImpl(
             }
         }
 
-        if (_streams.size > maxStreams) {
-            val overflow = _streams.size - maxStreams
+        val overflow = _streams.size - maxStreams
+        if (overflow > 0) {
             val keysToRemove = _streams.entries
                 .sortedBy { it.value.lastSeen }
                 .take(overflow)

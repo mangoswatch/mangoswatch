@@ -15,6 +15,8 @@ import uuid
 import requests
 
 OUTPUT_DIR = "docs/data"
+DROP_THRESHOLD_RATIO = 0.70  # Alert and skip overwrite if prefix count drops below 70% of current (30% drop)
+
 S = requests.Session()
 S.headers["User-Agent"] = "MangosWatch-AssetUpdater/1.0"
 
@@ -145,7 +147,7 @@ def fetch_asn(org, n):
         add_prefix(org, p["prefix"], f"bgp-AS{n}")
 
 
-# Register sources
+# Register sources and map each to its organization
 SOURCES = {
     "google": fetch_google,
     "amazon": fetch_amazon,
@@ -154,52 +156,99 @@ SOURCES = {
     "applebot": fetch_applebot,
     "static": fetch_static,
 }
+SOURCE_TO_ORG = {
+    "google": "google",
+    "amazon": "amazon",
+    "azure": "microsoft",
+    "m365": "microsoft",
+    "applebot": "apple",
+    "static": "static",
+}
 for bot in ("gptbot", "searchbot", "chatgpt-user", "adsbot"):
-    SOURCES[f"openai:{bot}"] = partial(fetch_openai, bot)
+    src_key = f"openai:{bot}"
+    SOURCES[src_key] = partial(fetch_openai, bot)
+    SOURCE_TO_ORG[src_key] = "openai"
+
 for org, ns in ASNS.items():
     for n in ns:
-        SOURCES[f"{org}:AS{n}"] = partial(fetch_asn, org, n)
+        src_key = f"{org}:AS{n}"
+        SOURCES[src_key] = partial(fetch_asn, org, n)
+        SOURCE_TO_ORG[src_key] = org
+
+
+def count_existing_prefixes(filepath):
+    if not os.path.exists(filepath):
+        return 0
+    try:
+        with open(filepath, "r") as f:
+            return sum(1 for line in f if line.strip() and not line.strip().startswith("#"))
+    except Exception:
+        return 0
 
 
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    failed = []
+    failed_sources = []
+    failed_orgs = set()
 
     for name, fn in SOURCES.items():
         try:
             fn()
             print(f"OK: {name}", file=sys.stderr)
         except Exception as e:
-            failed.append(name)
+            failed_sources.append(name)
+            org = SOURCE_TO_ORG.get(name)
+            if org and org != "static":
+                failed_orgs.add(org)
             print(f"WARNING/FAIL: {name} -> {e}", file=sys.stderr)
 
-    # Write out individual <org>_ipv4.txt and <org>_ipv6.txt files for successfully fetched data
+    # Write out individual <org>_ipv4.txt and <org>_ipv6.txt files for organizations without source failures
     for org, nets in collected_data.items():
+        if org in failed_orgs:
+            print(f"SKIPPING: Organization '{org}' had failed sources. File overwrite aborted.", file=sys.stderr)
+            continue
+
+        org_failed_drop = False
+        files_to_write = []
+
         for v in (4, 6):
             version_nets = [n for n in nets if n.version == v]
             if not version_nets:
                 continue
             collapsed = list(ipaddress.collapse_addresses(version_nets))
             filepath = os.path.join(OUTPUT_DIR, f"{org}_ipv{v}.txt")
+
+            existing_count = count_existing_prefixes(filepath)
+            if existing_count > 0 and len(collapsed) < existing_count * DROP_THRESHOLD_RATIO:
+                print(
+                    f"ERROR: Prefix count for {org} IPv{v} dropped by >30% ({existing_count} -> {len(collapsed)}). Aborting overwrite for '{org}'.",
+                    file=sys.stderr
+                )
+                org_failed_drop = True
+                break
+            files_to_write.append((filepath, collapsed, org, v))
+
+        if org_failed_drop:
+            failed_orgs.add(org)
+            continue
+
+        for filepath, collapsed, org_name, v in files_to_write:
             with open(filepath, "w") as f:
-                f.write(f"# Updated automatically on {date.today()} ({org.upper()} IPv{v})\n")
+                f.write(f"# Updated automatically on {date.today()} ({org_name.upper()} IPv{v})\n")
                 for net in collapsed:
                     f.write(f"{net}\n")
             print(f"Wrote {filepath} ({len(collapsed)} prefixes)", file=sys.stderr)
 
-    if failed:
-        print(f"\n[NOTIFICATION] The following sources failed to update: {failed}", file=sys.stderr)
-        # Check if any critical source failed
-        critical_failed = [s for s in failed if any(c in s for c in CRITICAL_SOURCES)]
-        if critical_failed or len(failed) == len(SOURCES):
-            print(f"CRITICAL: Critical sources failed ({critical_failed}) or all sources failed. Exiting with error.", file=sys.stderr)
+    if failed_sources or failed_orgs:
+        print(f"\n[NOTIFICATION] Failed sources: {failed_sources}", file=sys.stderr)
+        print(f"[NOTIFICATION] Failed orgs (not overwritten): {sorted(failed_orgs)}", file=sys.stderr)
+        critical_failed = [s for s in failed_sources if any(c in s for c in CRITICAL_SOURCES)]
+        if critical_failed or failed_orgs or len(failed_sources) == len(SOURCES):
+            print(f"CRITICAL: Failures detected in pipeline ({failed_sources}). Exiting with error.", file=sys.stderr)
             sys.exit(1)
-        else:
-            print("Non-critical sources failed. Proceeding with partial update successfully.", file=sys.stderr)
-            sys.exit(0)
-    else:
-        print("All asset ranges successfully updated.", file=sys.stderr)
-        sys.exit(0)
+
+    print("All asset ranges successfully updated.", file=sys.stderr)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
