@@ -15,6 +15,9 @@
     <string name="dns_custom_subtitle">Specify your own IPv4 and IPv6 servers</string>
     <string name="dns_custom_ipv4_label">Custom IPv4 DNS (comma separated)</string>
     <string name="dns_custom_ipv6_label">Custom IPv6 DNS (comma separated)</string>
+    <string name="dns_settings_description">Choose how DNS queries are resolved while the VPN is active.</string>
+    <string name="dns_restart_vpn_warning">Restart the VPN to apply new DNS settings.</string>
+    <string name="error_invalid_dns_ip">Invalid IP address format in custom DNS. Please check your entries.</string>
     <string name="dialog_save">Save</string>
     <string name="dialog_cancel">Cancel</string>
 

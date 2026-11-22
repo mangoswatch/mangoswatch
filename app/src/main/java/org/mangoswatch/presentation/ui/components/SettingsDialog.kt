@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import org.mangoswatch.R
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.model.DnsSettings
+import org.mangoswatch.domain.parser.ip.IpValidator
 
 @Composable
 fun SettingsDialog(
@@ -43,6 +44,7 @@ fun SettingsDialog(
     var selectedMode by remember { mutableStateOf(dnsSettings.dnsMode) }
     var v4 by remember { mutableStateOf(dnsSettings.dnsV4) }
     var v6 by remember { mutableStateOf(dnsSettings.dnsV6) }
+    var validationError by remember { mutableStateOf<String?>(null) }
 
     val scrollState = rememberScrollState()
 
@@ -67,6 +69,11 @@ fun SettingsDialog(
                         text = stringResource(R.string.settings_section_dns),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = stringResource(R.string.dns_settings_description),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
                     Column(modifier = Modifier.selectableGroup()) {
@@ -160,6 +167,22 @@ fun SettingsDialog(
                             textStyle = MaterialTheme.typography.bodyMedium
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.dns_restart_vpn_warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+
+                    if (validationError != null) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = validationError!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
 
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
@@ -181,8 +204,22 @@ fun SettingsDialog(
             }
         },
         confirmButton = {
+            val invalidIpErrorText = stringResource(R.string.error_invalid_dns_ip)
             TextButton(
                 onClick = {
+                    if (selectedMode == DnsMode.CUSTOM) {
+                        val v4List = v4.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                        val v6List = v6.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+
+                        val v4Valid = v4List.all { IpValidator.isValidIpv4(it) }
+                        val v6Valid = v6List.all { IpValidator.isValidIpv6(it) }
+
+                        if (!v4Valid || !v6Valid) {
+                            validationError = invalidIpErrorText
+                            return@TextButton
+                        }
+                    }
+                    validationError = null
                     onUpdateDns(selectedMode, v4, v6)
                     onDismiss()
                 }

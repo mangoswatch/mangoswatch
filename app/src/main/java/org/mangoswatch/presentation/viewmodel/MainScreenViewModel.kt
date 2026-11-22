@@ -194,7 +194,11 @@ class MainScreenViewModel(
                         .map { (host, s) ->
                             val taxonomy = taxonomyRepository.findMatch(host.first)
                             val resolvedIpOwner = taxonomy?.provider?.let { provider ->
-                                try { IpOwner.valueOf(provider) } catch (e: Exception) { host.second }
+                                try {
+                                    IpOwner.valueOf(provider)
+                                } catch (e: Exception) {
+                                    host.second
+                                }
                             } ?: host.second
 
                             HostTrafficUi(

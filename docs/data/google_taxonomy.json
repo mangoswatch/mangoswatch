@@ -3,7 +3,7 @@
   "endpoints": [
     {
       "id": "clearcut_batch_001",
-      "hostname_pattern": "(?:^|\\.)(?:play\\.googleapis\\.com(?:/.*)?|feedback-pa\\.googleapis\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:play\\.googleapis\\.com|feedback-pa\\.googleapis\\.com)$",
       "display_name": "Clearcut Logger & Feedback Telemetry",
       "category": "CLEARCUT_TELEMETRY",
       "description": "Main batch telemetry logger and user feedback reporting. Receives data from Play Services and apps.",
@@ -18,7 +18,7 @@
     },
     {
       "id": "checkin_002",
-      "hostname_pattern": "(?:^|\\.)(?:android\\.clients\\.google\\.com(?:/.*)?|clients\\.google\\.com|device-provisioning\\.googleapis\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:android\\.clients\\.google\\.com|clients\\.google\\.com|device-provisioning\\.googleapis\\.com)$",
       "display_name": "Device Check-in & Provisioning",
       "category": "DEVICE_FINGERPRINT",
       "description": "Periodic device check-in and enterprise provisioning to Google servers including hardware identifiers.",
