@@ -31,7 +31,7 @@
     },
     {
       "id": "amazon_auth_003",
-      "hostname_pattern": "(?:^|\\.)(?:signin\\.amazon\\.com|api\\.amazon\\.com(?:/.*)?|auth\\.amazon\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:signin\\.amazon\\.com|api\\.amazon\\.com|auth\\.amazon\\.com)$",
       "display_name": "Amazon Authentication & Login",
       "category": "AUTHENTICATION",
       "description": "Customer login, credential verification, and OAuth token management.",

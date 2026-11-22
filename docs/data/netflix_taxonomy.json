@@ -42,7 +42,7 @@
     },
     {
       "id": "netflix_auth_004",
-      "hostname_pattern": "(?:^|\\.)(?:secure\\.netflix\\.com|netflix\\.com(?:/.*)?|auth\\.netflix\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:secure\\.netflix\\.com|netflix\\.com|auth\\.netflix\\.com)$",
       "display_name": "Netflix Authentication & Member Services",
       "category": "AUTHENTICATION",
       "description": "Customer login, subscription verification, and session management.",
