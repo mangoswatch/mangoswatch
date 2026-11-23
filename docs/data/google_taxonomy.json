@@ -129,7 +129,7 @@
     },
     {
       "id": "google_ads_doubleclick_010",
-      "hostname_pattern": "(?:^|\\.)(?:googleads\\.g\\.doubleclick\\.net|pagead2\\.googlesyndication\\.com|www\\.googletagservices\\.com|pagead2\\.googleadservices\\.com|s[01]\\.2mdn\\.net|static\\.doubleclick\\.net|tpc\\.googlesyndication\\.com|securepubads\\.g\\.doubleclick\\.net|imasdk\\.googleapis\\.com|safeframe\\.googlesyndication\\.com|ep[12]\\.adtrafficquality\\.google|googlesyndication\\.com|googleadservices\\.com|stats\\.g\\.doubleclick\\.net)$",
+      "hostname_pattern": "(?:^|\\.)(?:googleads\\.g\\.doubleclick\\.net|pubads\\.g\\.doubleclick\\.net|www\\.googletagmanager\\.com|pagead2\\.googlesyndication\\.com|www\\.googletagservices\\.com|pagead2\\.googleadservices\\.com|s[01]\\.2mdn\\.net|static\\.doubleclick\\.net|tpc\\.googlesyndication\\.com|securepubads\\.g\\.doubleclick\\.net|imasdk\\.googleapis\\.com|safeframe\\.googlesyndication\\.com|ep[12]\\.adtrafficquality\\.google|googlesyndication\\.com|googleadservices\\.com|stats\\.g\\.doubleclick\\.net)$",
       "display_name": "Google Ads, DoubleClick, IMA SDK & Ad Traffic Quality",
       "category": "ADVERTISING_ID",
       "description": "Ad delivery, video IMA SDK, ad auction bidding, tag services, TPC syndication, safeframe containers, ad traffic verification, and conversion tracking network.",
@@ -248,7 +248,7 @@
     },
     {
       "id": "google_infrastructure_ips_019",
-      "hostname_pattern": "^(?:192\\.178\\.\\d+\\.\\d+|172\\.217\\.\\d+\\.\\d+|142\\.251\\.\\d+\\.\\d+)$",
+      "hostname_pattern": "^(?:192\\.178\\.\\d+\\.\\d+|172\\.217\\.\\d+\\.\\d+|142\\.251\\.\\d+\\.\\d+|216\\.239\\.\\d+\\.\\d+)$",
       "display_name": "Google Core Infrastructure & CDN IPs",
       "category": "DEVICE_FINGERPRINT",
       "description": "Core Google network infrastructure IP blocks routing web, API, and content traffic.",
@@ -270,6 +270,32 @@
         "Device location history"
       ],
       "opt_out_description": "Disable location services in device Settings -> Location."
+    },
+    {
+      "id": "gstatic_metrics_021",
+      "hostname_pattern": "(?:^|\\.)(?:csi\\.gstatic\\.com|[a-z0-9-]+-dnsotls-ds\\.metric\\.gstatic\\.com)$",
+      "display_name": "Google Gstatic Metrics & DNS-over-TLS Telemetry",
+      "category": "CLEARCUT_TELEMETRY",
+      "description": "Client-side instrumentation, performance metrics, and DNS-over-TLS measurement telemetry via gstatic.",
+      "data_collected": [
+        "Network connection timing",
+        "DNS resolution metrics",
+        "Performance telemetry"
+      ],
+      "opt_out_description": "Integral part of Google network measurement services."
+    },
+    {
+      "id": "google_partner_apis_022",
+      "hostname_pattern": "(?:^|\\.)(?:phonedeviceverification-pa\\.googleapis\\.com|discover-pa\\.googleapis\\.com|mobilemaps-pa-gz\\.googleapis\\.com|securitydomain-pa\\.googleapis\\.com|instantmessaging-pa\\.googleapis\\.com)$",
+      "display_name": "Google Partner APIs & Core Services",
+      "category": "PLAY_STORE_COMMUNICATION",
+      "description": "Device verification, discover feeds, regional mobile maps, security domain checks, and instant messaging backend APIs.",
+      "data_collected": [
+        "Device verification tokens",
+        "Location and map requests",
+        "App configuration parameters"
+      ],
+      "opt_out_description": "Integral part of Google Mobile Services."
     }
   ]
 }

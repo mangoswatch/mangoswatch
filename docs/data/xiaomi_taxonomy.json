@@ -39,6 +39,19 @@
         "Ad interaction metrics"
       ],
       "opt_out_description": "Opt out of personalized ads in MIUI Settings -> Privacy -> Ad services."
+    },
+    {
+      "id": "xiaomi_market_cdn_004",
+      "hostname_pattern": "(?:^|\\.)(?:[a-z0-9-]+\\.market\\.xiaomi\\.com|market\\.mi-img\\.com|[a-z0-9-]+\\.market\\.mi-img\\.com|sdkconfig\\.ad\\.intl\\.xiaomi\\.com)$",
+      "display_name": "Xiaomi App Market, CDN & Ad SDK Configuration",
+      "category": "UPDATE_CHECK",
+      "description": "App store updates, static image asset delivery, and advertising SDK configuration for Xiaomi devices.",
+      "data_collected": [
+        "App download requests",
+        "Device model and region",
+        "Ad configuration parameters"
+      ],
+      "opt_out_description": "Manage app updates and ad personalization in MIUI settings."
     }
   ]
 }
