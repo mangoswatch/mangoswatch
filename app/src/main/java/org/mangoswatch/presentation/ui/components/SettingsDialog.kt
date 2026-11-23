@@ -205,16 +205,22 @@ fun SettingsDialog(
         },
         confirmButton = {
             val invalidIpErrorText = stringResource(R.string.error_invalid_dns_ip)
+            val customRequiredErrorText = stringResource(R.string.dns_custom_required_error)
             TextButton(
                 onClick = {
                     if (selectedMode == DnsMode.CUSTOM) {
                         val v4List = v4.split(",").map { it.trim() }.filter { it.isNotEmpty() }
                         val v6List = v6.split(",").map { it.trim() }.filter { it.isNotEmpty() }
 
+                        if (v4List.isEmpty() && v6List.isEmpty()) {
+                            validationError = customRequiredErrorText
+                            return@TextButton
+                        }
+
                         val v4Valid = v4List.all { IpValidator.isValidIpv4(it) }
                         val v6Valid = v6List.all { IpValidator.isValidIpv6(it) }
 
-                        if ((v4List.isEmpty() && v6List.isEmpty()) || !v4Valid || !v6Valid) {
+                        if (!v4Valid || !v6Valid) {
                             validationError = invalidIpErrorText
                             return@TextButton
                         }

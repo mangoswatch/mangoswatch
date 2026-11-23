@@ -50,8 +50,6 @@ android {
             val releaseConfig = signingConfigs.findByName("release")
             if (releaseConfig?.storeFile != null && releaseConfig.storeFile!!.exists()) {
                 signingConfig = releaseConfig
-            } else {
-                project.logger.warn("WARNING: Release build is unsigned! Keystore file not configured or missing.")
             }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -62,6 +60,16 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    tasks.configureEach {
+        if (name == "assembleRelease" || name == "bundleRelease") {
+            doFirst {
+                val releaseIsSigned = signingConfigs.findByName("release")?.storeFile?.exists() == true
+                if (!releaseIsSigned) {
+                    logger.warn("WARNING: Release build is unsigned! Keystore file not configured or missing.")
+                }
+            }
+        }
     }
     buildFeatures {
         compose = true

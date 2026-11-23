@@ -9,7 +9,6 @@ import ipaddress
 import os
 import re
 import sys
-import argparse
 from datetime import date
 from functools import partial
 import uuid
@@ -188,11 +187,6 @@ def count_existing_prefixes(filepath):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Automated resilient asset updater script for MangosWatch.")
-    parser.add_argument("--force-org", action="append", default=[], help="Bypass 30% drop threshold check for specified organization")
-    args = parser.parse_args()
-    forced_orgs = set(args.force_org)
-
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     failed_sources = []
     failed_orgs = set()
@@ -226,18 +220,12 @@ def main():
 
             existing_count = count_existing_prefixes(filepath)
             if existing_count > 0 and len(collapsed) < existing_count * DROP_THRESHOLD_RATIO:
-                if org in forced_orgs:
-                    print(
-                        f"WARNING: Prefix count for {org} IPv{v} dropped by >30% ({existing_count} -> {len(collapsed)}), but forced via --force-org. Overwrite proceeding.",
-                        file=sys.stderr
-                    )
-                else:
-                    print(
-                        f"ERROR: Prefix count for {org} IPv{v} dropped by >30% ({existing_count} -> {len(collapsed)}). Aborting overwrite for '{org}'.",
-                        file=sys.stderr
-                    )
-                    org_failed_drop = True
-                    break
+                print(
+                    f"ERROR: Prefix count for {org} IPv{v} dropped by >30% ({existing_count} -> {len(collapsed)}). Aborting overwrite for '{org}'.",
+                    file=sys.stderr
+                )
+                org_failed_drop = True
+                break
             files_to_write.append((filepath, collapsed, org, v))
 
         if org_failed_drop:
@@ -255,8 +243,9 @@ def main():
         print(f"\n[NOTIFICATION] Failed sources: {failed_sources}", file=sys.stderr)
         print(f"[NOTIFICATION] Failed orgs (not overwritten): {sorted(failed_orgs)}", file=sys.stderr)
         critical_failed = [s for s in failed_sources if s in CRITICAL_SOURCES]
-        if critical_failed or len(failed_sources) == len(SOURCES):
-            print(f"CRITICAL: Critical sources failed ({critical_failed}). Exiting with error.", file=sys.stderr)
+        critical_drop_orgs = [o for o in failed_orgs if o in {"google", "amazon", "microsoft"}]
+        if critical_failed or critical_drop_orgs or len(failed_sources) == len(SOURCES):
+            print(f"CRITICAL: Critical sources failed ({critical_failed}) or critical org drop threshold exceeded ({critical_drop_orgs}). Exiting with error.", file=sys.stderr)
             sys.exit(1)
         elif failed_orgs:
             print(f"WARNING: Non-critical organization failures detected: {sorted(failed_orgs)}. Proceeding with partial update.", file=sys.stderr)
