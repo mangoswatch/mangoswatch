@@ -16,7 +16,7 @@
     },
     {
       "id": "azure_telemetry_002",
-      "hostname_pattern": "(?:^|\\.)(?:core\\.windows\\.net|telemetry\\.sdk\\.iot\\.azure\\.com|dc\\.services\\.visualstudio\\.com|vortex\\.data\\.microsoft\\.com|browser\\.events\\.data\\.microsoft\\.com|pipe\\.aria\\.microsoft\\.com)$|^20\\.33\\.\\d+\\.\\d+$",
+      "hostname_pattern": "(?:^|\\.)(?:core\\.windows\\.net|telemetry\\.sdk\\.iot\\.azure\\.com|dc\\.services\\.visualstudio\\.com|vortex\\.data\\.microsoft\\.com|browser\\.events\\.data\\.microsoft\\.com|pipe\\.aria\\.microsoft\\.com)$|^20\\.(?:33|47|153)\\.\\d+\\.\\d+$",
       "display_name": "Azure Telemetry, Aria & Application Insights",
       "category": "CLEARCUT_TELEMETRY",
       "description": "Cloud telemetry collection, Vortex/Aria event logging, Azure infrastructure routing, and performance monitoring.",
