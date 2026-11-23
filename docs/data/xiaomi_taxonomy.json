@@ -52,6 +52,19 @@
         "Ad configuration parameters"
       ],
       "opt_out_description": "Manage app updates and ad personalization in MIUI settings."
+    },
+    {
+      "id": "xiaomi_messaging_resolver_005",
+      "hostname_pattern": "(?:^|\\.)(?:[a-z0-9-]+\\.resolver\\.msg\\.global\\.xiaomi\\.net|resolver\\.msg\\.global\\.xiaomi\\.net|xiaomi\\.net)$",
+      "display_name": "Xiaomi Global Messaging & Resolver Service",
+      "category": "NOTIFICATION_PUSH",
+      "description": "Messaging resolver, push notification routing, and connectivity services for global Xiaomi devices.",
+      "data_collected": [
+        "Device connectivity status",
+        "Messaging routing tokens",
+        "Heartbeat timing"
+      ],
+      "opt_out_description": "Integral part of Xiaomi messaging and push notification infrastructure."
     }
   ]
 }

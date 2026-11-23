@@ -100,7 +100,7 @@
     },
     {
       "id": "app_measurement_008",
-      "hostname_pattern": "(?:^|\\.)(?:app-measurement\\.com|region1\\.app-measurement\\.com|firebase-settings\\.crashlytics\\.com|region1\\.google-analytics\\.com|firebaselogging(-pa)?\\.googleapis\\.com|google-analytics\\.com|analytics\\.google\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:app-measurement\\.com|region1\\.app-measurement\\.com|firebase-settings\\.crashlytics\\.com|region1\\.google-analytics\\.com|firebaselogging(-pa)?\\.googleapis\\.com|firebaseremoteconfigrealtime\\.googleapis\\.com|google-analytics\\.com|analytics\\.google\\.com)$",
       "display_name": "Google Analytics, Crashlytics & Firebase Logging",
       "category": "FIREBASE_ANALYTICS",
       "description": "Event logging, crash reporting settings, Firebase logging, and analytics reporting for Firebase and Google Analytics.",

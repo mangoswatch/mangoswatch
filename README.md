@@ -141,7 +141,7 @@ To ensure full transparency regarding security, privacy, and architecture, the f
 
 ### 6. In-Memory Stream Eviction & Memory Management
 - **Eviction Strategy**: To prevent active stream tracking (`_streams`) from growing unboundedly during long VPN inspection sessions, Mangos Watch implements a capacity-triggered memory eviction mechanism. When active streams reach the maximum capacity limit (2000 streams), inactive streams older than the inactivity timeout (5 minutes) are purged. If capacity remains exceeded, the oldest streams by last-seen timestamp are trimmed down to 90% capacity.
-- **TODO**: Optional historical session data persistence and saving are planned for future iterations. For now, this in-memory bounding approach ensures stable memory consumption without OOM risks.
+- Stream data is kept in memory only and is discarded when the VPN stops; persistence of historical sessions is not implemented.
 
 ### 7. Known Technical Limitations
 - **Encrypted Client Hello (ECH)**: ECH / ESNI can encrypt the SNI field in TLS handshakes, rendering domain name inspection opaque for protected connections.

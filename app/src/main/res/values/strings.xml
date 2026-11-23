@@ -71,4 +71,5 @@
     <string name="error_no_assets_vpn">Cannot start VPN: taxonomy rules missing. Connect to Internet and retry.</string>
     <string name="vpn_notification_title">Mangos Watch Active</string>
     <string name="vpn_notification_text">Monitoring network traffic and Big Tech endpoints</string>
+    <string name="dns_custom_required_error">Enter at least one DNS server</string>
 </resources>
