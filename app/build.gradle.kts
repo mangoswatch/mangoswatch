@@ -33,12 +33,12 @@ android {
                 storeFile = props.getProperty("storeFile")?.let { file(it) }
                 storePassword = props.getProperty("storePassword")
                 keyAlias = props.getProperty("keyAlias")
-                keyPassword = props.getProperty("keyPassword")
+                keyPassword = props.getProperty("keyPassword") ?: props.getProperty("storePassword")
             } else if (System.getenv("KEYSTORE_FILE") != null) {
                 storeFile = file(System.getenv("KEYSTORE_FILE")!!)
                 storePassword = System.getenv("KEYSTORE_PASSWORD")
                 keyAlias = System.getenv("KEYSTORE_ALIAS")
-                keyPassword = System.getenv("KEYSTORE_PASSWORD")
+                keyPassword = System.getenv("KEY_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD")
             }
         }
     }
@@ -50,6 +50,8 @@ android {
             val releaseConfig = signingConfigs.findByName("release")
             if (releaseConfig?.storeFile != null && releaseConfig.storeFile!!.exists()) {
                 signingConfig = releaseConfig
+            } else {
+                project.logger.warn("WARNING: Release build is unsigned! Keystore file not configured or missing.")
             }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import org.mangoswatch.R
 import org.mangoswatch.presentation.ui.components.AppIcon
 import org.mangoswatch.presentation.ui.components.HostItem
+import org.mangoswatch.presentation.contracts.displayTitle
 import org.mangoswatch.presentation.viewmodel.AppTrafficUi
 import org.mangoswatch.util.formatBytes
 
@@ -75,12 +76,12 @@ fun AppDetailHeader(
                 )
                 Column {
                     Text(
-                        text = appTraffic.title,
+                        text = appTraffic.displayTitle(),
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    appTraffic.packageName?.takeIf { it != appTraffic.title }?.let {
+                    appTraffic.packageName?.takeIf { it != appTraffic.displayTitle() }?.let {
                         Text(
                             text = it,
                             style = MaterialTheme.typography.bodySmall,

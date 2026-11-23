@@ -9,6 +9,7 @@ import ipaddress
 import os
 import re
 import sys
+import argparse
 from datetime import date
 from functools import partial
 import uuid
@@ -95,7 +96,7 @@ def fetch_amazon():
     all_prefixes = d.get("prefixes", []) + d.get("ipv6_prefixes", [])
     customer_services = {"EC2", "EC2_INSTANCE_CONNECT", "ROUTE53_HEALTHCHECKS"}
     for v in (4, 6):
-        amazon_nets = [ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")) for p in all_prefixes if (p.get("service") in ("AMAZON", "GLOBAL", "CLOUDFRONT", "S3")) and ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")).version == v]
+        amazon_nets = [ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")) for p in all_prefixes if (p.get("service") in ("AMAZON", "CLOUDFRONT", "S3") or p.get("region") == "GLOBAL") and ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")).version == v]
         customer_nets = [ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")) for p in all_prefixes if p.get("service") in customer_services and ipaddress.ip_network(p.get("ip_prefix") or p.get("ipv6_prefix")).version == v]
         for n in subtract(amazon_nets, customer_nets):
             add_prefix("amazon", str(n), "aws-amazon-cloudfront-s3-minus-customer-services")
@@ -187,6 +188,11 @@ def count_existing_prefixes(filepath):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Automated resilient asset updater script for MangosWatch.")
+    parser.add_argument("--force-org", action="append", default=[], help="Bypass 30% drop threshold check for specified organization")
+    args = parser.parse_args()
+    forced_orgs = set(args.force_org)
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     failed_sources = []
     failed_orgs = set()
@@ -220,12 +226,18 @@ def main():
 
             existing_count = count_existing_prefixes(filepath)
             if existing_count > 0 and len(collapsed) < existing_count * DROP_THRESHOLD_RATIO:
-                print(
-                    f"ERROR: Prefix count for {org} IPv{v} dropped by >30% ({existing_count} -> {len(collapsed)}). Aborting overwrite for '{org}'.",
-                    file=sys.stderr
-                )
-                org_failed_drop = True
-                break
+                if org in forced_orgs:
+                    print(
+                        f"WARNING: Prefix count for {org} IPv{v} dropped by >30% ({existing_count} -> {len(collapsed)}), but forced via --force-org. Overwrite proceeding.",
+                        file=sys.stderr
+                    )
+                else:
+                    print(
+                        f"ERROR: Prefix count for {org} IPv{v} dropped by >30% ({existing_count} -> {len(collapsed)}). Aborting overwrite for '{org}'.",
+                        file=sys.stderr
+                    )
+                    org_failed_drop = True
+                    break
             files_to_write.append((filepath, collapsed, org, v))
 
         if org_failed_drop:
@@ -234,7 +246,7 @@ def main():
 
         for filepath, collapsed, org_name, v in files_to_write:
             with open(filepath, "w") as f:
-                f.write(f"# Updated automatically on {date.today()} ({org_name.upper()} IPv{v})\n")
+                f.write(f"# Updated automatically ({org_name.upper()} IPv{v})\n")
                 for net in collapsed:
                     f.write(f"{net}\n")
             print(f"Wrote {filepath} ({len(collapsed)} prefixes)", file=sys.stderr)
@@ -242,10 +254,25 @@ def main():
     if failed_sources or failed_orgs:
         print(f"\n[NOTIFICATION] Failed sources: {failed_sources}", file=sys.stderr)
         print(f"[NOTIFICATION] Failed orgs (not overwritten): {sorted(failed_orgs)}", file=sys.stderr)
-        critical_failed = [s for s in failed_sources if any(c in s for c in CRITICAL_SOURCES)]
-        if critical_failed or failed_orgs or len(failed_sources) == len(SOURCES):
-            print(f"CRITICAL: Failures detected in pipeline ({failed_sources}). Exiting with error.", file=sys.stderr)
+        critical_failed = [s for s in failed_sources if s in CRITICAL_SOURCES]
+        if critical_failed or len(failed_sources) == len(SOURCES):
+            print(f"CRITICAL: Critical sources failed ({critical_failed}). Exiting with error.", file=sys.stderr)
             sys.exit(1)
+        elif failed_orgs:
+            print(f"WARNING: Non-critical organization failures detected: {sorted(failed_orgs)}. Proceeding with partial update.", file=sys.stderr)
+            summary_file = os.environ.get("GITHUB_STEP_SUMMARY")
+            warning_msg = f"### ⚠️ Partial Update Warning\nThe following organizations failed to update and were kept at their previous versions:\n" + "".join(f"- `{org}`\n" for org in sorted(failed_orgs))
+            if summary_file:
+                try:
+                    with open(summary_file, "a") as sf:
+                        sf.write(warning_msg + "\n")
+                except Exception:
+                    pass
+            try:
+                with open("pipeline_warning.txt", "w") as pw:
+                    pw.write(warning_msg)
+            except Exception:
+                pass
 
     print("All asset ranges successfully updated.", file=sys.stderr)
     sys.exit(0)

@@ -6,7 +6,7 @@ import org.mangoswatch.domain.parser.ip.IpHelpers.u16
 import org.mangoswatch.domain.parser.ip.IpHelpers.u32
 import org.mangoswatch.domain.parser.ip.IpHelpers.u8
 
-class IpV4Parser : IpParser()  {
+class IpV4Parser {
 
     fun parseV4Packet(b: ByteArray, n: Int, outbound: Boolean): Packet? {
         if (n < 20) return null

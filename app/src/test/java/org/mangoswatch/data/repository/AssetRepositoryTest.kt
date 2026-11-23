@@ -7,6 +7,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import kotlinx.coroutines.launch
 import org.mangoswatch.domain.model.AssetSyncError
 import org.mangoswatch.domain.model.AssetSyncProgress
 import org.mangoswatch.domain.model.AssetSyncState
@@ -309,6 +310,144 @@ class AssetRepositoryTest {
             statesAtDownloadStart
         )
         assertEquals(AssetSyncState.Synced, assetSync.state.value)
+    }
+
+    @Test
+    fun testStagingPreparationFailureEndsInErrorStateWithoutException() = kotlinx.coroutines.runBlocking {
+        val context = RuntimeEnvironment.getApplication()
+        val fileBlockingStaging = File(context.cacheDir, "assets_staging")
+        fileBlockingStaging.createNewFile()
+        context.cacheDir.setWritable(false)
+
+        try {
+            val assetSync = AssetSyncImpl()
+            val repo = AssetRepositoryImpl(context, assetSync, fakeFetcher(emptyMap()))
+
+            repo.syncAssets()
+
+            assertEquals(AssetSyncState.Error(AssetSyncError.Unexpected), assetSync.state.value)
+        } finally {
+            context.cacheDir.setWritable(true)
+            fileBlockingStaging.delete()
+        }
+    }
+
+    @Test
+    fun testFileSwapOverwritesExistingCachedFileWithoutWindowOfAbsence() = kotlinx.coroutines.runBlocking {
+        val context = RuntimeEnvironment.getApplication()
+        val cachedAsset = File(cacheDir, "google_ipv4.txt")
+        cachedAsset.writeText("1.1.1.1/32")
+
+        val indexUrl = "https://mangoswatch.github.io/mangoswatch/data/index.json"
+        val fetcher = fakeFetcher(
+            mapOf(
+                indexUrl to (200 to """["google_ipv4.txt"]"""),
+                "https://mangoswatch.github.io/mangoswatch/data/google_ipv4.txt" to (200 to "8.8.8.0/24")
+            )
+        )
+
+        val assetSync = AssetSyncImpl()
+        val repo = AssetRepositoryImpl(context, assetSync, fetcher)
+
+        assertTrue(cachedAsset.exists())
+        assertEquals("1.1.1.1/32", cachedAsset.readText())
+
+        repo.syncAssets()
+
+        assertEquals(AssetSyncState.Synced, assetSync.state.value)
+        assertTrue(cachedAsset.exists())
+        assertEquals("8.8.8.0/24", cachedAsset.readText())
+    }
+
+    @Test
+    fun testConcurrentSyncAssetsExecutesOnlyOneDownloadSequence() = kotlinx.coroutines.runBlocking {
+        val context = RuntimeEnvironment.getApplication()
+        val indexUrl = "https://mangoswatch.github.io/mangoswatch/data/index.json"
+        var indexRequestCount = 0
+
+        val fetcher = fakeFetcher(
+            mapOf(
+                indexUrl to (200 to """["google_ipv4.txt"]"""),
+                "https://mangoswatch.github.io/mangoswatch/data/google_ipv4.txt" to (200 to "8.8.8.0/24")
+            )
+        ) { url ->
+            if (url.toString() == indexUrl) {
+                synchronized(this) { indexRequestCount++ }
+                Thread.sleep(50)
+            }
+        }
+
+        val assetSync = AssetSyncImpl()
+        val repo = AssetRepositoryImpl(context, assetSync, fetcher)
+
+        val j1 = launch(kotlinx.coroutines.Dispatchers.IO) { repo.syncAssets() }
+        val j2 = launch(kotlinx.coroutines.Dispatchers.IO) { repo.syncAssets() }
+
+        j1.join()
+        j2.join()
+
+        assertEquals(1, indexRequestCount)
+        assertEquals(AssetSyncState.Synced, assetSync.state.value)
+    }
+
+    @Test
+    fun testInvalidFileInMiddleOfIndexLeavesEntireCacheUnchangedAndReturnsErrorState() = kotlinx.coroutines.runBlocking {
+        val context = RuntimeEnvironment.getApplication()
+        val cachedFile1 = File(cacheDir, "google_ipv4.txt").apply { writeText("1.1.1.1/32") }
+        val cachedFile2 = File(cacheDir, "google_taxonomy.json").apply { writeText("""{"provider":"GOOGLE","endpoints":[]}""") }
+
+        val indexUrl = "https://mangoswatch.github.io/mangoswatch/data/index.json"
+        val fetcher = fakeFetcher(
+            mapOf(
+                indexUrl to (200 to """["google_ipv4.txt","bad_ipv4.txt","google_taxonomy.json"]"""),
+                "https://mangoswatch.github.io/mangoswatch/data/google_ipv4.txt" to (200 to "8.8.8.0/24"),
+                "https://mangoswatch.github.io/mangoswatch/data/bad_ipv4.txt" to (200 to "INVALID_CIDR"),
+                "https://mangoswatch.github.io/mangoswatch/data/google_taxonomy.json" to (200 to """{"provider":"GOOGLE","endpoints":[]}""")
+            )
+        )
+
+        val assetSync = AssetSyncImpl()
+        val repo = AssetRepositoryImpl(context, assetSync, fetcher)
+
+        repo.syncAssets()
+
+        assertEquals(
+            AssetSyncState.Error(AssetSyncError.InvalidAssetContent("bad_ipv4.txt")),
+            assetSync.state.value
+        )
+        assertEquals("1.1.1.1/32", cachedFile1.readText())
+        assertEquals("""{"provider":"GOOGLE","endpoints":[]}""", cachedFile2.readText())
+    }
+
+    @Test
+    fun testTimestampOnlyUpdatesOnCompletedSync() = kotlinx.coroutines.runBlocking {
+        val context = RuntimeEnvironment.getApplication()
+        val prefs = context.getSharedPreferences("mangoswatch_remote_prefs", 0)
+        prefs.edit().putLong("last_sync_timestamp", 100L).commit()
+
+        val indexUrl = "https://mangoswatch.github.io/mangoswatch/data/index.json"
+
+        val failingFetcher = fakeFetcher(
+            mapOf(indexUrl to (500 to ""))
+        )
+        val assetSync = AssetSyncImpl()
+        val repoFailing = AssetRepositoryImpl(context, assetSync, failingFetcher)
+        repoFailing.syncAssets()
+
+        assertEquals(100L, prefs.getLong("last_sync_timestamp", 0L))
+        assertTrue(assetSync.state.value is AssetSyncState.Error)
+
+        val successFetcher = fakeFetcher(
+            mapOf(
+                indexUrl to (200 to """["google_ipv4.txt"]"""),
+                "https://mangoswatch.github.io/mangoswatch/data/google_ipv4.txt" to (200 to "8.8.8.0/24")
+            )
+        )
+        val repoSuccess = AssetRepositoryImpl(context, assetSync, successFetcher)
+        repoSuccess.syncAssets()
+
+        assertEquals(AssetSyncState.Synced, assetSync.state.value)
+        assertTrue(prefs.getLong("last_sync_timestamp", 0L) > 100L)
     }
 
     private fun fakeFetcher(

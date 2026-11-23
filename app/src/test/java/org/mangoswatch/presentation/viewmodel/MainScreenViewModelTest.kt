@@ -29,6 +29,7 @@ import org.mangoswatch.domain.model.EndpointTaxonomy
 import org.mangoswatch.domain.model.EndpointTaxonomyCategory
 import org.mangoswatch.domain.model.IpOwner
 import org.mangoswatch.domain.model.StreamModel
+import org.mangoswatch.domain.model.StreamProtocol
 import org.mangoswatch.domain.parser.ip.IpRangesCache
 import org.mangoswatch.domain.repository.AppInfoResolver
 import org.mangoswatch.domain.repository.AssetRepository
@@ -293,5 +294,194 @@ class MainScreenViewModelTest {
 
         val state = viewModel.state.value
         assertEquals(VpnStateEnum.RUNNING, state.vpnState)
+    }
+
+    @Test
+    fun testToAppTrafficGroupsByHostAndAvoidsDuplicateKeys() = runTest {
+        val streamA = StreamModel(
+            protocol = 6,
+            srcIpStr = "10.0.0.1",
+            srcPort = 12345,
+            dstIpStr = "172.217.16.206",
+            dstPort = 5228,
+            ipOwner = IpOwner.GOOGLE,
+            firstSeen = System.currentTimeMillis(),
+            uid = 10001,
+            sni = "alt4-mtalk.google.com",
+            isTls = true,
+            bytesUp = 100L,
+            bytesDown = 200L
+        )
+
+        val streamB = StreamModel(
+            protocol = 17,
+            srcIpStr = "10.0.0.1",
+            srcPort = 54321,
+            dstIpStr = "1.1.1.1",
+            dstPort = 53,
+            ipOwner = IpOwner.OTHER,
+            firstSeen = System.currentTimeMillis(),
+            uid = 10001,
+            dnsQuery = "alt4-mtalk.google.com",
+            bytesUp = 50L,
+            bytesDown = 50L
+        )
+
+        val mockStreamsRepo = mock(StreamsRepository::class.java)
+        `when`(mockStreamsRepo.getStreams()).thenReturn(flowOf(listOf(streamA, streamB)))
+
+        vpn.updateState(VpnStateEnum.RUNNING)
+
+        val vm = MainScreenViewModel(
+            streamsRepository = mockStreamsRepo,
+            taxonomyRepository = taxonomyRepository,
+            vpn = vpn,
+            assetSync = assetSync,
+            appInfo = appInfoResolver,
+            userSettingsRepository = userSettingsRepository,
+            assetRepository = assetRepository,
+            ipRangesCache = ipRangesCache
+        )
+
+        testDispatcher.scheduler.advanceUntilIdle()
+        Thread.sleep(200)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val apps = vm.state.value.apps
+        assertEquals(1, apps.size)
+        val app = apps[0]
+        assertEquals(10001, app.uid)
+        assertEquals(1, app.hosts.size)
+        assertEquals(app.hosts.map { it.host }.distinct().size, app.hosts.size)
+
+        val hostTraffic = app.hosts[0]
+        assertEquals("alt4-mtalk.google.com", hostTraffic.host)
+        assertEquals(IpOwner.GOOGLE, hostTraffic.ipOwner)
+        assertEquals(150L, hostTraffic.bytesUp)
+        assertEquals(250L, hostTraffic.bytesDown)
+        assertTrue(hostTraffic.protocols.contains(StreamProtocol.TLS))
+        assertTrue(hostTraffic.protocols.contains(StreamProtocol.DNS))
+    }
+
+    @Test
+    fun testToAppTrafficTaxonomyMatchesHostOwner() = runTest {
+        val taxonomyItem = EndpointTaxonomy(
+            id = "google_push_001",
+            provider = "GOOGLE",
+            hostnamePattern = ".*google\\.com$",
+            displayName = "Google Push",
+            category = EndpointTaxonomyCategory.NOTIFICATION_PUSH,
+            description = "Push service",
+            dataCollected = emptyList(),
+            optOutDescription = ""
+        )
+        `when`(taxonomyRepository.findMatch("alt4-mtalk.google.com")).thenReturn(taxonomyItem)
+
+        val stream = StreamModel(
+            protocol = 17,
+            srcIpStr = "10.0.0.1",
+            srcPort = 54321,
+            dstIpStr = "1.1.1.1",
+            dstPort = 53,
+            ipOwner = IpOwner.OTHER,
+            firstSeen = System.currentTimeMillis(),
+            uid = 10001,
+            dnsQuery = "alt4-mtalk.google.com",
+            bytesUp = 50L,
+            bytesDown = 50L
+        )
+
+        val mockStreamsRepo = mock(StreamsRepository::class.java)
+        `when`(mockStreamsRepo.getStreams()).thenReturn(flowOf(listOf(stream)))
+
+        vpn.updateState(VpnStateEnum.RUNNING)
+
+        val vm = MainScreenViewModel(
+            streamsRepository = mockStreamsRepo,
+            taxonomyRepository = taxonomyRepository,
+            vpn = vpn,
+            assetSync = assetSync,
+            appInfo = appInfoResolver,
+            userSettingsRepository = userSettingsRepository,
+            assetRepository = assetRepository,
+            ipRangesCache = ipRangesCache
+        )
+
+        testDispatcher.scheduler.advanceUntilIdle()
+        Thread.sleep(200)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val apps = vm.state.value.apps
+        assertEquals(1, apps.size)
+        val hostTraffic = apps[0].hosts[0]
+        assertEquals(IpOwner.GOOGLE, hostTraffic.ipOwner)
+        assertEquals(taxonomyItem, hostTraffic.taxonomyItem)
+    }
+
+    @Test
+    fun testManualAssetSyncSuccessTriggersReloadOnRepositories() = runTest {
+        `when`(assetRepository.syncAssets()).thenAnswer {
+            assetSync.updateState(AssetSyncState.Synced)
+        }
+
+        viewModel.state.value.eventTunnel(MainScreenEvent.OnManualAssetSync)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        verify(ipRangesCache).reload()
+        verify(taxonomyRepository).reloadTaxonomy()
+    }
+
+    @Test
+    fun testManualAssetSyncFailureDoesNotTriggerReloadOnRepositories() = runTest {
+        `when`(assetRepository.syncAssets()).thenAnswer {
+            assetSync.updateState(AssetSyncState.Error(AssetSyncError.Unexpected))
+        }
+
+        viewModel.state.value.eventTunnel(MainScreenEvent.OnManualAssetSync)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        org.mockito.Mockito.verifyNoInteractions(ipRangesCache)
+        org.mockito.Mockito.verifyNoInteractions(taxonomyRepository)
+    }
+
+    @Test
+    fun testResolveTitleReturnsNullForUnidentifiedApp() = runTest {
+        val unidentifiedStream = StreamModel(
+            protocol = 6,
+            srcIpStr = "10.0.0.1",
+            srcPort = 12345,
+            dstIpStr = "1.2.3.4",
+            dstPort = 443,
+            ipOwner = IpOwner.OTHER,
+            firstSeen = System.currentTimeMillis(),
+            uid = 10099,
+            sni = "unknown.com"
+        )
+        `when`(appInfoResolver.resolve(10099)).thenReturn(null)
+
+        val mockStreamsRepo = mock(StreamsRepository::class.java)
+        `when`(mockStreamsRepo.getStreams()).thenReturn(flowOf(listOf(unidentifiedStream)))
+
+        vpn.updateState(VpnStateEnum.RUNNING)
+
+        val vm = MainScreenViewModel(
+            streamsRepository = mockStreamsRepo,
+            taxonomyRepository = taxonomyRepository,
+            vpn = vpn,
+            assetSync = assetSync,
+            appInfo = appInfoResolver,
+            userSettingsRepository = userSettingsRepository,
+            assetRepository = assetRepository,
+            ipRangesCache = ipRangesCache
+        )
+
+        testDispatcher.scheduler.advanceUntilIdle()
+        Thread.sleep(200)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val apps = vm.state.value.apps
+        assertEquals(1, apps.size)
+        assertNull(apps[0].title)
+        assertNull(apps[0].packageName)
     }
 }
