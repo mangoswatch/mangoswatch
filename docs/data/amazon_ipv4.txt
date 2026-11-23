@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-22 (AMAZON IPv4)
+# Updated automatically on 2026-11-23 (AMAZON IPv4)
 1.178.72.0/21
 1.178.172.0/23
 1.179.2.0/23

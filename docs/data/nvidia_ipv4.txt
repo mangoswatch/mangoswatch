@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-22 (NVIDIA IPv4)
+# Updated automatically on 2026-11-23 (NVIDIA IPv4)
 8.28.229.0/24
 8.36.112.0/23
 8.36.120.0/24

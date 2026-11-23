@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-22 (XIAOMI IPv4)
+# Updated automatically on 2026-11-23 (XIAOMI IPv4)
 43.195.0.0/20
 43.195.16.0/22
 43.195.20.0/23

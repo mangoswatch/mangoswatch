@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-22 (META IPv6)
+# Updated automatically on 2026-11-23 (META IPv6)
 2620:0:1c00::/40
 2620:10d:c090::/44
 2a03:2880::/32

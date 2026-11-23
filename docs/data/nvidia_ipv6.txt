@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-22 (NVIDIA IPv6)
+# Updated automatically on 2026-11-23 (NVIDIA IPv6)
 2604:1520:1000::/48
 2604:a140:1500::/48
 2604:a140:2000::/36
