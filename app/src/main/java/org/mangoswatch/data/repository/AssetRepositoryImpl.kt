@@ -57,14 +57,15 @@ class AssetRepositoryImpl(
         val stagingDir = File(context.cacheDir, "assets_staging")
         try {
             assetSync.updateState(AssetSyncState.Syncing())
-            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-
-            stagingDir.deleteRecursively()
-            if (!stagingDir.mkdirs()) {
-                throw AssetSyncFailure(AssetSyncError.Unexpected)
-            }
 
             try {
+                val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+                stagingDir.deleteRecursively()
+                if (!stagingDir.mkdirs()) {
+                    throw AssetSyncFailure(AssetSyncError.Unexpected)
+                }
+
                 val remoteFilesList = fetchRemoteAssetList()
                 val cacheDir = getAssetsCacheDir()
                 assetSync.updateState(
@@ -82,7 +83,6 @@ class AssetRepositoryImpl(
                 for (fileName in remoteFilesList) {
                     val stagedFile = File(stagingDir, fileName)
                     val cachedFile = File(cacheDir, fileName)
-                    cachedFile.delete()
                     if (!stagedFile.renameTo(cachedFile)) {
                         throw IOException("Failed to swap staged asset $fileName into cache")
                     }

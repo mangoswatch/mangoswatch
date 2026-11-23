@@ -133,7 +133,9 @@ class EndpointTaxonomyRepositoryImpl(
         }
 
         synchronized(matchCache) {
-            matchCache[hostnameOrUrl] = matchedItem ?: noMatchSentinel
+            if (snapshot === currentSnapshot) {
+                matchCache[hostnameOrUrl] = matchedItem ?: noMatchSentinel
+            }
         }
 
         // DEBUG Log: this serves for an observation of untracked host to report in the assets

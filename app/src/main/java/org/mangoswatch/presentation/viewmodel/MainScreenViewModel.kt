@@ -187,23 +187,16 @@ class MainScreenViewModel(
                     bytesDown = streams.sumOf { it.bytesDown },
                     streamCount = streams.size,
                     hosts = streams
-                        .groupBy { stream ->
-                            Pair(stream.hostname().takeIf { it != "?" } ?: stream.dstIpStr,
-                                stream.ipOwner)
-                        }
+                        .groupBy { stream -> stream.hostname().takeIf { it != "?" } ?: stream.dstIpStr }
                         .map { (host, s) ->
-                            val taxonomy = taxonomyRepository.findMatch(host.first)
-                            val resolvedIpOwner = taxonomy?.provider?.let { provider ->
-                                try {
-                                    IpOwner.valueOf(provider)
-                                } catch (e: Exception) {
-                                    host.second
-                                }
-                            } ?: host.second
+                            val taxonomy = taxonomyRepository.findMatch(host)
+                            val resolvedIpOwner = taxonomy?.provider
+                                ?.let { runCatching { IpOwner.valueOf(it) }.getOrNull() }
+                                ?: s.hostOwner()
 
                             HostTrafficUi(
-                                host = host.first, // hostname
-                                ipOwner = resolvedIpOwner, // ipOwner
+                                host = host,
+                                ipOwner = resolvedIpOwner,
                                 bytesUp = s.sumOf { it.bytesUp },
                                 bytesDown = s.sumOf { it.bytesDown },
                                 streamCount = s.size,
@@ -218,13 +211,18 @@ class MainScreenViewModel(
             }
             .sortedByDescending { it.totalBytes }
 
+    private fun List<StreamModel>.hostOwner(): IpOwner =
+        filter { it.semanticProtocol != StreamProtocol.DNS }.ifEmpty { this }
+            .groupBy { it.ipOwner }
+            .filterKeys { it != IpOwner.OTHER }
+            .maxByOrNull { (_, ss) -> ss.sumOf { it.bytesUp + it.bytesDown } }?.key
+            ?: IpOwner.OTHER
 
-    private fun resolveTitle(uid: Int, streams: List<StreamModel>): Pair<String, String?> {
+
+    private fun resolveTitle(uid: Int, streams: List<StreamModel>): Pair<String?, String?> {
         val identity = if (uid == Process.INVALID_UID) null else appInfo.resolve(uid)
         val pkg = identity?.pkg ?: streams.firstNotNullOfOrNull { it.pkg }
-        val title = identity?.label
-            ?: pkg
-            ?: if (uid == Process.INVALID_UID) "Not identified" else "uid $uid"
+        val title = identity?.label ?: pkg
         return title to pkg
     }
 
@@ -233,7 +231,7 @@ class MainScreenViewModel(
 @Immutable
 data class AppTrafficUi(
     val uid: Int,
-    val title: String,
+    val title: String?,
     val packageName: String?,
     val bytesUp: Long,
     val bytesDown: Long,

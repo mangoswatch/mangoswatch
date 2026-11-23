@@ -1,7 +1,10 @@
 package org.mangoswatch.presentation.contracts
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.res.stringResource
+import org.mangoswatch.R
 import org.mangoswatch.domain.model.AssetSyncState
 import org.mangoswatch.domain.model.DnsMode
 import org.mangoswatch.domain.model.UserSettings
@@ -34,3 +37,9 @@ data class MainScreenState(
 
 val LocalMainScreenState = compositionLocalOf<MainScreenState> { error("MainScreenState not provided") }
 val LocalEventTunnel = compositionLocalOf<(MainScreenEvent) -> Unit> { error("EventTunnel not provided") }
+
+@Composable
+fun AppTrafficUi.displayTitle(): String = title ?: when (uid) {
+    android.os.Process.INVALID_UID -> stringResource(R.string.label_not_identified)
+    else -> stringResource(R.string.label_uid_format, uid)
+}

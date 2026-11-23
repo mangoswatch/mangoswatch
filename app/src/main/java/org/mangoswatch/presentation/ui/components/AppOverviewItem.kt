@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.mangoswatch.R
+import org.mangoswatch.presentation.contracts.displayTitle
 import org.mangoswatch.presentation.viewmodel.AppTrafficUi
 import org.mangoswatch.util.formatBytes
 
@@ -74,7 +75,7 @@ fun AppOverviewItem(
 fun AppOverviewHeader(app: AppTrafficUi) {
     Column{
         Text(
-            text = app.title,
+            text = app.displayTitle(),
             style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

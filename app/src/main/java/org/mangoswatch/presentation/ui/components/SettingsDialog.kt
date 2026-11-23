@@ -214,7 +214,7 @@ fun SettingsDialog(
                         val v4Valid = v4List.all { IpValidator.isValidIpv4(it) }
                         val v6Valid = v6List.all { IpValidator.isValidIpv6(it) }
 
-                        if (!v4Valid || !v6Valid) {
+                        if ((v4List.isEmpty() && v6List.isEmpty()) || !v4Valid || !v6Valid) {
                             validationError = invalidIpErrorText
                             return@TextButton
                         }

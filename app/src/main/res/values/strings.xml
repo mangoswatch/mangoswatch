@@ -5,7 +5,6 @@
     <string name="settings_dialog_title">App Settings</string>
     <string name="settings_section_dns">VPN DNS Configuration</string>
     <string name="settings_section_assets">Asset Management</string>
-    <string name="dns_settings_title">VPN DNS Settings</string>
     <string name="dns_cloudflare_title">Cloudflare DNS (Default)</string>
     <string name="dns_cloudflare_subtitle">1.1.1.1, 2606:4700:4700::1111</string>
     <string name="dns_system_title">System / Private DNS</string>
