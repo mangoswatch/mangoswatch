@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-22 (GOOGLE IPv4)
+# Updated automatically on 2026-11-23 (GOOGLE IPv4)
 8.8.4.0/24
 8.8.8.0/24
 8.35.200.0/21

@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-22 (APPLE IPv6)
+# Updated automatically on 2026-11-23 (APPLE IPv6)
 2403:300::/32
 2620:0:1b00::/48
 2620:149::/32

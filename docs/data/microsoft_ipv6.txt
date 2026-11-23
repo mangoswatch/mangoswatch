@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-22 (MICROSOFT IPv6)
+# Updated automatically on 2026-11-23 (MICROSOFT IPv6)
 2603:1000:4::6c0/122
 2603:1000:4:9::1c0/122
 2603:1000:4:402::280/122

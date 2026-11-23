@@ -1,4 +1,4 @@
-# Updated automatically on 2026-11-22 (MICROSOFT IPv4)
+# Updated automatically on 2026-11-23 (MICROSOFT IPv4)
 4.145.226.20/30
 4.146.0.16/28
 4.146.1.0/27
