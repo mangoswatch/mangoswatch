@@ -1,0 +1,12 @@
+Lorg/mangoswatch/MyApp;
+Lorg/mangoswatch/presentation/MainActivity;
+Lorg/mangoswatch/presentation/viewmodel/MainScreenViewModel;
+Lorg/mangoswatch/presentation/ui/screens/MainScreenKt;
+Lorg/mangoswatch/presentation/ui/screens/AppDetailScreenKt;
+Lorg/mangoswatch/presentation/ui/components/AppTopBarKt;
+Lorg/mangoswatch/presentation/ui/components/AppBottomBarKt;
+Lorg/mangoswatch/presentation/ui/components/HostItemKt;
+Lorg/mangoswatch/data/vpn/VpnTrafficManager;
+Lorg/mangoswatch/data/proxy/SocksProxyRelay;
+Lorg/mangoswatch/data/analyzer/TrafficAnalyzer;
+Lorg/mangoswatch/data/analyzer/StreamTrafficProcessor;
