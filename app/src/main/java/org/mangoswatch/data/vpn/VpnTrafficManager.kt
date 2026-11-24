@@ -210,16 +210,6 @@ class VpnTrafficManager : VpnService() {
             .setMetered(connectivityManager.isActiveNetworkMetered)
 
         when (dns.dnsMode) {
-            DnsMode.CLOUDFLARE -> {
-                builder
-                    .addDnsServer("1.1.1.1")
-                    .addDnsServer("1.0.0.1")
-                if (withV6) {
-                    builder
-                        .addDnsServer("2606:4700:4700::1111")
-                        .addDnsServer("2606:4700:4700::1001")
-                }
-            }
             DnsMode.SYSTEM -> {
                 Log.d(TAG, "DNS Mode: SYSTEM (using upstream/private DNS without overriding)")
             }

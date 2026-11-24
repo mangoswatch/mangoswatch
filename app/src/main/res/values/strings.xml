@@ -5,17 +5,12 @@
     <string name="settings_dialog_title">App Settings</string>
     <string name="settings_section_dns">VPN DNS Configuration</string>
     <string name="settings_section_assets">Asset Management</string>
-    <string name="dns_cloudflare_title">Cloudflare DNS (Default)</string>
-    <string name="dns_cloudflare_subtitle">1.1.1.1, 2606:4700:4700::1111</string>
     <string name="dns_system_title">System / Private DNS</string>
-    <string name="dns_system_subtitle">Respects your private DNS or local resolver</string>
     <string name="dns_custom_title">Custom DNS Servers</string>
-    <string name="dns_custom_subtitle">Specify your own IPv4 and IPv6 servers</string>
     <string name="dns_custom_ipv4_label">Custom IPv4 DNS (comma separated)</string>
     <string name="dns_custom_ipv6_label">Custom IPv6 DNS (comma separated)</string>
-    <string name="dns_settings_description">Choose how DNS queries are resolved while the VPN is active.</string>
-    <string name="dns_restart_vpn_warning">Restart the VPN to apply new DNS settings.</string>
     <string name="error_invalid_dns_ip">Invalid IP address format in custom DNS. Please check your entries.</string>
+    <string name="dns_restart_vpn_warning">Restart the VPN to apply new DNS settings.</string>
     <string name="dialog_save">Save</string>
     <string name="dialog_cancel">Cancel</string>
 
@@ -34,7 +29,7 @@
     <string name="cd_settings">Settings</string>
     <string name="summary_intercepted_bytes">Big Tech intercepted bytes</string>
     <string name="summary_bytes_from_apps">%1$s from %2$d app</string>
-    <string name="summary_traffic_detail_title">Big Tech traffic detail</string>
+    <string name="summary_traffic_detail_title">Traffic detail</string>
     <string name="cd_open_traffic_detail">Open Total traffic detail</string>
 
     <!-- Placeholders & Loading -->
