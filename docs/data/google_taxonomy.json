@@ -260,7 +260,7 @@
     },
     {
       "id": "user_location_020",
-      "hostname_pattern": "(?:^|\\.)(?:userlocation\\.googleapis\\.com|mobilemaps\\.googleapis\\.com|maps\\.googleapis\\.com|location\\.googleapis\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:userlocation\\.googleapis\\.com|geller-pa\\.googleapis\\.com|semanticlocation-pa\\.googleapis\\.com|mobilemaps\\.googleapis\\.com|maps\\.googleapis\\.com|location\\.googleapis\\.com)$",
       "display_name": "Google Location & Mobile Maps Services API",
       "category": "LOCATION_SERVICES",
       "description": "Location reporting, Google Maps API, and geolocation estimation for Google Mobile Services.",
