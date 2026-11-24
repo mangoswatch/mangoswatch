@@ -148,7 +148,11 @@ class EndpointTaxonomyRepositoryTest {
             "t.co" to "X_TWITTER",
             "graph.microsoft.com" to "MICROSOFT",
             "foo.s3.amazonaws.com" to "AMAZON",
-            "foo.blob.core.windows.net" to "MICROSOFT"
+            "foo.blob.core.windows.net" to "MICROSOFT",
+            "b1.nel.goog" to "GOOGLE",
+            "beacons.gcp.gvt2.com" to "GOOGLE",
+            "sdkconfig.eu.xiaomi.com" to "XIAOMI",
+            "api16-access-ttp.tiktokpangle.us" to "BYTEDANCE"
         )
 
         for ((host, expectedProvider) in positives) {

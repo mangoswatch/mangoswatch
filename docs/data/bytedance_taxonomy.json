@@ -1,0 +1,18 @@
+{
+  "provider": "BYTEDANCE",
+  "endpoints": [
+    {
+      "id": "bytedance_tiktok_pangle_001",
+      "hostname_pattern": "(?:^|\\.)(?:tiktokpangle\\.us|tiktok\\.com|tncid\\.app)$",
+      "display_name": "TikTok, Pangle Ad Network & ByteDance Analytics",
+      "category": "ADVERTISING_ID",
+      "description": "TikTok analytics, Pangle mobile ad network SDK endpoints, and device tracking services.",
+      "data_collected": [
+        "Advertising ID / Device identifiers",
+        "Ad impression and click metrics",
+        "App usage telemetry"
+      ],
+      "opt_out_description": "Opt out of personalized ads in TikTok / device advertising privacy settings."
+    }
+  ]
+}

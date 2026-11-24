@@ -5,6 +5,7 @@ enum class IpOwner {
     ANTHROPIC,
     APPLE,
     APPSFLYER,
+    BYTEDANCE,
     GOOGLE,
     META,
     MICROSOFT,

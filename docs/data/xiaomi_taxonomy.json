@@ -42,7 +42,7 @@
     },
     {
       "id": "xiaomi_market_cdn_004",
-      "hostname_pattern": "(?:^|\\.)(?:[a-z0-9-]+\\.market\\.xiaomi\\.com|market\\.mi-img\\.com|[a-z0-9-]+\\.market\\.mi-img\\.com|sdkconfig\\.ad\\.intl\\.xiaomi\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:[a-z0-9-]+\\.market\\.xiaomi\\.com|market\\.mi-img\\.com|[a-z0-9-]+\\.market\\.mi-img\\.com|sdkconfig\\.[a-z]+\\.xiaomi\\.com|sdkconfig\\.ad\\.intl\\.xiaomi\\.com)$",
       "display_name": "Xiaomi App Market, CDN & Ad SDK Configuration",
       "category": "UPDATE_CHECK",
       "description": "App store updates, static image asset delivery, and advertising SDK configuration for Xiaomi devices.",

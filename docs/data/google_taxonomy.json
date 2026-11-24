@@ -296,6 +296,19 @@
         "App configuration parameters"
       ],
       "opt_out_description": "Integral part of Google Mobile Services."
+    },
+    {
+      "id": "google_nel_gvt2_023",
+      "hostname_pattern": "(?:^|\\.)(?:nel\\.goog|gvt2\\.com)$",
+      "display_name": "Google Network Error Logging & GVT2 Telemetry",
+      "category": "CLEARCUT_TELEMETRY",
+      "description": "Network error reporting (NEL) and video/content delivery telemetry (GVT2) for Google services.",
+      "data_collected": [
+        "Network connection errors",
+        "HTTP request timing and status",
+        "Client performance metrics"
+      ],
+      "opt_out_description": "Integral part of Google infrastructure monitoring."
     }
   ]
 }
