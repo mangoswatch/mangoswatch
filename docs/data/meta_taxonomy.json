@@ -3,7 +3,7 @@
   "endpoints": [
     {
       "id": "graph_api_001",
-      "hostname_pattern": "(?:^|\\.)(?:graph\\.facebook\\.com|edge\\.instagram\\.com|www\\.facebook\\.com|b-graph\\.facebook\\.com|m\\.facebook\\.com|api\\.instagram\\.com|graph\\.instagram\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:graph\\.facebook\\.com|edge\\.instagram\\.com|www\\.facebook\\.com|b-graph\\.facebook\\.com|m\\.facebook\\.com|api\\.instagram\\.com|graph\\.instagram\\.com|instagram\\.com|cdninstagram\\.com|fbcdn\\.net)$",
       "display_name": "Meta Graph, Instagram & Core API Services",
       "category": "AUTHENTICATION",
       "description": "Core API gateway, Instagram API, web front-end, and connected third-party SDK applications for Facebook and Instagram.",
