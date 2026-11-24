@@ -28,7 +28,7 @@ class UserSettingsRepositoryTest {
     fun testDefaultUserSettings() = runTest {
         val userSettings = repository.userSettings.first()
         assertNotNull(userSettings)
-        assertEquals(DnsMode.CLOUDFLARE, userSettings.dnsSettings.dnsMode)
+        assertEquals(DnsMode.SYSTEM, userSettings.dnsSettings.dnsMode)
     }
 
     @Test

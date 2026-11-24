@@ -21,14 +21,14 @@ class UserSettingsDataSource(private val context: Context) {
 
     val userSettings: Flow<UserSettings> = context.dataStore.data
         .map { prefs ->
-            val modeStr = prefs[PreferencesKeys.DNS_MODE] ?: DnsMode.CLOUDFLARE.name
+            val modeStr = prefs[PreferencesKeys.DNS_MODE] ?: DnsMode.SYSTEM.name
             val dnsMode = try {
                 DnsMode.valueOf(modeStr)
             } catch (_: Exception) {
-                DnsMode.CLOUDFLARE
+                DnsMode.SYSTEM
             }
-            val dnsV4 = prefs[PreferencesKeys.DNS_V4] ?: "1.1.1.1,1.0.0.1"
-            val dnsV6 = prefs[PreferencesKeys.DNS_V6] ?: "2606:4700:4700::1111,2606:4700:4700::1001"
+            val dnsV4 = prefs[PreferencesKeys.DNS_V4] ?: ""
+            val dnsV6 = prefs[PreferencesKeys.DNS_V6] ?: ""
             val dnsSettings = DnsSettings(dnsMode, dnsV4, dnsV6)
 
             UserSettings(dnsSettings)

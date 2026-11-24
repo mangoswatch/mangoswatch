@@ -126,7 +126,7 @@ To ensure full transparency regarding security, privacy, and architecture, the f
    - SHA256: `ab6c581e6157680cfe5687ee7bbdcf95405c006c2db3701879ec44b9e5f83836`
 
 ### 2. Default DNS & Routing
-- The local VPN service routes DNS requests through reliable public resolvers (Cloudflare `1.1.1.1`, `1.0.0.1`, and IPv6 `2606:4700:4700::1111`, `2606:4700:4700::1001` by default) to ensure consistent domain name resolution and interception.
+- The local VPN service uses System / Private DNS by default (or custom DNS servers if configured) to resolve DNS requests while monitoring traffic.
 
 ### 3. Remote Asset Synchronization & Network Usage
 - Mangos Watch periodically fetches classification assets and IP ranges from GitHub Pages (`https://mangoswatch.github.io/mangoswatch/data/index.json`). An active internet connection is required upon first launch to download these taxonomy files and IP datasets.
