@@ -25,6 +25,7 @@ CRITICAL_SOURCES = {"google", "amazon", "azure"}
 
 # BGP ASNs for organizations without direct JSON endpoints
 ASNS = {
+    "bytedance": [13884, 396531],
     "meta": [32934, 63293, 54115],
     "apple": [714, 6185],
     "netflix": [2906, 40027, 55095],
