@@ -54,6 +54,19 @@
         "Ad impression and click metrics"
       ],
       "opt_out_description": "Opt out of personalized ads in Amazon account advertising preferences or device settings."
+    },
+    {
+      "id": "amazon_eu_retail_005",
+      "hostname_pattern": "(?:^|\\.)(?:amazon\\.[a-z]+|m\\.media-amazon\\.com|images-[a-z]+\\.ssl-images-amazon\\.com|unagi(-[a-z]+)?\\.amazon\\.[a-z]+|fls-[a-z]+\\.amazon\\.[a-z]+)$",
+      "display_name": "Amazon Retail, Media CDN & Telemetry",
+      "category": "SEARCH_USAGE",
+      "description": "Amazon e-commerce frontend, product image CDN, and user behavior/telemetry logging.",
+      "data_collected": [
+        "Product browsing and search queries",
+        "Image and media requests",
+        "Session telemetry"
+      ],
+      "opt_out_description": "Manage account and privacy settings on Amazon."
     }
   ]
 }

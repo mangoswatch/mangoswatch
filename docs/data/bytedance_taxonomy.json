@@ -2,17 +2,18 @@
   "provider": "BYTEDANCE",
   "endpoints": [
     {
-      "id": "bytedance_tiktok_pangle_001",
-      "hostname_pattern": "(?:^|\\.)(?:tiktokpangle\\.us|tiktok\\.com|tncid\\.app)$",
-      "display_name": "TikTok, Pangle Ad Network & ByteDance Analytics",
+      "id": "bytedance_ecosystem_001",
+      "hostname_pattern": "(?:^|\\.)(?:tiktokpangle\\.us|tiktokpangle-b\\.us|tiktok\\.com|tncid\\.app|capcutapi\\.com|ibytedtos\\.com|ibyteimg\\.com|pipopay\\.com|byteeffecttos-g\\.com|tiktokcdn\\.com|tiktokcdn-eu\\.com|ttwstatic\\.com|tiktokw\\.eu|tiktokv\\.eu|tiktokv\\.com|capcutstatic\\.com|capcutvod\\.com)$",
+      "display_name": "ByteDance, TikTok, CapCut, Pangle & iByte Ecosystem",
       "category": "ADVERTISING_ID",
-      "description": "TikTok analytics, Pangle mobile ad network SDK endpoints, and device tracking services.",
+      "description": "Core backend, analytics, ad networks, CDNs, video delivery, and services for TikTok, CapCut, Pangle, and ByteDance apps.",
       "data_collected": [
         "Advertising ID / Device identifiers",
         "Ad impression and click metrics",
-        "App usage telemetry"
+        "App usage telemetry",
+        "Media and video streaming requests"
       ],
-      "opt_out_description": "Opt out of personalized ads in TikTok / device advertising privacy settings."
+      "opt_out_description": "Opt out of personalized ads in TikTok/CapCut app settings or device privacy controls."
     }
   ]
 }

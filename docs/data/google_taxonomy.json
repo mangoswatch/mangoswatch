@@ -74,7 +74,7 @@
     },
     {
       "id": "google_fonts_006",
-      "hostname_pattern": "(?:^|\\.)(?:fonts\\.googleapis\\.com|fonts\\.gstatic\\.com|www\\.gstatic\\.com|encrypted-tbn0\\.gstatic\\.com|ci[3-6]\\.googleusercontent\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:fonts\\.googleapis\\.com|fonts\\.gstatic\\.com|www\\.gstatic\\.com|encrypted-tbn[0-9]\\.gstatic\\.com|ci[3-6]\\.googleusercontent\\.com)$",
       "display_name": "Google Fonts, Static CDN & Thumbnails",
       "category": "CONFIG_A_B_TESTING",
       "description": "Font delivery, image thumbnails, styling resources, and static content CDN for web pages and mobile apps.",
@@ -235,7 +235,7 @@
     },
     {
       "id": "gvt1_cdn_018",
-      "hostname_pattern": "(?:^|\\.)(?:redirector\\.gvt1(-cn)?\\.com|update\\.googleapis\\.com|dl\\.google\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:gvt1(-cn)?\\.com|update\\.googleapis\\.com|dl\\.google\\.com|usercontent\\.goog)$",
       "display_name": "Google Video, Update CDN & OTA Services",
       "category": "UPDATE_CHECK",
       "description": "Content delivery network for app updates, software updates, APK delivery, and media streaming redirection.",
@@ -248,7 +248,7 @@
     },
     {
       "id": "google_infrastructure_ips_019",
-      "hostname_pattern": "^(?:192\\.178\\.\\d+\\.\\d+|172\\.217\\.\\d+\\.\\d+|142\\.251\\.\\d+\\.\\d+|216\\.239\\.\\d+\\.\\d+)$",
+      "hostname_pattern": "^(?:192\\.178\\.\\d+\\.\\d+|172\\.217\\.\\d+\\.\\d+|142\\.251\\.\\d+\\.\\d+|216\\.239\\.\\d+\\.\\d+|74\\.125\\.\\d+\\.\\d+)$",
       "display_name": "Google Core Infrastructure & CDN IPs",
       "category": "DEVICE_FINGERPRINT",
       "description": "Core Google network infrastructure IP blocks routing web, API, and content traffic.",
@@ -286,7 +286,7 @@
     },
     {
       "id": "google_partner_apis_022",
-      "hostname_pattern": "(?:^|\\.)(?:phonedeviceverification-pa\\.googleapis\\.com|discover-pa\\.googleapis\\.com|mobilemaps-pa-gz\\.googleapis\\.com|securitydomain-pa\\.googleapis\\.com|instantmessaging-pa\\.googleapis\\.com)$",
+      "hostname_pattern": "(?:^|\\.)(?:phonedeviceverification-pa\\.googleapis\\.com|discover-pa\\.googleapis\\.com|mobilemaps-pa-gz\\.googleapis\\.com|securitydomain-pa\\.googleapis\\.com|instantmessaging-pa\\.googleapis\\.com|storage\\.googleapis\\.com)$",
       "display_name": "Google Partner APIs & Core Services",
       "category": "PLAY_STORE_COMMUNICATION",
       "description": "Device verification, discover feeds, regional mobile maps, security domain checks, and instant messaging backend APIs.",

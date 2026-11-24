@@ -65,6 +65,19 @@
         "Heartbeat timing"
       ],
       "opt_out_description": "Integral part of Xiaomi messaging and push notification infrastructure."
+    },
+    {
+      "id": "xiaomi_intl_miui_006",
+      "hostname_pattern": "(?:^|\\.)[a-z0-9-]+\\.intl\\.miui\\.com$",
+      "display_name": "Xiaomi International MIUI Services & App Vault",
+      "category": "CONFIG_A_B_TESTING",
+      "description": "International MIUI system app services, App Vault, and configuration endpoints.",
+      "data_collected": [
+        "Device configuration and model",
+        "App usage telemetry",
+        "System service requests"
+      ],
+      "opt_out_description": "Manage MIUI system service and app vault settings in device configuration."
     }
   ]
 }

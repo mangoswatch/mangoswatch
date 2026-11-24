@@ -65,6 +65,19 @@
         "Achievement and telemetry stats"
       ],
       "opt_out_description": "Sign out of Xbox account in gaming apps."
+    },
+    {
+      "id": "microsoft_clarity_bing_006",
+      "hostname_pattern": "(?:^|\\.)(?:clarity\\.ms|bing\\.com)$",
+      "display_name": "Microsoft Clarity Analytics & Bing Search",
+      "category": "FIREBASE_ANALYTICS",
+      "description": "Microsoft Clarity UX session replay & analytics, and Bing search engine services.",
+      "data_collected": [
+        "User session recordings and interaction heatmaps",
+        "Search queries and navigation data",
+        "IP address and device metadata"
+      ],
+      "opt_out_description": "Opt out of Clarity analytics via site privacy settings or ad-blockers."
     }
   ]
 }
