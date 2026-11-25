@@ -40,6 +40,7 @@ Here's the up-to-date list of the big boys we watch at the moment:
 - ANTHROPIC
 - APPLE
 - APPSFLYER
+- BYTEDANCE
 - GOOGLE
 - META
 - MICROSOFT
@@ -100,7 +101,7 @@ To build and run Mangos Watch from source:
    git clone https://github.com/mangoswatch/mangoswatch.git
    ```
 2. Open the project in Android Studio.
-3. Ensure you have JDK 11+ configured.
+3. Ensure you have JDK 17+ configured (Gradle daemon JVM requires toolchain 25 via Foojay plugin).
 4. Build and run the `:app` module on a physical device or emulator (API 29+).
 
 

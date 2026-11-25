@@ -54,7 +54,7 @@ class StreamTrafficProcessor: KoinComponent {
     }
 
     private fun assembleHello(key: Any, p: Packet, syn: Boolean): HelloResult? {
-        if (syn) helloAssemblers.remove(key) // porta riusata
+        if (syn) helloAssemblers.remove(key) // reused port
         var r: HelloResult? = null
         if (p.payloadLen > 0) {
             val seq = tcpSeq(p.b, p.payloadOff, p.packetSrcPort, p.packetDstPort)
@@ -62,7 +62,7 @@ class StreamTrafficProcessor: KoinComponent {
             else helloAssemblers.getOrPut(key) { TlsAssembler() }
                 .feed(seq, p.b, p.payloadOff, p.payloadLen)
         }
-        if ((p.flags and 0x05) != 0) helloAssemblers.remove(key) // FIN o RST
+        if ((p.flags and 0x05) != 0) helloAssemblers.remove(key) // FIN or RST
         return r
     }
 

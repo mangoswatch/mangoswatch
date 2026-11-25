@@ -35,7 +35,7 @@ class UidResolver: KoinComponent {
                 stream.uidAttempts < MAX_UID_ATTEMPTS &&
                 now - stream.lastUidAttempt >= UID_RETRY_MS
 
-    /** @return false se la coda è piena (tentativo non accodato) */
+    /** @return false if the queue is full (attempt not queued) */
     fun resolveAsync(stream: StreamModel, onResult: (uid: Int, pkg: String?) -> Unit): Boolean {
         if (pending.incrementAndGet() > MAX_PENDING) {
             pending.decrementAndGet()
