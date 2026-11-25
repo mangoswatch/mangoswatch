@@ -10,7 +10,7 @@ class IpV6Parser {
     fun parseV6Packet(b: ByteArray, n: Int, outbound: Boolean): Packet? {
         if (n < 40) return null
         val nextHdr = u8(b, 6)
-        // Supportiamo solo TCP/UDP diretti (senza extension header).
+        // Only direct TCP/UDP supported (without extension headers).
         if (nextHdr != 6 && nextHdr != 17) return null
 
         val srcIp = ipStrV6(b, 8)

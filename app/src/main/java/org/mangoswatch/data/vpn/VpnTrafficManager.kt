@@ -176,9 +176,9 @@ class VpnTrafficManager : VpnService() {
     private fun isGlobalIpv6(a: InetAddress): Boolean =
         a is Inet6Address &&
                 !a.isLinkLocalAddress && !a.isLoopbackAddress && !a.isMulticastAddress && !a.isAnyLocalAddress &&
-                (a.address[0].toInt() and 0xFE) != 0xFC   // fc00::/7 (ULA), come il nostro fd00::2
+                (a.address[0].toInt() and 0xFE) != 0xFC   // fc00::/7 (ULA), like our fd00::2
 
-    /** La rete fisica (non VPN) ha un indirizzo IPv6 globale e una rotta di default v6? */
+    /** Does the physical network (non-VPN) have a global IPv6 address and a default v6 route? */
     @RequiresPermission(Manifest.permission.ACCESS_NETWORK_STATE)
     @Suppress("DEPRECATION")
     private fun upstreamHasIpv6(): Boolean {

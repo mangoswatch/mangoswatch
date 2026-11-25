@@ -41,10 +41,10 @@ class IpRanges private constructor(
                             val size = 1L shl (32 - len)
                             val start = base and (size - 1).inv()
                             ranges.add(longArrayOf(start, start + size - 1))
-                        } catch (_: Exception) { /* riga malformata */ }
+                        } catch (_: Exception) { /* malformed line */ }
                     }
                 }
-            } catch (_: Exception) { /* asset mancante: nessun range */ }
+            } catch (_: Exception) { /* missing asset: no ranges */ }
             ranges.sortBy { it[0] }
             val st = ArrayList<Long>()
             val en = ArrayList<Long>()
@@ -73,10 +73,10 @@ class IpRanges private constructor(
                             val bytes = InetAddress.getByName(s.substring(0, slash)).address
                             if (bytes.size != 16) continue
                             ranges.add(v6Range(bytes, prefixLen))
-                        } catch (_: Exception) { /* riga malformata */ }
+                        } catch (_: Exception) { /* malformed line */ }
                     }
                 }
-            } catch (_: Exception) { /* asset mancante: nessun range IPv6 */ }
+            } catch (_: Exception) { /* missing asset: no IPv6 ranges */ }
             ranges.sortWith { a, b -> cmp128(a[0], a[1], b[0], b[1]) }
             val merged = ArrayList<LongArray>()
             for (r in ranges) {

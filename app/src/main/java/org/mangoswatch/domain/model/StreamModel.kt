@@ -13,14 +13,14 @@ data class StreamModel(
     val firstSeen: Long,
     val uid: Int = Process.INVALID_UID,
     val pkg: String? = null,
-    val bytesUp: Long = 0L,         // scritto solo da tap-out
-    val bytesDown: Long = 0L,       // scritto solo da tap-in
+    val bytesUp: Long = 0L,         // written only by tap-out
+    val bytesDown: Long = 0L,       // written only by tap-in
     val lastSeen: Long = firstSeen,
     val finSeen: Boolean = false,
     val uidAttempts: Int = 0,
     val lastUidAttempt: Long = 0L,
     val sni: String? = null,        // from ClientHello TLS (TCP)
-    val dnsQuery: String? = null,   // from QNAME DNS (UDP/53 o TCP/53)
+    val dnsQuery: String? = null,   // from QNAME DNS (UDP/53 or TCP/53)
     val tlsProbed: Boolean = false, // already tried reading SNI
     val isTls: Boolean = false,     // whether it's verified TLS/QUIC connection
     val ended: AtomicBoolean = AtomicBoolean(false),

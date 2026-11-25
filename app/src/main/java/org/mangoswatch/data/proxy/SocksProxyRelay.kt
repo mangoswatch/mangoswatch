@@ -200,7 +200,7 @@ class SocksProxyRelay: KoinComponent {
                     relay.receive(pkt)
                     clientAddr.set(pkt.socketAddress)
                     val d = pkt.data
-                    if (d[2].toInt() != 0) continue                       // frammentazione non supportata
+                    if (d[2].toInt() != 0) continue                       // fragmentation not supported
                     var off = 4
                     val host = when (d[3].toInt()) {
                         1 -> { off = 8;  InetAddress.getByAddress(d.copyOfRange(4, 8)).hostAddress!! }
@@ -253,7 +253,7 @@ class SocksProxyRelay: KoinComponent {
             } catch (_: Exception) {}
         }.start()
 
-        // l'associazione vive finché vive la connessione TCP di controllo
+        // the association lives as long as the control TCP connection is alive
         try {
             while (control.getInputStream().read() != -1) { }
         } catch (_: Exception) {}
